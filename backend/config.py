@@ -9,6 +9,9 @@ import os
 class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
+    # Application Settings
+    DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    
     # Database
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
@@ -42,6 +45,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "https://rinosbike.eu",
         "https://www.rinosbike.eu",
+        "https://rinosbikes-frontend.vercel.app",
         "https://*.vercel.app"
     ]
     
