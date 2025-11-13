@@ -1,6 +1,6 @@
 """
 Configuration settings for RINOS Bikes Backend
-Uses environment variables for sensitive data
+Complete settings with all required attributes
 """
 
 from pydantic_settings import BaseSettings
@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
     
     # Application Settings
+    APP_NAME: str = "RINOS Bikes API"
+    VERSION: str = "1.0.0"
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
     
     # Database
