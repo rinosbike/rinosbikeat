@@ -50,7 +50,7 @@ export default function ProduktePage() {
     // Filter by category
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(
-        (product) => product.category?.toLowerCase() === selectedCategory.toLowerCase()
+        (product) => product.productgroup?.toLowerCase() === selectedCategory.toLowerCase()
       )
     }
 
@@ -61,13 +61,11 @@ export default function ProduktePage() {
         (product) =>
           product.articlename.toLowerCase().includes(query) ||
           product.articlenr.toLowerCase().includes(query) ||
-          product.description?.toLowerCase().includes(query)
+          product.shortdescription?.toLowerCase().includes(query)
       )
     }
 
     // Only show active products
-    filtered = filtered.filter((product) => product.is_active)
-
     setFilteredProducts(filtered)
   }
 
@@ -107,7 +105,7 @@ export default function ProduktePage() {
                 selectedCategory={selectedCategory}
                 onCategoryChange={handleCategoryChange}
                 productsCount={filteredProducts.length}
-                totalCount={products.filter((p) => p.is_active).length}
+                totalCount={products.length}
               />
 
               {/* Search */}
