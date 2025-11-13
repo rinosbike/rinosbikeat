@@ -20,10 +20,9 @@ export default function HomePage() {
   }, [])
 
   const loadProducts = async () => {
-    try {
-      const response = await productsApi.getAll(1, 4)
-      // Show first 4 products as featured
-      setFeaturedProducts(response.products.slice(0, 4))
+  try {
+    const response = await productsApi.getAll()
+    setFeaturedProducts(response.products.slice(0, 4))
     } catch (error) {
       console.error('Fehler beim Laden der Produkte:', error)
     } finally {
