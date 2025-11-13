@@ -32,12 +32,10 @@ export default function ProduktePage() {
   }, [products, selectedCategory, searchQuery])
 
   const loadProducts = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const data = await productsApi.getAll()
-      setProducts(data)
-      setFilteredProducts(data)
+  try {
+    const response = await productsApi.getAll()
+    setProducts(response.products)
+    setFilteredProducts(response.products)
     } catch (err) {
       console.error('Fehler beim Laden der Produkte:', err)
       setError('Produkte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.')
