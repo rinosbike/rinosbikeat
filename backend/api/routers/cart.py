@@ -24,7 +24,7 @@ from api.schemas.cart_schemas import (
 )
 from api.utils.auth_dependencies import get_current_user, get_optional_user
 
-router = APIRouter(prefix="/api/cart", tags=["Shopping Cart"])
+router = APIRouter(prefix="/cart", tags=["Shopping Cart"])
 
 
 # ============================================================================

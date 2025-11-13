@@ -26,7 +26,7 @@ from api.schemas.order_schemas import (
 from api.auth.dependencies import get_current_user, get_current_user_optional
 
 
-router = APIRouter(prefix="/api/orders", tags=["Orders"])
+router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
 # ============================================================================
