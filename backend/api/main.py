@@ -53,7 +53,7 @@ try:
     app.include_router(cart.router, prefix="/api", tags=["Cart"])
     app.include_router(orders.router, prefix="/api", tags=["Orders"])
     app.include_router(payments.router, prefix="/api", tags=["Payments"])
-    app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
+    app.include_router(auth.router, prefix="/api", tags=["Authentication"])
     
     print("✅ All routers loaded successfully")
     
