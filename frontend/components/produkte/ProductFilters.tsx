@@ -5,7 +5,7 @@
 
 'use client'
 
-import { Bike, Mountain, Fold, CircleDot } from 'lucide-react'
+import { Bike, Mountain, Package, CircleDot } from 'lucide-react'
 
 interface ProductFiltersProps {
   selectedCategory: string
@@ -38,7 +38,7 @@ const categories = [
   {
     id: 'foldable',
     name: 'Falträder',
-    icon: Fold,
+    icon: Package,
   },
 ]
 
