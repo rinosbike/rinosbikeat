@@ -21,7 +21,7 @@ from api.schemas.product_schemas import (
     ManufacturerResponse
 )
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter(prefix="/api/products", tags=["Products"])
 
 
 # ============================================================================
@@ -121,7 +121,7 @@ async def list_products(
             is_father_article=product.isfatherarticle,
             colour=product.colour,
             size=product.size,
-            gtin=product.gtin
+            gtin=str(product.gtin) if product.gtin else None
         ))
     
     return ProductSearchResult(
@@ -189,7 +189,7 @@ async def get_product(
         costprice=float(product.costprice) if product.costprice else None,
         manufacturer=product.manufacturer,
         productgroup=product.productgroup,
-        gtin=product.gtin,
+        gtin=str(product.gtin) if product.gtin else None,
         is_father_article=product.isfatherarticle,
         father_article=product.fatherarticle,
         type=product.type,
@@ -311,7 +311,7 @@ async def search_products(
             is_father_article=p.isfatherarticle,
             colour=p.colour,
             size=p.size,
-            gtin=p.gtin
+            gtin=str(p.gtin) if p.gtin else None
         )
         for p in products
     ]
