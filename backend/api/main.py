@@ -47,7 +47,7 @@ async def health_check():
 
 # Import and include routers
 try:
-    from routers import products, cart, orders, payments, auth
+    from api.routers import products, cart, orders, payments, auth
     
     app.include_router(products.router, prefix="/api", tags=["Products"])
     app.include_router(cart.router, prefix="/api", tags=["Cart"])
@@ -55,8 +55,12 @@ try:
     app.include_router(payments.router, prefix="/api", tags=["Payments"])
     app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
     
+    print("✅ All routers loaded successfully")
+    
 except ImportError as e:
-    print(f"Warning: Could not import some routers: {e}")
+    print(f"❌ Warning: Could not import some routers: {e}")
+    import traceback
+    traceback.print_exc()
     # App will still run with basic endpoints
 
 # Startup event
