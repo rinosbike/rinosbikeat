@@ -127,10 +127,7 @@ export const productsApi = {
   // Get all products with pagination
   getAll: async (page: number = 1, pageSize: number = 20): Promise<ProductResponse> => {
     const response = await apiClient.get('/api/products/', {
-      params: {
-        page,
-        page_size: pageSize,
-      },
+      params: { page, page_size: pageSize },
     });
     return response.data;
   },
