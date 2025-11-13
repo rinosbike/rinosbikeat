@@ -38,15 +38,15 @@ class Settings(BaseSettings):
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
     SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    FROM_EMAIL: str = os.getenv("FROM_EMAIL", "info@rinosbike.eu")
+    FROM_EMAIL: str = os.getenv("FROM_EMAIL", "info@rinosbike.at")
     FROM_NAME: str = "RINOS Bikes"
     SEND_EMAILS: bool = os.getenv("SEND_EMAILS", "true").lower() == "true"
     
     # CORS - Frontend URLs
     CORS_ORIGINS: list = [
         "http://localhost:3000",
-        "https://rinosbike.eu",
-        "https://www.rinosbike.eu",
+        "https://rinosbike.at",
+        "https://www.rinosbike.at",
         "https://rinosbikes-frontend.vercel.app",
         "https://*.vercel.app"
     ]
