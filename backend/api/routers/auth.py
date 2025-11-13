@@ -37,7 +37,7 @@ from api.utils.security import (
 )
 from api.utils.auth_dependencies import get_current_user, require_verified_email
 
-router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 # ============================================================================

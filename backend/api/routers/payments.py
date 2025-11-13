@@ -27,7 +27,7 @@ from models import WebUser
 from config import settings  # ← Import settings from config
 
 
-router = APIRouter(prefix="/api/payments", tags=["Payments"])
+router = APIRouter(prefix="/payments", tags=["Payments"])
 
 
 # ============================================================================
