@@ -49,15 +49,18 @@ apiClient.interceptors.response.use(
 // ============================================================================
 
 export interface Product {
-  product_id: number;
+  productid: number;
   articlenr: string;
   articlename: string;
+  shortdescription?: string | null;
   price: number;
-  currency: string;
-  description?: string;
-  category?: string;
-  is_active: boolean;
-  variations?: ProductVariation[];
+  manufacturer?: string | null;
+  productgroup?: string | null;
+  primary_image?: string | null;
+  is_father_article: boolean;
+  colour?: string | null;
+  size?: string | null;
+  gtin?: string | null;
 }
 
 export interface ProductVariation {
@@ -108,18 +111,31 @@ export interface User {
   is_active: boolean;
 }
 
+export interface ProductResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  products: Product[];
+}
+
 // ============================================================================
 // PRODUCTS API
 // ============================================================================
 
 export const productsApi = {
-  // Get all products
-  getAll: async (): Promise<Product[]> => {
-    const response = await apiClient.get('/api/products');
+  // Get all products with pagination
+  getAll: async (page: number = 1, pageSize: number = 20): Promise<ProductResponse> => {
+    const response = await apiClient.get('/api/products/', {
+      params: {
+        page,
+        page_size: pageSize,
+      },
+    });
     return response.data;
   },
 
-  // Get single product
+  // Get single product by ID
   getById: async (productId: number): Promise<Product> => {
     const response = await apiClient.get(`/api/products/${productId}`);
     return response.data;
@@ -127,13 +143,18 @@ export const productsApi = {
 
   // Get product by article number
   getByArticleNr: async (articlenr: string): Promise<Product> => {
-    const response = await apiClient.get(`/api/products/articlenr/${articlenr}`);
+    const response = await apiClient.get(`/api/products/${articlenr}`);
     return response.data;
   },
 
-  // Get products by category
-  getByCategory: async (category: string): Promise<Product[]> => {
-    const response = await apiClient.get(`/api/products/category/${category}`);
+  // Search products
+  search: async (query: string, page: number = 1): Promise<ProductResponse> => {
+    const response = await apiClient.get('/api/products/search/query', {
+      params: {
+        search: query,
+        page,
+      },
+    });
     return response.data;
   },
 };
@@ -145,7 +166,9 @@ export const productsApi = {
 export const cartApi = {
   // Get cart
   getCart: async (sessionId: string): Promise<Cart> => {
-    const response = await apiClient.get(`/api/cart?session_id=${sessionId}`);
+    const response = await apiClient.get(`/api/cart/`, {
+      params: { session_id: sessionId },
+    });
     return response.data;
   },
 
@@ -157,11 +180,14 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.post(
-      `/api/cart/add?session_id=${sessionId}`,
+      `/api/cart/add`,
       {
         product_id: productId,
         quantity,
         variation_id: variationId,
+      },
+      {
+        params: { session_id: sessionId },
       }
     );
     return response.data;
@@ -175,11 +201,13 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.put(
-      `/api/cart/update?session_id=${sessionId}`,
+      `/api/cart/items/${productId}`,
       {
-        product_id: productId,
         quantity,
         variation_id: variationId,
+      },
+      {
+        params: { session_id: sessionId },
       }
     );
     return response.data;
@@ -192,12 +220,10 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.delete(
-      `/api/cart/remove?session_id=${sessionId}`,
+      `/api/cart/items/${productId}`,
       {
-        data: {
-          product_id: productId,
-          variation_id: variationId,
-        },
+        params: { session_id: sessionId },
+        data: { variation_id: variationId },
       }
     );
     return response.data;
@@ -205,7 +231,9 @@ export const cartApi = {
 
   // Clear cart
   clearCart: async (sessionId: string): Promise<void> => {
-    await apiClient.delete(`/api/cart/clear?session_id=${sessionId}`);
+    await apiClient.delete(`/api/cart/`, {
+      params: { session_id: sessionId },
+    });
   },
 };
 
@@ -230,10 +258,13 @@ export const ordersApi = {
     paymentMethod: string = 'stripe'
   ): Promise<Order> => {
     const response = await apiClient.post(
-      `/api/orders?session_id=${sessionId}`,
+      `/api/orders/`,
       {
         customer_info: customerInfo,
         payment_method: paymentMethod,
+      },
+      {
+        params: { session_id: sessionId },
       }
     );
     return response.data;
@@ -247,7 +278,7 @@ export const ordersApi = {
 
   // Get user orders
   getUserOrders: async (): Promise<Order[]> => {
-    const response = await apiClient.get('/api/orders/my-orders');
+    const response = await apiClient.get('/api/orders/');
     return response.data;
   },
 };

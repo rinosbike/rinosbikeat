@@ -21,9 +21,9 @@ export default function HomePage() {
 
   const loadProducts = async () => {
     try {
-      const products = await productsApi.getAll()
+      const response = await productsApi.getAll(1, 4)
       // Show first 4 products as featured
-      setFeaturedProducts(products.slice(0, 4))
+      setFeaturedProducts(response.products.slice(0, 4))
     } catch (error) {
       console.error('Fehler beim Laden der Produkte:', error)
     } finally {
@@ -111,7 +111,7 @@ export default function HomePage() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {featuredProducts.map((product) => (
-                  <ProductCard key={product.product_id} product={product} />
+                  <ProductCard key={product.productid} product={product} />
                 ))}
               </div>
 

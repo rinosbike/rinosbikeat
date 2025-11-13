@@ -12,20 +12,28 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Link href={`/produkte/${product.product_id}`}>
+    <Link href={`/produkte/${product.articlenr}`}>
       <div className="card group cursor-pointer h-full flex flex-col">
-        {/* Product Image Placeholder */}
+        {/* Product Image */}
         <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-4 overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-          <div className="text-6xl font-bold text-gray-300">
-            {product.articlename.charAt(0)}
-          </div>
+          {product.primary_image ? (
+            <img 
+              src={product.primary_image}
+              alt={product.articlename}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="text-6xl font-bold text-gray-300">
+              {product.articlename.charAt(0)}
+            </div>
+          )}
         </div>
         
         {/* Category Badge */}
-        {product.category && (
+        {product.productgroup && (
           <div className="mb-2">
             <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded">
-              {product.category}
+              {product.productgroup}
             </span>
           </div>
         )}
@@ -36,9 +44,16 @@ export default function ProductCard({ product }: ProductCardProps) {
         </h3>
         
         {/* Product Description */}
-        {product.description && (
+        {product.shortdescription && (
           <p className="text-sm text-gray-600 mb-3 line-clamp-2 flex-grow">
-            {product.description}
+            {product.shortdescription}
+          </p>
+        )}
+        
+        {/* Manufacturer */}
+        {product.manufacturer && (
+          <p className="text-xs text-gray-500 mb-2">
+            {product.manufacturer}
           </p>
         )}
         
@@ -46,21 +61,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="mt-auto">
           <div className="flex items-baseline justify-between">
             <span className="text-2xl font-bold text-blue-600">
-              {product.price.toFixed(2)} {product.currency}
+              €{product.price.toFixed(2)}
             </span>
-            {product.variations && product.variations.length > 0 && (
+            {product.colour && (
               <span className="text-xs text-gray-500">
-                {product.variations.length} Varianten
+                {product.colour}
               </span>
             )}
           </div>
         </div>
         
-        {/* Status Badge */}
-        {!product.is_active && (
-          <div className="mt-2">
-            <span className="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-600 rounded">
-              Nicht verfügbar
+        {/* GTIN Badge */}
+        {product.gtin && (
+          <div className="mt-2 pt-2 border-t">
+            <span className="inline-block text-xs text-gray-500">
+              SKU: {product.gtin}
             </span>
           </div>
         )}
