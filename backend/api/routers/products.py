@@ -21,7 +21,7 @@ from api.schemas.product_schemas import (
     ManufacturerResponse
 )
 
-router = APIRouter(prefix="/api/products", tags=["Products"])
+router = APIRouter(prefix="/products", tags=["Products"])
 
 
 # ============================================================================
