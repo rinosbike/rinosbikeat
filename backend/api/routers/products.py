@@ -1,420 +1,634 @@
+# backend/api/products.py
 """
-Products API Router
-Location: api/routers/products.py
-
-Handles product listings, details, search, and variations
+Products API - Enhanced version with category and variation support
+Handles father/child article structure with proper category mapping
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, and_, func
+from sqlalchemy import func, or_, and_
 from typing import Optional, List
-from decimal import Decimal
-
 from database.connection import get_db
-from models import Product
-from api.schemas.product_schemas import (
-    ProductListItem,
-    ProductDetail,
-    ProductSearchResult,
-    ProductVariation,
-    CategoryResponse,
-    ManufacturerResponse
+from models.product import (
+    Product, Category, VariationData, VariationCombinationData,
+    ProductAvailability, InventoryData, WarehouseData,
+    product_category_association
 )
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter()
 
 
 # ============================================================================
-# LIST ALL PRODUCTS (WITH FILTERS & PAGINATION)
+# CORE PRODUCT ENDPOINTS
 # ============================================================================
 
-@router.get("/", response_model=ProductSearchResult)
-async def list_products(
-    page: int = Query(1, ge=1, description="Page number"),
-    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
-    manufacturer: Optional[str] = Query(None, description="Filter by manufacturer"),
-    productgroup: Optional[str] = Query(None, description="Filter by product group"),
-    min_price: Optional[float] = Query(None, description="Minimum price"),
-    max_price: Optional[float] = Query(None, description="Maximum price"),
-    colour: Optional[str] = Query(None, description="Filter by colour"),
-    size: Optional[str] = Query(None, description="Filter by size"),
-    type: Optional[str] = Query(None, description="Filter by type"),
-    search: Optional[str] = Query(None, description="Search in name/description"),
-    is_father_article: Optional[bool] = Query(None, description="Filter father articles only"),
+@router.get("/")
+def get_products(
+    skip: int = 0,
+    limit: int = 24,
+    productgroup: Optional[str] = None,
+    manufacturer: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    only_fathers: bool = True,
     db: Session = Depends(get_db)
 ):
     """
-    Get list of products with optional filters and pagination
+    Get list of products for website catalog with category mapping
     
-    - **page**: Page number (default: 1)
-    - **page_size**: Items per page (default: 20, max: 100)
-    - **manufacturer**: Filter by manufacturer
-    - **productgroup**: Filter by product group/category
-    - **min_price**: Minimum price filter
-    - **max_price**: Maximum price filter
-    - **colour**: Filter by colour
-    - **size**: Filter by size
-    - **type**: Filter by type (e.g., "Gravel Bike", "Road Bike")
-    - **search**: Search in product name and description
-    - **is_father_article**: Show only father articles (with variations)
+    Parameters:
+    - skip: Pagination offset
+    - limit: Max products to return (max 100)
+    - productgroup: Filter by product group
+    - manufacturer: Filter by manufacturer
+    - category: Filter by category (from category table)
+    - min_price, max_price: Price range filter
+    - only_fathers: If true, only return father articles (main products)
     """
-    # Build query
-    query = db.query(Product)
+    try:
+        query = db.query(Product)
+        
+        # By default, only show father articles
+        if only_fathers:
+            query = query.filter(Product.isfatherarticle == True)
+        
+        # Apply filters
+        if productgroup:
+            query = query.filter(Product.productgroup.ilike(f"%{productgroup}%"))
+        
+        if manufacturer:
+            query = query.filter(Product.manufacturer.ilike(f"%{manufacturer}%"))
+        
+        if min_price is not None:
+            query = query.filter(Product.priceEUR >= min_price)
+        
+        if max_price is not None:
+            query = query.filter(Product.priceEUR <= max_price)
+        
+        # Filter by category if provided
+        if category:
+            cat = db.query(Category).filter(
+                Category.category.ilike(f"%{category}%")
+            ).first()
+            if cat:
+                query = query.join(Category, Product.categories).filter(
+                    Category.categoryid == cat.categoryid
+                )
+        
+        # Order by product group, then by price
+        query = query.order_by(Product.productgroup, Product.priceEUR)
+        
+        # Get products with pagination
+        products = query.offset(skip).limit(min(limit, 100)).all()
+        total_count = query.count()
+        
+        return {
+            "status": "success",
+            "count": len(products),
+            "total": total_count,
+            "page": (skip // limit) + 1 if limit > 0 else 1,
+            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
+            "products": [p.to_simple_dict(include_categories=True) for p in products]
+        }
     
-    # Apply filters
-    if manufacturer:
-        query = query.filter(Product.manufacturer == manufacturer)
-    
-    if productgroup:
-        query = query.filter(Product.productgroup == productgroup)
-    
-    if min_price is not None:
-        query = query.filter(Product.priceeur >= min_price)
-    
-    if max_price is not None:
-        query = query.filter(Product.priceeur <= max_price)
-    
-    if colour:
-        query = query.filter(Product.colour == colour)
-    
-    if size:
-        query = query.filter(Product.size == size)
-    
-    if type:
-        query = query.filter(Product.type == type)
-    
-    if search:
-        search_pattern = f"%{search}%"
-        query = query.filter(
-            or_(
-                Product.articlename.ilike(search_pattern),
-                Product.shortdescription.ilike(search_pattern),
-                Product.articlenr.ilike(search_pattern)
-            )
-        )
-    
-    if is_father_article is not None:
-        query = query.filter(Product.isfatherarticle == is_father_article)
-    
-    # Get total count
-    total = query.count()
-    
-    # Calculate pagination
-    total_pages = (total + page_size - 1) // page_size
-    offset = (page - 1) * page_size
-    
-    # Get paginated results
-    products = query.offset(offset).limit(page_size).all()
-    
-    # Convert to response format
-    product_items = []
-    for product in products:
-        product_items.append(ProductListItem(
-            productid=product.productid,
-            articlenr=product.articlenr,
-            articlename=product.articlename,
-            shortdescription=product.shortdescription,
-            price=float(product.priceeur) if product.priceeur else 0.0,
-            manufacturer=product.manufacturer,
-            productgroup=product.productgroup,
-            primary_image=product.get_primary_image(),
-            is_father_article=product.isfatherarticle,
-            colour=product.colour,
-            size=product.size,
-            gtin=str(product.gtin) if product.gtin else None
-        ))
-    
-    return ProductSearchResult(
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages,
-        products=product_items
-    )
+    except Exception as e:
+        print(f"Error in get_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
-# ============================================================================
-# GET SINGLE PRODUCT DETAILS
-# ============================================================================
+@router.get("/{articlenr}")
+def get_product(articlenr: str, db: Session = Depends(get_db)):
+    """
+    Get single product details with categories and variations
+    """
+    try:
+        # Get the main product
+        product = db.query(Product).filter(Product.articlenr == articlenr).first()
+        
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        product_dict = product.to_dict(include_categories=True)
+        
+        # If this is a father article, get variations
+        if product.isfatherarticle:
+            # Get child variations
+            variations = db.query(Product).filter(
+                Product.fatherarticle == articlenr
+            ).all()
+            
+            product_dict["variations"] = [
+                v.to_simple_dict(include_categories=False) for v in variations
+            ]
+            product_dict["variation_count"] = len(variations)
+            
+            # Get variation combinations from variationcombinationdata
+            var_combinations = db.query(VariationCombinationData).filter(
+                VariationCombinationData.fatherarticle == articlenr
+            ).all()
+            
+            product_dict["variation_combinations"] = [
+                {
+                    "articlenr": vc.articlenr,
+                    "variations": [
+                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
+                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
+                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                    ]
+                }
+                for vc in var_combinations
+            ]
+            
+            # Get unique variation options from variationdata
+            variation_defs = db.query(VariationData).filter(
+                VariationData.fatherarticle == articlenr
+            ).all()
+            
+            variation_options = {}
+            for var_def in variation_defs:
+                if var_def.variation not in variation_options:
+                    variation_options[var_def.variation] = []
+                if var_def.variationvalue not in variation_options[var_def.variation]:
+                    variation_options[var_def.variation].append(var_def.variationvalue)
+            
+            product_dict["variation_options"] = variation_options
+        else:
+            # This is a child product
+            if product.fatherarticle:
+                # Get the father article
+                father = db.query(Product).filter(
+                    Product.articlenr == product.fatherarticle
+                ).first()
+                if father:
+                    product_dict["father_product"] = father.to_simple_dict(include_categories=False)
+                
+                # Get sibling variations
+                siblings = db.query(Product).filter(
+                    Product.fatherarticle == product.fatherarticle,
+                    Product.articlenr != articlenr
+                ).all()
+                product_dict["other_variations"] = [
+                    s.to_simple_dict(include_categories=False) for s in siblings
+                ]
+        
+        # Get availability status
+        total_stock = db.query(func.sum(InventoryData.quantity)).filter(
+            InventoryData.articlenr == articlenr
+        ).scalar() or 0
+        
+        # Determine status
+        if total_stock > 10:
+            status = "in_stock"
+            status_display = "In Stock"
+        elif total_stock > 0:
+            status = "low_stock"
+            status_display = f"Low Stock - Only {int(total_stock)} left"
+        else:
+            status = "out_of_stock"
+            status_display = "Out of Stock"
+        
+        product_dict["availability"] = {
+            "status": status,
+            "status_display": status_display,
+            "total_stock": int(total_stock)
+        }
+        
+        return {
+            "status": "success",
+            "product": product_dict
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_product: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-@router.get("/{articlenr}", response_model=ProductDetail)
-async def get_product(
-    articlenr: str,
-    include_variations: bool = Query(True, description="Include variations for father articles"),
-    db: Session = Depends(get_db)
-):
+
+@router.get("/{articlenr}/variations")
+def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
     """
-    Get detailed information about a specific product
-    
-    - **articlenr**: Article number (unique product identifier)
-    - **include_variations**: If true and this is a father article, include all variations
+    Get all variations of a product
+    Includes both child products and variation metadata
     """
-    # Find product by article number
-    product = db.query(Product).filter(Product.articlenr == articlenr).first()
-    
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    # Get variations if this is a father article
-    variations = None
-    if include_variations and product.isfatherarticle:
-        child_products = db.query(Product).filter(
-            Product.fatherarticle == articlenr
+    try:
+        # Get the main product (can be father or child)
+        product = db.query(Product).filter(
+            Product.articlenr == articlenr
+        ).first()
+        
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        father_articlenr = product.fatherarticle if not product.isfatherarticle else articlenr
+        
+        if not father_articlenr:
+            raise HTTPException(status_code=404, detail="Product has no variations")
+        
+        # Get all variations (child articles)
+        variations = db.query(Product).filter(
+            Product.fatherarticle == father_articlenr
         ).all()
         
-        variations = [
-            ProductVariation(
-                productid=child.productid,
-                articlenr=child.articlenr,
-                articlename=child.articlename,
-                price=float(child.priceeur) if child.priceeur else 0.0,
-                colour=child.colour,
-                size=child.size,
-                component=child.component,
-                type=child.type,
-                primary_image=child.get_primary_image(),
-                in_stock=True  # TODO: Integrate with inventory
+        # Get variation definitions
+        var_defs = db.query(VariationData).filter(
+            VariationData.fatherarticle == father_articlenr
+        ).order_by(VariationData.variationsortnr).all()
+        
+        # Get variation combinations
+        var_combos = db.query(VariationCombinationData).filter(
+            VariationCombinationData.fatherarticle == father_articlenr
+        ).all()
+        
+        # Group variations by attributes
+        variations_by_attr = {}
+        for var in variations:
+            for attr in ['colour', 'size', 'type', 'component']:
+                val = getattr(var, attr)
+                if val:
+                    if attr not in variations_by_attr:
+                        variations_by_attr[attr] = {}
+                    if val not in variations_by_attr[attr]:
+                        variations_by_attr[attr][val] = []
+                    variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
+        
+        return {
+            "status": "success",
+            "father_article": father_articlenr,
+            "variation_count": len(variations),
+            "variations": [v.to_simple_dict(include_categories=False) for v in variations],
+            "variation_definitions": [
+                {
+                    "type": vd.variation,
+                    "value": vd.variationvalue,
+                    "sort_order": vd.variationsortnr
+                }
+                for vd in var_defs
+            ],
+            "variation_combinations": [
+                {
+                    "articlenr": vc.articlenr,
+                    "variations": [
+                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
+                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
+                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                    ]
+                }
+                for vc in var_combos
+            ],
+            "grouped_by_attribute": variations_by_attr
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_product_variations: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+# ============================================================================
+# SEARCH & FILTER ENDPOINTS
+# ============================================================================
+
+@router.get("/search/query")
+def search_products(
+    q: str = Query(..., min_length=2),
+    skip: int = 0,
+    limit: int = 24,
+    db: Session = Depends(get_db)
+):
+    """
+    Search products by name, article number, or manufacturer
+    """
+    try:
+        search_term = f"%{q}%"
+        
+        query = db.query(Product).filter(
+            or_(
+                Product.articlename.ilike(search_term),
+                Product.articlenr.ilike(search_term),
+                Product.manufacturer.ilike(search_term)
             )
-            for child in child_products
-        ]
+        )
+        
+        # Prioritize father articles
+        query = query.order_by(
+            Product.isfatherarticle.desc(),
+            Product.articlename
+        )
+        
+        total_count = query.count()
+        products = query.offset(skip).limit(limit).all()
+        
+        return {
+            "status": "success",
+            "query": q,
+            "count": len(products),
+            "total": total_count,
+            "page": (skip // limit) + 1 if limit > 0 else 1,
+            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
+            "products": [p.to_simple_dict(include_categories=True) for p in products]
+        }
     
-    # Build response
-    return ProductDetail(
-        productid=product.productid,
-        articlenr=product.articlenr,
-        articlename=product.articlename,
-        shortdescription=product.shortdescription,
-        longdescription=product.longdescription,
-        price=float(product.priceeur) if product.priceeur else 0.0,
-        costprice=float(product.costprice) if product.costprice else None,
-        manufacturer=product.manufacturer,
-        productgroup=product.productgroup,
-        gtin=str(product.gtin) if product.gtin else None,
-        is_father_article=product.isfatherarticle,
-        father_article=product.fatherarticle,
-        type=product.type,
-        colour=product.colour,
-        component=product.component,
-        size=product.size,
-        images=product.get_all_images(),
-        primary_image=product.get_primary_image(),
-        variations=variations
-    )
+    except Exception as e:
+        print(f"Error in search_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # ============================================================================
-# GET PRODUCT VARIATIONS
+# CATEGORY ENDPOINTS
 # ============================================================================
 
-@router.get("/{articlenr}/variations", response_model=List[ProductVariation])
-async def get_product_variations(
-    articlenr: str,
+@router.get("/meta/categories")
+def get_categories(db: Session = Depends(get_db)):
+    """
+    Get all categories from the category table with product counts
+    """
+    try:
+        categories = db.query(
+            Category.categoryid,
+            Category.category,
+            Category.categorypath,
+            Category.categoryimageurl,
+            func.count(Product.productid).label('count')
+        ).outerjoin(
+            product_category_association,
+            Category.categoryid == product_category_association.c.categoryid
+        ).outerjoin(
+            Product,
+            product_category_association.c.productid == Product.productid
+        ).group_by(
+            Category.categoryid,
+            Category.category,
+            Category.categorypath,
+            Category.categoryimageurl
+        ).order_by(
+            Category.category
+        ).all()
+        
+        return {
+            "status": "success",
+            "count": len(categories),
+            "categories": [
+                {
+                    "categoryid": cat[0],
+                    "category": cat[1],
+                    "categorypath": cat[2],
+                    "categoryimageurl": cat[3],
+                    "product_count": cat[4] or 0
+                }
+                for cat in categories
+            ]
+        }
+    
+    except Exception as e:
+        print(f"Error in get_categories: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+@router.get("/meta/categories/{categoryid}")
+def get_category_products(
+    categoryid: int,
+    skip: int = 0,
+    limit: int = 24,
     db: Session = Depends(get_db)
 ):
     """
-    Get all variations (child articles) for a father article
-    
-    - **articlenr**: Article number of the father product
-    
-    Returns all available variations with different colors, sizes, components, etc.
+    Get all products in a specific category
     """
-    # Verify father article exists
-    father = db.query(Product).filter(Product.articlenr == articlenr).first()
+    try:
+        # Get category
+        category = db.query(Category).filter(
+            Category.categoryid == categoryid
+        ).first()
+        
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        
+        # Get products in this category
+        products = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid,
+            Product.isfatherarticle == True
+        ).offset(skip).limit(min(limit, 100)).all()
+        
+        total_count = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid,
+            Product.isfatherarticle == True
+        ).count()
+        
+        return {
+            "status": "success",
+            "category": {
+                "categoryid": category.categoryid,
+                "category": category.category,
+                "categorypath": category.categorypath,
+                "categoryimageurl": category.categoryimageurl
+            },
+            "count": len(products),
+            "total": total_count,
+            "page": (skip // limit) + 1 if limit > 0 else 1,
+            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
+            "products": [p.to_simple_dict(include_categories=False) for p in products]
+        }
     
-    if not father:
-        raise HTTPException(status_code=404, detail="Product not found")
-    
-    if not father.isfatherarticle:
-        raise HTTPException(
-            status_code=400,
-            detail="This product has no variations (not a father article)"
-        )
-    
-    # Get all child products
-    children = db.query(Product).filter(Product.fatherarticle == articlenr).all()
-    
-    if not children:
-        return []
-    
-    # Convert to response format
-    variations = [
-        ProductVariation(
-            productid=child.productid,
-            articlenr=child.articlenr,
-            articlename=child.articlename,
-            price=float(child.priceeur) if child.priceeur else 0.0,
-            colour=child.colour,
-            size=child.size,
-            component=child.component,
-            type=child.type,
-            primary_image=child.get_primary_image(),
-            in_stock=True  # TODO: Integrate with inventory
-        )
-        for child in children
-    ]
-    
-    return variations
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_category_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # ============================================================================
-# SEARCH PRODUCTS
+# MANUFACTURER ENDPOINTS
 # ============================================================================
 
-@router.get("/search/query", response_model=ProductSearchResult)
-async def search_products(
-    q: str = Query(..., min_length=2, description="Search query (min 2 characters)"),
-    page: int = Query(1, ge=1),
-    page_size: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
-):
+@router.get("/meta/manufacturers")
+def get_manufacturers(db: Session = Depends(get_db)):
     """
-    Search products by name, description, or article number
-    
-    - **q**: Search query (minimum 2 characters)
-    - **page**: Page number
-    - **page_size**: Items per page
+    Get all manufacturers for filter dropdown
     """
-    search_pattern = f"%{q}%"
+    try:
+        manufacturers = db.query(
+            Product.manufacturer,
+            func.count(Product.productid).label('count')
+        ).filter(
+            Product.isfatherarticle == True,
+            Product.manufacturer.isnot(None)
+        ).group_by(
+            Product.manufacturer
+        ).order_by(
+            Product.manufacturer
+        ).all()
+        
+        return {
+            "status": "success",
+            "count": len(manufacturers),
+            "manufacturers": [
+                {
+                    "name": manu[0],
+                    "count": manu[1]
+                }
+                for manu in manufacturers
+            ]
+        }
     
-    # Search in multiple fields
-    query = db.query(Product).filter(
-        or_(
-            Product.articlename.ilike(search_pattern),
-            Product.shortdescription.ilike(search_pattern),
-            Product.longdescription.ilike(search_pattern),
-            Product.articlenr.ilike(search_pattern),
-            Product.manufacturer.ilike(search_pattern)
-        )
-    )
-    
-    # Get total count
-    total = query.count()
-    
-    # Calculate pagination
-    total_pages = (total + page_size - 1) // page_size
-    offset = (page - 1) * page_size
-    
-    # Get results
-    products = query.offset(offset).limit(page_size).all()
-    
-    # Convert to response
-    product_items = [
-        ProductListItem(
-            productid=p.productid,
-            articlenr=p.articlenr,
-            articlename=p.articlename,
-            shortdescription=p.shortdescription,
-            price=float(p.priceeur) if p.priceeur else 0.0,
-            manufacturer=p.manufacturer,
-            productgroup=p.productgroup,
-            primary_image=p.get_primary_image(),
-            is_father_article=p.isfatherarticle,
-            colour=p.colour,
-            size=p.size,
-            gtin=str(p.gtin) if p.gtin else None
-        )
-        for p in products
-    ]
-    
-    return ProductSearchResult(
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages,
-        products=product_items
-    )
+    except Exception as e:
+        print(f"Error in get_manufacturers: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # ============================================================================
-# GET ALL CATEGORIES/PRODUCT GROUPS
-# ============================================================================
-
-@router.get("/meta/categories", response_model=List[CategoryResponse])
-async def get_categories(db: Session = Depends(get_db)):
-    """
-    Get all product categories/groups with product counts
-    
-    Returns list of categories with the number of products in each
-    """
-    # Group by productgroup and count
-    results = db.query(
-        Product.productgroup,
-        func.count(Product.productid).label('count')
-    ).filter(
-        Product.productgroup.isnot(None)
-    ).group_by(
-        Product.productgroup
-    ).all()
-    
-    return [
-        CategoryResponse(name=name, count=count)
-        for name, count in results
-        if name  # Filter out None/empty values
-    ]
-
-
-# ============================================================================
-# GET ALL MANUFACTURERS
-# ============================================================================
-
-@router.get("/meta/manufacturers", response_model=List[ManufacturerResponse])
-async def get_manufacturers(db: Session = Depends(get_db)):
-    """
-    Get all manufacturers with product counts
-    
-    Returns list of manufacturers with the number of products for each
-    """
-    # Group by manufacturer and count
-    results = db.query(
-        Product.manufacturer,
-        func.count(Product.productid).label('count')
-    ).filter(
-        Product.manufacturer.isnot(None)
-    ).group_by(
-        Product.manufacturer
-    ).all()
-    
-    return [
-        ManufacturerResponse(name=name, count=count)
-        for name, count in results
-        if name  # Filter out None/empty values
-    ]
-
-
-# ============================================================================
-# GET AVAILABLE FILTERS
+# FILTER/METADATA ENDPOINTS
 # ============================================================================
 
 @router.get("/meta/filters")
-async def get_available_filters(db: Session = Depends(get_db)):
+def get_available_filters(db: Session = Depends(get_db)):
     """
-    Get all available filter values (colours, sizes, types, etc.)
-    
-    Useful for building filter UI on frontend
+    Get available filters based on all products in database
     """
-    # Get unique colours
-    colours = db.query(Product.colour).filter(
-        Product.colour.isnot(None)
-    ).distinct().all()
+    try:
+        # Get price range
+        price_stats = db.query(
+            func.min(Product.priceEUR),
+            func.max(Product.priceEUR)
+        ).filter(
+            Product.isfatherarticle == True
+        ).first()
+        
+        min_price = float(price_stats[0]) if price_stats[0] else 0
+        max_price = float(price_stats[1]) if price_stats[1] else 0
+        
+        # Get manufacturers
+        manufacturers = db.query(
+            Product.manufacturer
+        ).filter(
+            Product.isfatherarticle == True,
+            Product.manufacturer.isnot(None)
+        ).distinct().all()
+        
+        # Get product groups
+        product_groups = db.query(
+            Product.productgroup
+        ).filter(
+            Product.isfatherarticle == True,
+            Product.productgroup.isnot(None)
+        ).distinct().all()
+        
+        # Get colours
+        colours = db.query(
+            Product.colour
+        ).filter(
+            Product.colour.isnot(None)
+        ).distinct().all()
+        
+        # Get sizes
+        sizes = db.query(
+            Product.size
+        ).filter(
+            Product.size.isnot(None)
+        ).distinct().all()
+        
+        # Get types
+        types = db.query(
+            Product.type
+        ).filter(
+            Product.type.isnot(None)
+        ).distinct().all()
+        
+        return {
+            "status": "success",
+            "filters": {
+                "price_range": {
+                    "min": min_price,
+                    "max": max_price
+                },
+                "manufacturers": [m[0] for m in manufacturers if m[0]],
+                "product_groups": [pg[0] for pg in product_groups if pg[0]],
+                "colours": [c[0] for c in colours if c[0]],
+                "sizes": [s[0] for s in sizes if s[0]],
+                "types": [t[0] for t in types if t[0]]
+            }
+        }
     
-    # Get unique sizes
-    sizes = db.query(Product.size).filter(
-        Product.size.isnot(None)
-    ).distinct().all()
+    except Exception as e:
+        print(f"Error in get_available_filters: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+# ============================================================================
+# FEATURED PRODUCTS ENDPOINT
+# ============================================================================
+
+@router.get("/featured")
+def get_featured_products(
+    limit: int = 8,
+    db: Session = Depends(get_db)
+):
+    """
+    Get featured products for homepage
+    """
+    try:
+        products = db.query(Product).filter(
+            Product.isfatherarticle == True
+        ).order_by(
+            Product.productid.desc()
+        ).limit(limit).all()
+        
+        return {
+            "status": "success",
+            "count": len(products),
+            "products": [p.to_simple_dict(include_categories=True) for p in products]
+        }
     
-    # Get unique types
-    types = db.query(Product.type).filter(
-        Product.type.isnot(None)
-    ).distinct().all()
+    except Exception as e:
+        print(f"Error in get_featured_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+# ============================================================================
+# STATS ENDPOINT
+# ============================================================================
+
+@router.get("/stats/summary")
+def get_product_stats(db: Session = Depends(get_db)):
+    """
+    Get product statistics
+    """
+    try:
+        total_products = db.query(func.count(Product.productid)).scalar()
+        
+        total_fathers = db.query(func.count(Product.productid)).filter(
+            Product.isfatherarticle == True
+        ).scalar()
+        
+        total_variations = db.query(func.count(Product.productid)).filter(
+            Product.isfatherarticle == False,
+            Product.fatherarticle.isnot(None)
+        ).scalar()
+        
+        avg_price = db.query(func.avg(Product.priceEUR)).filter(
+            Product.isfatherarticle == True
+        ).scalar()
+        
+        total_categories = db.query(func.count(Category.categoryid)).scalar()
+        
+        return {
+            "status": "success",
+            "stats": {
+                "total_products": total_products,
+                "father_articles": total_fathers,
+                "variations": total_variations,
+                "average_price": float(avg_price) if avg_price else 0,
+                "total_categories": total_categories
+            }
+        }
     
-    # Get unique components
-    components = db.query(Product.component).filter(
-        Product.component.isnot(None)
-    ).distinct().all()
-    
-    return {
-        "colours": [c[0] for c in colours if c[0]],
-        "sizes": [s[0] for s in sizes if s[0]],
-        "types": [t[0] for t in types if t[0]],
-        "components": [c[0] for c in components if c[0]]
-    }
+    except Exception as e:
+        print(f"Error in get_product_stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
