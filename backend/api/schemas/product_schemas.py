@@ -1,10 +1,59 @@
 """
-Pydantic schemas for Products API
+Pydantic schemas for Products API - Updated with Category and Variation support
 Location: api/schemas/product_schemas.py
 """
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Dict
 from decimal import Decimal
+
+
+# ============================================================================
+# CATEGORY SCHEMAS
+# ============================================================================
+
+class CategoryInfo(BaseModel):
+    """Schema for category information"""
+    categoryid: int
+    category: str
+    categorypath: Optional[str] = None
+    categoryimageurl: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
+
+# ============================================================================
+# VARIATION SCHEMAS
+# ============================================================================
+
+class VariationValue(BaseModel):
+    """Single variation attribute with its value"""
+    type: Optional[str] = None  # e.g., "Colour"
+    value: Optional[str] = None  # e.g., "Red"
+
+
+class VariationDefinition(BaseModel):
+    """Variation definition from variationdata table"""
+    variationid: int
+    fatherarticle: str
+    variation: str  # e.g., "Colour", "Size"
+    variationsortnr: Optional[int] = None
+    variationvalue: str  # e.g., "Red", "L"
+    variationvaluesortnr: Optional[int] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class VariationCombination(BaseModel):
+    """Variation combination from variationcombinationdata table"""
+    variationcombinationid: int
+    fatherarticle: str
+    articlenr: str  # The child article number
+    variations: List[VariationValue]
+    
+    class Config:
+        from_attributes = True
 
 
 # ============================================================================
@@ -35,7 +84,7 @@ class ProductVariation(BaseModel):
 
 
 class ProductListItem(BaseModel):
-    """Schema for product in list view (simplified)"""
+    """Schema for product in list view (with categories)"""
     productid: int
     articlenr: str
     articlename: str
@@ -45,10 +94,7 @@ class ProductListItem(BaseModel):
     productgroup: Optional[str] = None
     primary_image: Optional[str] = None
     is_father_article: bool = False
-    # For child articles
-    colour: Optional[str] = None
-    size: Optional[str] = None
-    gtin: Optional[str] = None
+    categories: Optional[List[CategoryInfo]] = []
     
     class Config:
         from_attributes = True
@@ -81,8 +127,12 @@ class ProductDetail(BaseModel):
     images: List[str] = []
     primary_image: Optional[str] = None
     
+    # Categories (via many-to-many relationship)
+    categories: Optional[List[CategoryInfo]] = []
+    
     # Variations (if this is a father article)
     variations: Optional[List[ProductVariation]] = None
+    variation_combinations: Optional[List[VariationCombination]] = None
     
     class Config:
         from_attributes = True
@@ -98,15 +148,42 @@ class ProductSearchResult(BaseModel):
 
 
 class CategoryResponse(BaseModel):
-    """Schema for category/product group"""
-    name: str
-    count: int
+    """Schema for category with product count"""
+    categoryid: int
+    category: str
+    categorypath: Optional[str] = None
+    categoryimageurl: Optional[str] = None
+    count: int  # Number of products in this category
+
+
+class CategoryWithProducts(BaseModel):
+    """Schema for category with its products"""
+    categoryid: int
+    category: str
+    categorypath: Optional[str] = None
+    categoryimageurl: Optional[str] = None
+    product_count: int
+    products: List[ProductListItem]
 
 
 class ManufacturerResponse(BaseModel):
     """Schema for manufacturer"""
     name: str
     count: int
+
+
+class VariationOption(BaseModel):
+    """Variation option for filter/selection"""
+    type: str  # e.g., "Colour"
+    values: List[str]  # e.g., ["Red", "Blue", "Black"]
+
+
+class AvailableFilters(BaseModel):
+    """Schema for available filters based on products"""
+    manufacturers: List[str]
+    product_groups: List[str]
+    price_range: Dict[str, float]  # min and max
+    variation_options: Optional[List[VariationOption]] = []
 
 
 # ============================================================================
@@ -117,6 +194,7 @@ class ProductFilters(BaseModel):
     """Schema for product filters"""
     manufacturer: Optional[str] = None
     productgroup: Optional[str] = None
+    category: Optional[str] = None
     min_price: Optional[float] = None
     max_price: Optional[float] = None
     colour: Optional[str] = None
