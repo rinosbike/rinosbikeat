@@ -185,28 +185,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 </div>
               )}
 
-              {/* Variations */}
-              {product.variations && product.variations.length > 0 && (
-                <div className="mb-6">
-                  <label className="label">Variante wählen</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {product.variations.map((variation) => (
-                      <button
-                        key={variation.variation_id}
-                        onClick={() => setSelectedVariation(variation.variation_id)}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          selectedVariation === variation.variation_id
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="font-medium">{variation.variation_name}</div>
-                        {variation.price_adjustment !== 0 && (
-                          <div className="text-sm text-gray-600">
-                            {variation.price_adjustment > 0 ? '+' : ''}
-                            {variation.price_adjustment.toFixed(2)} {product.currency}
-                          </div>
-                        )}
+             
                       </button>
                     ))}
                   </div>
