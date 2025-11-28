@@ -96,6 +96,87 @@ def get_products(
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
+@router.get("/{articlenr}/variations")
+def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
+    """
+    Get all variations of a product
+    Includes both child products and variation metadata
+    """
+    try:
+        # Get the main product (can be father or child)
+        product = db.query(Product).filter(
+            Product.articlenr == articlenr
+        ).first()
+        
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        father_articlenr = product.fatherarticle if not product.isfatherarticle else articlenr
+        
+        if not father_articlenr:
+            raise HTTPException(status_code=404, detail="Product has no variations")
+        
+        # Get all variations (child articles)
+        variations = db.query(Product).filter(
+            Product.fatherarticle == father_articlenr
+        ).all()
+        
+        # Get variation definitions
+        var_defs = db.query(VariationData).filter(
+            VariationData.fatherarticle == father_articlenr
+        ).order_by(VariationData.variationsortnr).all()
+        
+        # Get variation combinations
+        var_combos = db.query(VariationCombinationData).filter(
+            VariationCombinationData.fatherarticle == father_articlenr
+        ).all()
+        
+        # Group variations by attributes
+        variations_by_attr = {}
+        for var in variations:
+            for attr in ['colour', 'size', 'type', 'component']:
+                val = getattr(var, attr)
+                if val:
+                    if attr not in variations_by_attr:
+                        variations_by_attr[attr] = {}
+                    if val not in variations_by_attr[attr]:
+                        variations_by_attr[attr][val] = []
+                    variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
+        
+        return {
+            "status": "success",
+            "father_article": father_articlenr,
+            "variation_count": len(variations),
+            "variations": [v.to_simple_dict(include_categories=False) for v in variations],
+            "variation_definitions": [
+                {
+                    "type": vd.variation,
+                    "value": vd.variationvalue,
+                    "sort_order": vd.variationsortnr
+                }
+                for vd in var_defs
+            ],
+            "variation_combinations": [
+                {
+                    "articlenr": vc.articlenr,
+                    "variations": [
+                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
+                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
+                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                    ]
+                }
+                for vc in var_combos
+            ],
+            "grouped_by_attribute": variations_by_attr
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_product_variations: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
 @router.get("/{articlenr}")
 def get_product(articlenr: str, db: Session = Depends(get_db)):
     """
@@ -204,86 +285,6 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
         print(f"Error in get_product: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-
-@router.get("/{articlenr}/variations")
-def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
-    """
-    Get all variations of a product
-    Includes both child products and variation metadata
-    """
-    try:
-        # Get the main product (can be father or child)
-        product = db.query(Product).filter(
-            Product.articlenr == articlenr
-        ).first()
-        
-        if not product:
-            raise HTTPException(status_code=404, detail="Product not found")
-        
-        father_articlenr = product.fatherarticle if not product.isfatherarticle else articlenr
-        
-        if not father_articlenr:
-            raise HTTPException(status_code=404, detail="Product has no variations")
-        
-        # Get all variations (child articles)
-        variations = db.query(Product).filter(
-            Product.fatherarticle == father_articlenr
-        ).all()
-        
-        # Get variation definitions
-        var_defs = db.query(VariationData).filter(
-            VariationData.fatherarticle == father_articlenr
-        ).order_by(VariationData.variationsortnr).all()
-        
-        # Get variation combinations
-        var_combos = db.query(VariationCombinationData).filter(
-            VariationCombinationData.fatherarticle == father_articlenr
-        ).all()
-        
-        # Group variations by attributes
-        variations_by_attr = {}
-        for var in variations:
-            for attr in ['colour', 'size', 'type', 'component']:
-                val = getattr(var, attr)
-                if val:
-                    if attr not in variations_by_attr:
-                        variations_by_attr[attr] = {}
-                    if val not in variations_by_attr[attr]:
-                        variations_by_attr[attr][val] = []
-                    variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
-        
-        return {
-            "status": "success",
-            "father_article": father_articlenr,
-            "variation_count": len(variations),
-            "variations": [v.to_simple_dict(include_categories=False) for v in variations],
-            "variation_definitions": [
-                {
-                    "type": vd.variation,
-                    "value": vd.variationvalue,
-                    "sort_order": vd.variationsortnr
-                }
-                for vd in var_defs
-            ],
-            "variation_combinations": [
-                {
-                    "articlenr": vc.articlenr,
-                    "variations": [
-                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
-                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
-                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
-                    ]
-                }
-                for vc in var_combos
-            ],
-            "grouped_by_attribute": variations_by_attr
-        }
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error in get_product_variations: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # ============================================================================
