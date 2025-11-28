@@ -598,6 +598,7 @@ def get_warehouse_inventory(
     except Exception as e:
         print(f"Error in get_warehouse_inventory: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @router.get("/meta/categories/{categoryid}")
 def get_category_products(
     categoryid: int,
