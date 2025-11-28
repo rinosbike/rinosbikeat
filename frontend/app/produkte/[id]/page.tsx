@@ -186,11 +186,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               )}
 
              
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+          
 
               {/* Quantity */}
               <div className="mb-6">
