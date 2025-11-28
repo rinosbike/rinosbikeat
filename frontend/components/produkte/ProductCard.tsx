@@ -37,6 +37,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
         )}
+
+        {/* Parent Product Badge */}
+        {product.is_father_article && (
+          <div className="mb-2">
+            <span className="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">
+              Mehrere Größen
+            </span>
+          </div>
+        )}
+
+
         
         {/* Product Name */}
         <h3 className="font-bold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
