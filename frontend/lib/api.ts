@@ -57,9 +57,13 @@ export interface Product {
   manufacturer?: string | null;
   productgroup?: string | null;
   primary_image?: string | null;
+  images?: string[];  // ADD THIS
   is_father_article: boolean;
   colour?: string | null;
   size?: string | null;
+  component?: string | null;
+  type?: string | null;
+  father_article?: string | null;  // ADD THIS
   gtin?: string | null;
 }
 
