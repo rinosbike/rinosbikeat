@@ -393,7 +393,7 @@ def get_category_products(
     limit: int = 24,
     db: Session = Depends(get_db)
 ):
-    """Get all products in a specific category"""
+    """Get all PARENT products and standalone products in a specific category (excludes child variations)"""
     try:
         category = db.query(Category).filter(
             Category.categoryid == categoryid
@@ -402,55 +402,35 @@ def get_category_products(
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
         
+        # Filter: Show parent articles OR standalone products (no parent)
+        # Hide: Child articles (has a parent)
         products = db.query(Product).join(
             product_category_association,
             Product.productid == product_category_association.c.productid
         ).filter(
-            product_category_association.c.categoryid == categoryid
+            product_category_association.c.categoryid == categoryid,
+            or_(
+                Product.isfatherarticle == True,  # Parent articles
+                and_(
+                    Product.isfatherarticle == False,
+                    Product.fatherarticle == None  # Standalone products
+                )
+            )
         ).offset(skip).limit(min(limit, 100)).all()
         
         total_count = db.query(Product).join(
             product_category_association,
             Product.productid == product_category_association.c.productid
         ).filter(
-            product_category_association.c.categoryid == categoryid
+            product_category_association.c.categoryid == categoryid,
+            or_(
+                Product.isfatherarticle == True,
+                and_(
+                    Product.isfatherarticle == False,
+                    Product.fatherarticle == None
+                )
+            )
         ).count()
-        
-        return {
-            "status": "success",
-            "category": category.to_dict(),
-            "count": len(products),
-            "total": total_count,
-            "page": (skip // limit) + 1 if limit > 0 else 1,
-            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
-            "products": [
-    {
-        "productid": p.productid,
-        "articlenr": p.articlenr,
-        "articlename": p.articlename,
-        "shortdescription": p.shortdescription,
-        "price": float(p.priceEUR) if p.priceEUR else 0,
-        "manufacturer": p.manufacturer,
-        "productgroup": p.productgroup,
-        "is_father_article": p.isfatherarticle,
-        "primary_image": p.get_primary_image(),
-        "images": p.get_all_images(),  # ALL images
-        # Variation attributes - so frontend knows what each variant is
-        "size": p.size,
-        "colour": p.colour,
-        "component": p.component,
-        "type": p.type,
-        "father_article": p.fatherarticle  # Link to parent
-    }
-    for p in products
-]
-        }
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"Error in get_category_products: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
 # ============================================================================
