@@ -386,7 +386,6 @@ def get_categories(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
-
 @router.get("/meta/categories/{categoryid}")
 def get_category_products(
     categoryid: int,
@@ -394,9 +393,8 @@ def get_category_products(
     limit: int = 24,
     db: Session = Depends(get_db)
 ):
-    """Get all products in a specific category (both father and child articles)"""
+    """Get all products in a specific category"""
     try:
-        # Get category first
         category = db.query(Category).filter(
             Category.categoryid == categoryid
         ).first()
@@ -404,22 +402,18 @@ def get_category_products(
         if not category:
             raise HTTPException(status_code=404, detail="Category not found")
         
-        # Query: articlecategory -> get productids -> then get ALL Products
-        # NO filter on isfatherarticle - returns both father and child articles
-        products = db.query(Product).filter(
-            Product.productid.in_(
-                db.query(product_category_association.c.productid).filter(
-                    product_category_association.c.categoryid == categoryid
-                )
-            )
+        products = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid
         ).offset(skip).limit(min(limit, 100)).all()
         
-        total_count = db.query(Product).filter(
-            Product.productid.in_(
-                db.query(product_category_association.c.productid).filter(
-                    product_category_association.c.categoryid == categoryid
-                )
-            )
+        total_count = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid
         ).count()
         
         return {
