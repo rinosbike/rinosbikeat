@@ -385,7 +385,6 @@ def get_categories(db: Session = Depends(get_db)):
         print(f"Error in get_categories: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-
 @router.get("/meta/categories/{categoryid}")
 def get_category_products(
     categoryid: int,
@@ -431,7 +430,41 @@ def get_category_products(
                 )
             )
         ).count()
-
+        
+        return {
+            "status": "success",
+            "category": category.to_dict(),
+            "count": len(products),
+            "total": total_count,
+            "page": (skip // limit) + 1 if limit > 0 else 1,
+            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
+            "products": [
+                {
+                    "productid": p.productid,
+                    "articlenr": p.articlenr,
+                    "articlename": p.articlename,
+                    "shortdescription": p.shortdescription,
+                    "price": float(p.priceEUR) if p.priceEUR else 0,
+                    "manufacturer": p.manufacturer,
+                    "productgroup": p.productgroup,
+                    "is_father_article": p.isfatherarticle,
+                    "primary_image": p.get_primary_image(),
+                    "images": p.get_all_images(),
+                    "size": p.size,
+                    "colour": p.colour,
+                    "component": p.component,
+                    "type": p.type,
+                    "father_article": p.fatherarticle
+                }
+                for p in products
+            ]
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_category_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 # ============================================================================
 # MANUFACTURER ENDPOINTS
