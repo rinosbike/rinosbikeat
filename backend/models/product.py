@@ -1,4 +1,5 @@
 # backend/models/product.py
+# Updated: 2025-11-28
 """
 Product models - Updated to include category and variation relationships
 Maps to: productdata, category, articlecategory, variationdata, variationcombinationdata
