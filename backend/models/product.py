@@ -322,3 +322,23 @@ class InventoryData(Base):
             "locationid": self.locationid,
             "quantity": self.quantity
         }
+
+class WarehouseData(Base):
+    """
+    Warehouse locations - Maps to your existing 'warehousedata' table
+    """
+    __tablename__ = "warehousedata"
+    
+    locationid = Column(Integer, primary_key=True)
+    warehouse = Column(Text)
+    type = Column(Text)
+    location = Column(Text)
+    
+    def to_dict(self):
+        """Convert to dictionary"""
+        return {
+            "locationid": self.locationid,
+            "warehouse": self.warehouse,
+            "type": self.type,
+            "location": self.location
+        }
