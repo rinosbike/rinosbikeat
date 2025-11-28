@@ -65,6 +65,7 @@ export interface Product {
   type?: string | null;
   father_article?: string | null;  // ADD THIS
   gtin?: string | null;
+  variations?: Product[];  
 }
 
 export interface ProductVariation {
