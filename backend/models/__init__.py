@@ -2,9 +2,8 @@
 Models package for RINOS Bikes Backend
 This file imports all database models for easy access
 """
-
 # Product models
-from .product import Product, InventoryData, WarehouseData, ProductTranslation, ProductTag, ProductAvailability, ProductReview
+from .product import Product, InventoryData, WarehouseData, ProductAvailability, Category, VariationData, VariationCombinationData
 
 # Customer models
 from .customer import Customer, EmailSubscriber
@@ -23,10 +22,10 @@ __all__ = [
     'Product',
     'InventoryData',
     'WarehouseData',
-    'ProductTranslation',
-    'ProductTag',
     'ProductAvailability',
-    'ProductReview',
+    'Category',
+    'VariationData',
+    'VariationCombinationData',
     
     # Customer models
     'Customer',
