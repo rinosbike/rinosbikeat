@@ -598,3 +598,59 @@ def get_warehouse_inventory(
     except Exception as e:
         print(f"Error in get_warehouse_inventory: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+@router.get("/meta/categories/{categoryid}")
+def get_category_products(
+    categoryid: int,
+    skip: int = 0,
+    limit: int = 24,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all products in a specific category
+    """
+    try:
+        # Get category
+        category = db.query(Category).filter(
+            Category.categoryid == categoryid
+        ).first()
+        
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        
+        # Get products in this category
+        products = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid,
+            Product.isfatherarticle == True
+        ).offset(skip).limit(min(limit, 100)).all()
+        
+        total_count = db.query(Product).join(
+            product_category_association,
+            Product.productid == product_category_association.c.productid
+        ).filter(
+            product_category_association.c.categoryid == categoryid,
+            Product.isfatherarticle == True
+        ).count()
+        
+        return {
+            "status": "success",
+            "category": {
+                "categoryid": category.categoryid,
+                "category": category.category,
+                "categorypath": category.categorypath,
+                "categoryimageurl": category.categoryimageurl
+            },
+            "count": len(products),
+            "total": total_count,
+            "page": (skip // limit) + 1 if limit > 0 else 1,
+            "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
+            "products": [p.to_simple_dict(include_categories=False) for p in products]
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error in get_category_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
