@@ -160,6 +160,74 @@ export const productsApi = {
 };
 
 // ============================================================================
+// CATEGORIES API
+// ============================================================================
+
+export interface Category {
+  categoryid: number;
+  category: string;
+  categorypath?: string | null;
+  categoryimageurl?: string | null;
+  product_count?: number;
+}
+
+export interface CategoryProductsResponse {
+  status: string;
+  category: Category;
+  count: number;
+  total: number;
+  page: number;
+  pages: number;
+  products: Product[];
+}
+
+export const categoriesApi = {
+  // Get all categories
+  getAll: async (): Promise<{ status: string; count: number; categories: Category[] }> => {
+    const response = await apiClient.get('/api/meta/categories');
+    return response.data;
+  },
+
+  // Get products in a specific category
+  getProducts: async (categoryId: number, skip: number = 0, limit: number = 24): Promise<CategoryProductsResponse> => {
+    const response = await apiClient.get(`/api/meta/categories/${categoryId}`, {
+      params: { skip, limit },
+    });
+    return response.data;
+  },
+};
+
+// ============================================================================
+// PRODUCT VARIATIONS API
+// ============================================================================
+
+export interface ProductVariationDetail extends Product {
+  images: string[];
+  father_article?: string | null;
+}
+
+export interface ProductVariationsResponse {
+  status: string;
+  father_article: string;
+  variation_count: number;
+  variations: ProductVariationDetail[];
+  variation_combinations: Array<{
+    articlenr: string;
+    variations: Array<{ type: string | null; value: string | null }>;
+  }>;
+  grouped_by_attribute: Record<string, Record<string, ProductVariationDetail[]>>;
+}
+
+export const variationsApi = {
+  // Get variations for a product
+  getVariations: async (articlenr: string): Promise<ProductVariationsResponse> => {
+    const response = await apiClient.get(`/api/products/${articlenr}/variations`);
+    return response.data;
+  },
+};
+
+
+// ============================================================================
 // CART API
 // ============================================================================
 
