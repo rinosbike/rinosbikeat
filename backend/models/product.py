@@ -342,3 +342,4 @@ class WarehouseData(Base):
             "type": self.type,
             "location": self.location
         }
+
