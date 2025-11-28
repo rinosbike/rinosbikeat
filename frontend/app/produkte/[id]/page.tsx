@@ -43,10 +43,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       const data = await productsApi.getById(parseInt(params.id))
       setProduct(data)
       
-      // Pre-select first variation if available
-      if (data.variations && data.variations.length > 0) {
-        setSelectedVariation(data.variations[0].variation_id)
-      }
+      // Variations will be fetched separately if needed
+      setSelectedVariation(null)
     } catch (err) {
       console.error('Fehler beim Laden des Produkts:', err)
       setError('Produkt konnte nicht geladen werden.')
