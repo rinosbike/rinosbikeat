@@ -148,25 +148,33 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
 
             product_dict["variation_combinations"] = variation_combinations
             
-            # Get unique variation options from variationdata with defensive error handling
+            # Get variation options from child products instead of variationdata
+            # This avoids the NULL primary key issue in variationdata table
             variation_options = {}
             try:
-                variation_defs = db.query(VariationData).filter(
-                    VariationData.fatherarticle == articlenr
-                ).all()
+                for child in variations:
+                    # Extract variation attributes from child products
+                    if child.colour and child.colour not in variation_options.get('Colour', []):
+                        if 'Colour' not in variation_options:
+                            variation_options['Colour'] = []
+                        variation_options['Colour'].append(child.colour)
 
-                for var_def in variation_defs:
-                    try:
-                        if var_def is not None and hasattr(var_def, 'variation') and var_def.variation is not None:
-                            if var_def.variation not in variation_options:
-                                variation_options[var_def.variation] = []
-                            if var_def.variationvalue and var_def.variationvalue not in variation_options[var_def.variation]:
-                                variation_options[var_def.variation].append(var_def.variationvalue)
-                    except Exception as e:
-                        print(f"Error processing variation option: {e}")
-                        continue
+                    if child.size and child.size not in variation_options.get('Size', []):
+                        if 'Size' not in variation_options:
+                            variation_options['Size'] = []
+                        variation_options['Size'].append(child.size)
+
+                    if child.component and child.component not in variation_options.get('Component', []):
+                        if 'Component' not in variation_options:
+                            variation_options['Component'] = []
+                        variation_options['Component'].append(child.component)
+
+                    if child.type and child.type not in variation_options.get('Type', []):
+                        if 'Type' not in variation_options:
+                            variation_options['Type'] = []
+                        variation_options['Type'].append(child.type)
             except Exception as e:
-                print(f"Error querying variation options: {e}")
+                print(f"Error extracting variation options from child products: {e}")
 
             product_dict["variation_options"] = variation_options
         else:
@@ -247,29 +255,50 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             Product.fatherarticle == father_articlenr
         ).all()
         
-        # Get variation definitions with defensive error handling
-        var_defs = []
+        # Extract variation definitions from variationcombinationdata instead of variationdata
+        # This avoids the NULL primary key issue in variationdata table
         variation_definitions = []
+        variation_types = set()
         try:
-            var_defs_query = db.query(VariationData).filter(
-                VariationData.fatherarticle == father_articlenr
-            )
-            var_defs = var_defs_query.all()
+            # Get unique variation types and values from variationcombinationdata
+            var_combos = db.query(VariationCombinationData).filter(
+                VariationCombinationData.fatherarticle == father_articlenr
+            ).all()
 
-            # Build variation definitions with extensive null checking
-            for vd in var_defs:
+            for vc in var_combos:
                 try:
-                    if vd is not None and hasattr(vd, 'variation') and vd.variation is not None:
-                        variation_definitions.append({
-                            "type": str(vd.variation),
-                            "value": str(vd.variationvalue) if vd.variationvalue is not None else "",
-                            "sort_order": int(vd.variationsortnr) if vd.variationsortnr is not None else 0
-                        })
+                    if vc.variation1 and vc.variationvalue1:
+                        var_key = f"{vc.variation1}|{vc.variationvalue1}"
+                        if var_key not in variation_types:
+                            variation_types.add(var_key)
+                            variation_definitions.append({
+                                "type": vc.variation1,
+                                "value": vc.variationvalue1,
+                                "sort_order": 0
+                            })
+                    if vc.variation2 and vc.variationvalue2:
+                        var_key = f"{vc.variation2}|{vc.variationvalue2}"
+                        if var_key not in variation_types:
+                            variation_types.add(var_key)
+                            variation_definitions.append({
+                                "type": vc.variation2,
+                                "value": vc.variationvalue2,
+                                "sort_order": 1
+                            })
+                    if vc.variation3 and vc.variationvalue3:
+                        var_key = f"{vc.variation3}|{vc.variationvalue3}"
+                        if var_key not in variation_types:
+                            variation_types.add(var_key)
+                            variation_definitions.append({
+                                "type": vc.variation3,
+                                "value": vc.variationvalue3,
+                                "sort_order": 2
+                            })
                 except Exception as e:
-                    print(f"Error processing variation def: {e}")
+                    print(f"Error processing variation from combination: {e}")
                     continue
         except Exception as e:
-            print(f"Error querying variation definitions: {e}")
+            print(f"Error extracting variations from combinations: {e}")
 
         # Get variation combinations with error handling
         variation_combinations = []
