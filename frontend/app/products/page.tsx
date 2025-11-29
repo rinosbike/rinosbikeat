@@ -83,11 +83,11 @@ export default function ProduktePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Page Header */}
       <div className="bg-white border-b">
-        <div className="container py-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl md:text-4xl font-normal text-rinos-text mb-2">
             Unsere Fahrräder
           </h1>
           <p className="text-gray-600 text-lg">
@@ -96,7 +96,7 @@ export default function ProduktePage() {
         </div>
       </div>
 
-      <div className="container py-8">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar - Filters */}
           <aside className="lg:col-span-1">

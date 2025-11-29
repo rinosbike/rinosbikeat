@@ -36,19 +36,19 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-container mx-auto px-4">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo - Shopify Style with Image */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <img
               src="/images/logo.png"
               alt="RINOS Bikes"
-              className="h-12 w-auto"
+              className="h-14 w-auto object-contain"
             />
           </Link>
 
           {/* Desktop Navigation - Hierarchical Menu */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-6 flex-1 justify-center">
             <DropdownMenu title="Fahrräder">
               <DropdownLink href="/products?category=road-bikes">Rennräder</DropdownLink>
               <DropdownLink href="/products?category=folding-bikes">Falträder</DropdownLink>
@@ -88,7 +88,7 @@ export default function Header() {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
             {/* Search */}
             <button className="p-2 text-rinos-text hover:opacity-70 transition-opacity">
               <Search className="w-5 h-5" />

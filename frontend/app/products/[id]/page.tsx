@@ -108,9 +108,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   if (loading) {
     return (
-      <div className="container py-16">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-rinos-primary mb-4"></div>
           <p className="text-gray-600">Lädt Produkt...</p>
         </div>
       </div>
@@ -119,12 +119,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   if (error || !product) {
     return (
-      <div className="container py-16">
-        <div className="card text-center max-w-md mx-auto">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="bg-white border border-gray-200 p-8 text-center max-w-md mx-auto">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Produkt nicht gefunden</h2>
           <p className="text-gray-600 mb-6">{error || 'Dieses Produkt existiert nicht.'}</p>
-          <Link href="/produkte" className="btn btn-primary">
+          <Link href="/products" className="bg-rinos-primary text-white px-6 py-3 hover:opacity-90 transition-opacity">
             Zurück zu den Produkten
           </Link>
         </div>
@@ -135,8 +135,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const finalPrice = getSelectedVariationPrice()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container py-8">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
           href="/produkte"
