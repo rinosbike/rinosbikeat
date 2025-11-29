@@ -58,6 +58,7 @@ export interface Product {
   articlename: string;
   shortdescription?: string | null;
   price: number;
+  currency?: string | null;
   manufacturer?: string | null;
   productgroup?: string | null;
   primary_image?: string | null;

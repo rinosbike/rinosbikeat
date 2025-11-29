@@ -243,11 +243,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <div className="mb-6 pb-6 border-b">
                 <div className="flex items-baseline space-x-2">
                   <span className="text-4xl font-bold text-blue-600">
-                    {finalPrice.toFixed(2)} {product.currency}
+                    {finalPrice.toFixed(2)} {product.currency || '€'}
                   </span>
                   {selectedVariation && (
                     <span className="text-lg text-gray-500 line-through">
-                      {product.price.toFixed(2)} {product.currency}
+                      {product.price.toFixed(2)} {product.currency || '€'}
                     </span>
                   )}
                 </div>
