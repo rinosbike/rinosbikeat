@@ -4,7 +4,7 @@ This file imports all database models for easy access
 """
 
 # Product models
-from .product import Product, InventoryData, WarehouseData, ProductTranslation, ProductTag, ProductAvailability, ProductReview
+from .product import Product, InventoryData, ProductAvailability, Category, VariationData, VariationCombinationData
 
 # Customer models
 from .customer import Customer, EmailSubscriber
@@ -22,11 +22,10 @@ __all__ = [
     # Product models
     'Product',
     'InventoryData',
-    'WarehouseData',
-    'ProductTranslation',
-    'ProductTag',
     'ProductAvailability',
-    'ProductReview',
+    'Category',
+    'VariationData',
+    'VariationCombinationData',
     
     # Customer models
     'Customer',
