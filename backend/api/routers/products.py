@@ -10,7 +10,7 @@ from typing import Optional, List
 from database.connection import get_db
 from models.product import (
     Product, Category, VariationData, VariationCombinationData,
-    ProductAvailability, InventoryData, WarehouseData,
+    ProductAvailability, InventoryData,
     product_category_association
 )
 
