@@ -139,18 +139,20 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
                 for vc in var_combinations
             ]
             
-            # Get unique variation options from variationdata
+            # Get unique variation options from variationdata (filter out None values)
             variation_defs = db.query(VariationData).filter(
-                VariationData.fatherarticle == articlenr
+                VariationData.fatherarticle == articlenr,
+                VariationData.variation.isnot(None)
             ).all()
-            
+
             variation_options = {}
             for var_def in variation_defs:
-                if var_def.variation not in variation_options:
-                    variation_options[var_def.variation] = []
-                if var_def.variationvalue not in variation_options[var_def.variation]:
-                    variation_options[var_def.variation].append(var_def.variationvalue)
-            
+                if var_def and var_def.variation:  # Safety check
+                    if var_def.variation not in variation_options:
+                        variation_options[var_def.variation] = []
+                    if var_def.variationvalue and var_def.variationvalue not in variation_options[var_def.variation]:
+                        variation_options[var_def.variation].append(var_def.variationvalue)
+
             product_dict["variation_options"] = variation_options
         else:
             # This is a child product
@@ -230,16 +232,17 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             Product.fatherarticle == father_articlenr
         ).all()
         
-        # Get variation definitions
+        # Get variation definitions (filter out None values)
         var_defs = db.query(VariationData).filter(
-            VariationData.fatherarticle == father_articlenr
+            VariationData.fatherarticle == father_articlenr,
+            VariationData.variation.isnot(None)
         ).order_by(VariationData.variationsortnr).all()
-        
+
         # Get variation combinations
         var_combos = db.query(VariationCombinationData).filter(
             VariationCombinationData.fatherarticle == father_articlenr
         ).all()
-        
+
         # Group variations by attributes
         variations_by_attr = {}
         for var in variations:
@@ -251,7 +254,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
                     if val not in variations_by_attr[attr]:
                         variations_by_attr[attr][val] = []
                     variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
-        
+
         return {
             "status": "success",
             "father_article": father_articlenr,
@@ -260,10 +263,11 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             "variation_definitions": [
                 {
                     "type": vd.variation,
-                    "value": vd.variationvalue,
-                    "sort_order": vd.variationsortnr
+                    "value": vd.variationvalue if vd.variationvalue else "",
+                    "sort_order": vd.variationsortnr if vd.variationsortnr else 0
                 }
                 for vd in var_defs
+                if vd and vd.variation  # Extra safety check
             ],
             "variation_combinations": [
                 {
