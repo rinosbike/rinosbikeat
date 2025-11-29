@@ -40,7 +40,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     try {
       setLoading(true)
       setError(null)
-      const data = await productsApi.getById(parseInt(params.id))
+      // params.id can be either a numeric product ID or an article number string
+      const data = await productsApi.getById(params.id)
       setProduct(data)
       
       // Pre-select first variation if available

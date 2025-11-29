@@ -135,7 +135,7 @@ export interface ProductResponse {
 export const productsApi = {
   // Get all products with pagination
   getAll: async (page: number = 1, pageSize: number = 20): Promise<ProductResponse> => {
-    const response = await apiClient.get('/products/', {
+    const response = await apiClient.get('/', {
       params: {
         page,
         page_size: pageSize,
@@ -144,21 +144,21 @@ export const productsApi = {
     return response.data;
   },
 
-  // Get single product by ID
-  getById: async (productId: number): Promise<Product> => {
-    const response = await apiClient.get(`/products/${productId}`);
-    return response.data;
+  // Get single product by ID or article number
+  getById: async (productId: number | string): Promise<Product> => {
+    const response = await apiClient.get(`/${productId}`);
+    return response.data.product || response.data;
   },
 
   // Get product by article number
   getByArticleNr: async (articlenr: string): Promise<Product> => {
-    const response = await apiClient.get(`/products/${articlenr}`);
-    return response.data;
+    const response = await apiClient.get(`/${articlenr}`);
+    return response.data.product || response.data;
   },
 
   // Search products
   search: async (query: string, page: number = 1): Promise<ProductResponse> => {
-    const response = await apiClient.get('/products/search/query', {
+    const response = await apiClient.get('/search/query', {
       params: {
         search: query,
         page,
@@ -230,7 +230,7 @@ export interface ProductVariationsResponse {
 export const variationsApi = {
   // Get variations for a product
   getVariations: async (articlenr: string): Promise<ProductVariationsResponse> => {
-    const response = await apiClient.get(`/products/${articlenr}/variations`);
+    const response = await apiClient.get(`/${articlenr}/variations`);
     return response.data;
   },
 };
