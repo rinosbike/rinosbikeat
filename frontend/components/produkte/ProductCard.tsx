@@ -32,23 +32,23 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* Product Info - Minimal Shopify Style */}
-        <div className="flex flex-col flex-grow">
+        {/* Product Info - Shopify Style (Left-aligned) */}
+        <div className="flex flex-col flex-grow text-left">
+          {/* Product Name */}
+          <h3 className="text-sm text-rinos-text font-normal mb-1 group-hover:underline line-clamp-2">
+            {product.articlename}
+          </h3>
+
           {/* Manufacturer / Brand */}
           {product.manufacturer && (
-            <p className="text-sm text-gray-600 mb-1">
+            <p className="text-xs text-gray-600 mb-1">
               {product.manufacturer}
             </p>
           )}
 
-          {/* Product Name */}
-          <h3 className="text-rinos-text font-normal mb-2 group-hover:underline line-clamp-2">
-            {product.articlename}
-          </h3>
-
           {/* Price */}
           <div className="mt-auto">
-            <span className="text-rinos-text font-normal">
+            <span className="text-sm text-rinos-text font-normal">
               €{product.price.toFixed(2)}
             </span>
           </div>

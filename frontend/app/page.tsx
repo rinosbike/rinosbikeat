@@ -132,7 +132,7 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-8">
                 {featuredProducts.map((product) => (
                   <ProductCard key={product.productid} product={product} />
                 ))}
@@ -157,7 +157,7 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-normal text-rinos-text text-center mb-12">
             Kategorien
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
             {categories.map((category) => (
               <CategoryCard
                 key={category.categoryid}

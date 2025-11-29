@@ -80,7 +80,7 @@ export default function KategoriePage() {
 
         {/* Categories Grid */}
         {!loading && !error && categories.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
             {categories.map((category) => (
               <Link
                 key={category.categoryid}
