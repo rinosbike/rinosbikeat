@@ -45,7 +45,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       
       // Pre-select first variation if available
       if (data.variations && data.variations.length > 0) {
-        setSelectedVariation(data.variations[0].variation_id)
+        setSelectedVariation(data.variations[0].productid)
       }
     } catch (err) {
       console.error('Fehler beim Laden des Produkts:', err)
@@ -99,11 +99,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   const getSelectedVariationPrice = () => {
     if (!product || !selectedVariation) return product?.price || 0
-    
-    const variation = product.variations?.find(v => v.variation_id === selectedVariation)
+
+    const variation = product.variations?.find(v => v.productid === selectedVariation)
     if (!variation) return product.price
-    
-    return product.price + variation.price_adjustment
+
+    // Variations are full products with their own prices
+    return variation.price
   }
 
   if (loading) {
@@ -194,19 +195,20 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <div className="grid grid-cols-2 gap-3">
                     {product.variations.map((variation) => (
                       <button
-                        key={variation.variation_id}
-                        onClick={() => setSelectedVariation(variation.variation_id)}
+                        key={variation.productid}
+                        onClick={() => setSelectedVariation(variation.productid)}
                         className={`p-4 rounded-lg border-2 transition-all ${
-                          selectedVariation === variation.variation_id
+                          selectedVariation === variation.productid
                             ? 'border-blue-600 bg-blue-50'
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="font-medium">{variation.variation_name}</div>
-                        {variation.price_adjustment !== 0 && (
+                        <div className="font-medium">
+                          {variation.colour || variation.size || variation.component || variation.type || variation.articlenr}
+                        </div>
+                        {variation.price !== product.price && (
                           <div className="text-sm text-gray-600">
-                            {variation.price_adjustment > 0 ? '+' : ''}
-                            {variation.price_adjustment.toFixed(2)} {product.currency}
+                            {variation.price.toFixed(2)} EUR
                           </div>
                         )}
                       </button>
