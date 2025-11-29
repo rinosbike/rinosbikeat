@@ -71,7 +71,7 @@ export default function HomePage() {
               Sandman 4 - Erobern Sie alle Terrains und Rennen
             </h1>
             <Link
-              href="/products/sandman-4"
+              href="/products/3416"
               className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity text-sm font-medium"
             >
               Jetzt entdecken
@@ -137,7 +137,7 @@ export default function HomePage() {
                   </h2>
                   <p className="text-sm md:text-base mb-4">Praktikabilität mit Leistung</p>
                   <Link
-                    href="/products/sandman-6"
+                    href="/products/3427"
                     className="inline-block bg-white text-rinos-text px-6 py-2 hover:opacity-90 transition-opacity text-sm font-medium"
                   >
                     Entdecken
@@ -161,7 +161,7 @@ export default function HomePage() {
                   </h2>
                   <p className="text-sm md:text-base mb-4">Holen Sie sich jetzt Ihr erstes MTB</p>
                   <Link
-                    href="/products/gaia-2"
+                    href="/products/2025"
                     className="inline-block bg-white text-rinos-text px-6 py-2 hover:opacity-90 transition-opacity text-sm font-medium"
                   >
                     Entdecken
