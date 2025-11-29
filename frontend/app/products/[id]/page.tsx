@@ -181,10 +181,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               </p>
 
               {/* Description */}
-              {product.description && (
+              {product.shortdescription && (
                 <div className="mb-6 pb-6 border-b">
                   <p className="text-gray-700 leading-relaxed">
-                    {product.description}
+                    {product.shortdescription}
                   </p>
                 </div>
               )}
