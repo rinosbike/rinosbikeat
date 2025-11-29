@@ -1,11 +1,15 @@
 /**
  * API Client for RINOS Bikes Backend
  * Handles all HTTP requests to the FastAPI backend
+ * 
+ * Flow:
+ * Frontend calls /api/* → Next.js proxy at /app/api/[...proxy]/route.ts 
+ * → Forwards to backend at https://backend/api/*
  */
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
-const API_URL = '/api'; // Use local proxy
+const API_URL = '/api'; // Local proxy route
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -57,13 +61,13 @@ export interface Product {
   manufacturer?: string | null;
   productgroup?: string | null;
   primary_image?: string | null;
-  images?: string[];  // ADD THIS
+  images?: string[];
   is_father_article: boolean;
   colour?: string | null;
   size?: string | null;
   component?: string | null;
   type?: string | null;
-  father_article?: string | null;  // ADD THIS
+  father_article?: string | null;
   gtin?: string | null;
   variations?: Product[];  
 }
@@ -131,7 +135,7 @@ export interface ProductResponse {
 export const productsApi = {
   // Get all products with pagination
   getAll: async (page: number = 1, pageSize: number = 20): Promise<ProductResponse> => {
-    const response = await apiClient.get('/api/products/', {
+    const response = await apiClient.get('/products/', {
       params: {
         page,
         page_size: pageSize,
@@ -142,19 +146,19 @@ export const productsApi = {
 
   // Get single product by ID
   getById: async (productId: number): Promise<Product> => {
-    const response = await apiClient.get(`/api/products/${productId}`);
+    const response = await apiClient.get(`/products/${productId}`);
     return response.data;
   },
 
   // Get product by article number
   getByArticleNr: async (articlenr: string): Promise<Product> => {
-    const response = await apiClient.get(`/api/products/${articlenr}`);
+    const response = await apiClient.get(`/products/${articlenr}`);
     return response.data;
   },
 
   // Search products
   search: async (query: string, page: number = 1): Promise<ProductResponse> => {
-    const response = await apiClient.get('/api/products/search/query', {
+    const response = await apiClient.get('/products/search/query', {
       params: {
         search: query,
         page,
@@ -189,13 +193,13 @@ export interface CategoryProductsResponse {
 export const categoriesApi = {
   // Get all categories
   getAll: async (): Promise<{ status: string; count: number; categories: Category[] }> => {
-    const response = await apiClient.get('/api/meta/categories');
+    const response = await apiClient.get('/meta/categories');
     return response.data;
   },
 
   // Get products in a specific category
   getProducts: async (categoryId: number, skip: number = 0, limit: number = 24): Promise<CategoryProductsResponse> => {
-    const response = await apiClient.get(`/api/meta/categories/${categoryId}`, {
+    const response = await apiClient.get(`/meta/categories/${categoryId}`, {
       params: { skip, limit },
     });
     return response.data;
@@ -226,11 +230,10 @@ export interface ProductVariationsResponse {
 export const variationsApi = {
   // Get variations for a product
   getVariations: async (articlenr: string): Promise<ProductVariationsResponse> => {
-    const response = await apiClient.get(`/api/products/${articlenr}/variations`);
+    const response = await apiClient.get(`/products/${articlenr}/variations`);
     return response.data;
   },
 };
-
 
 // ============================================================================
 // CART API
@@ -239,7 +242,7 @@ export const variationsApi = {
 export const cartApi = {
   // Get cart
   getCart: async (sessionId: string): Promise<Cart> => {
-    const response = await apiClient.get(`/api/cart/`, {
+    const response = await apiClient.get(`/cart/`, {
       params: { session_id: sessionId },
     });
     return response.data;
@@ -253,7 +256,7 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.post(
-      `/api/cart/add`,
+      `/cart/add`,
       {
         product_id: productId,
         quantity,
@@ -274,7 +277,7 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.put(
-      `/api/cart/items/${productId}`,
+      `/cart/items/${productId}`,
       {
         quantity,
         variation_id: variationId,
@@ -293,7 +296,7 @@ export const cartApi = {
     variationId?: number
   ): Promise<Cart> => {
     const response = await apiClient.delete(
-      `/api/cart/items/${productId}`,
+      `/cart/items/${productId}`,
       {
         params: { session_id: sessionId },
         data: { variation_id: variationId },
@@ -304,7 +307,7 @@ export const cartApi = {
 
   // Clear cart
   clearCart: async (sessionId: string): Promise<void> => {
-    await apiClient.delete(`/api/cart/`, {
+    await apiClient.delete(`/cart/`, {
       params: { session_id: sessionId },
     });
   },
@@ -331,7 +334,7 @@ export const ordersApi = {
     paymentMethod: string = 'stripe'
   ): Promise<Order> => {
     const response = await apiClient.post(
-      `/api/orders/`,
+      `/orders/`,
       {
         customer_info: customerInfo,
         payment_method: paymentMethod,
@@ -345,13 +348,13 @@ export const ordersApi = {
 
   // Get order by ID
   getById: async (orderId: number): Promise<Order> => {
-    const response = await apiClient.get(`/api/orders/${orderId}`);
+    const response = await apiClient.get(`/orders/${orderId}`);
     return response.data;
   },
 
   // Get user orders
   getUserOrders: async (): Promise<Order[]> => {
-    const response = await apiClient.get('/api/orders/');
+    const response = await apiClient.get('/orders/');
     return response.data;
   },
 };
@@ -371,7 +374,7 @@ export const paymentsApi = {
     amount: number;
     currency: string;
   }> => {
-    const response = await apiClient.post('/api/payments/create-payment-intent', {
+    const response = await apiClient.post('/payments/create-payment-intent', {
       order_id: orderId,
       return_url: returnUrl,
     });
@@ -380,7 +383,7 @@ export const paymentsApi = {
 
   // Get payment status
   getPaymentStatus: async (paymentIntentId: string) => {
-    const response = await apiClient.get(`/api/payments/status/${paymentIntentId}`);
+    const response = await apiClient.get(`/payments/status/${paymentIntentId}`);
     return response.data;
   },
 };
@@ -398,13 +401,13 @@ export const authApi = {
     last_name?: string;
     phone?: string;
   }): Promise<{ access_token: string; user: User }> => {
-    const response = await apiClient.post('/api/auth/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     return response.data;
   },
 
   // Login
   login: async (email: string, password: string): Promise<{ access_token: string; user: User }> => {
-    const response = await apiClient.post('/api/auth/login/json', {
+    const response = await apiClient.post('/auth/login/json', {
       email,
       password,
     });
@@ -413,25 +416,25 @@ export const authApi = {
 
   // Get current user
   getCurrentUser: async (): Promise<User> => {
-    const response = await apiClient.get('/api/auth/me');
+    const response = await apiClient.get('/auth/me');
     return response.data;
   },
 
   // Logout
   logout: async (): Promise<void> => {
-    await apiClient.post('/api/auth/logout');
+    await apiClient.post('/auth/logout');
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
   },
 
   // Request password reset
   requestPasswordReset: async (email: string): Promise<void> => {
-    await apiClient.post('/api/auth/password-reset', { email });
+    await apiClient.post('/auth/password-reset', { email });
   },
 
   // Confirm password reset
   confirmPasswordReset: async (token: string, newPassword: string): Promise<void> => {
-    await apiClient.post('/api/auth/password-reset/confirm', {
+    await apiClient.post('/auth/password-reset/confirm', {
       token,
       new_password: newPassword,
     });
@@ -439,12 +442,12 @@ export const authApi = {
 
   // Verify email
   verifyEmail: async (token: string): Promise<void> => {
-    await apiClient.post('/api/auth/verify-email', { token });
+    await apiClient.post('/auth/verify-email', { token });
   },
 
   // Resend verification email
   resendVerification: async (): Promise<void> => {
-    await apiClient.post('/api/auth/resend-verification');
+    await apiClient.post('/auth/resend-verification');
   },
 };
 
