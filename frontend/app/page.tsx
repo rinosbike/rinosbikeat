@@ -1,15 +1,15 @@
 /**
  * Homepage - RINOS Bikes
- * German language
+ * Matching rinosbike.eu design - German language
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { productsApi, categoriesApi, type Product, type Category } from '@/lib/api'
 import ProductCard from '@/components/produkte/ProductCard'
-import { ShoppingBag, Truck, Shield, Award } from 'lucide-react'
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
@@ -56,79 +56,106 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section - Shopify Style */}
-      <section className="bg-rinos-bg-secondary">
-        <div className="max-w-container mx-auto px-4 py-16 md:py-24">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-normal text-rinos-text mb-6">
-              Premium Fahrräder aus Deutschland
-            </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8">
-              Hochwertige Gravel, Road, Mountain und Falträder.
-              Made with passion in Frankfurt (Oder).
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/products"
-                className="bg-rinos-primary text-white px-8 py-3 hover:opacity-90 transition-opacity text-center"
-              >
-                Alle Fahrräder ansehen
-              </Link>
-              <Link
-                href="/categories"
-                className="bg-white border border-rinos-primary text-rinos-primary px-8 py-3 hover:bg-gray-50 transition-colors text-center"
-              >
-                Kategorien durchsuchen
-              </Link>
-            </div>
-          </div>
+      {/* Trust Banner - Black background with scrolling text */}
+      <section className="bg-black text-white py-3 overflow-hidden">
+        <div className="animate-marquee whitespace-nowrap">
+          <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
+          <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
+          <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-16 bg-rinos-bg-secondary">
-        <div className="max-w-container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <FeatureCard
-              icon={<Award className="w-10 h-10 text-rinos-text" />}
-              title="Premium Qualität"
-              description="Nur hochwertigste Komponenten und Materialien"
-            />
-            <FeatureCard
-              icon={<Truck className="w-10 h-10 text-rinos-text" />}
-              title="Kostenloser Versand"
-              description="Versandkostenfrei in ganz Europa"
-            />
-            <FeatureCard
-              icon={<Shield className="w-10 h-10 text-rinos-text" />}
-              title="5 Jahre Garantie"
-              description="Umfassende Garantie auf alle Rahmen"
-            />
-            <FeatureCard
-              icon={<ShoppingBag className="w-10 h-10 text-rinos-text" />}
-              title="Sichere Zahlung"
-              description="Stripe-gesicherte Zahlungsabwicklung"
-            />
-          </div>
-        </div>
+      {/* Promotional Bar */}
+      <section className="bg-rinos-accent text-white text-center py-2">
+        <p className="text-sm font-normal">2025 NEUE MODELLE | Sparen Sie bis zu 300€</p>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-16">
-        <div className="max-w-container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-normal text-rinos-text mb-4">
-              Unsere Fahrräder
+      {/* Hero Banner - Sandman 6 */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+        <Image
+          src="/images/hero/sandman6.jpg"
+          alt="Sandman 6"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Sandman 6 - Praktikabilität mit Leistung
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Entdecken Sie unsere Auswahl an hochwertigen Fahrrädern für jedes Abenteuer
+            <Link
+              href="/products/sandman-6"
+              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
+            >
+              Entdecken
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Banner - Sandman 4 */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+        <Image
+          src="/images/hero/sandman4.jpg"
+          alt="Sandman 4"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Sandman 4 - Erobern Sie alle Terrains und Rennen
+            </h2>
+            <Link
+              href="/products/sandman-4"
+              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
+            >
+              Entdecken
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Banner - Gaia 2 */}
+      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+        <Image
+          src="/images/hero/gaia2.jpg"
+          alt="Gaia 2"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Gaia 2 - Holen Sie sich jetzt Ihr erstes MTB
+            </h2>
+            <Link
+              href="/products/gaia-2"
+              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
+            >
+              Entdecken
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products - From Backend API */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-container mx-auto px-4">
+          <div className="text-left mb-8">
+            <h2 className="text-2xl md:text-3xl font-normal text-rinos-text mb-2">
+              Ausgewählte Produkte
+            </h2>
+            <p className="text-sm text-gray-600">
+              Entdecken Sie unsere Top-Auswahl
             </p>
           </div>
 
           {loading ? (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-rinos-primary"></div>
-              <p className="mt-4 text-gray-600">Lädt...</p>
+              <p className="mt-4 text-gray-600 text-sm">Lädt Produkte...</p>
             </div>
           ) : (
             <>
@@ -138,10 +165,10 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div className="text-center">
+              <div className="text-center mt-8">
                 <Link
                   href="/products"
-                  className="bg-rinos-primary text-white px-8 py-3 hover:opacity-90 transition-opacity"
+                  className="inline-block bg-rinos-primary text-white px-8 py-3 hover:opacity-90 transition-opacity text-sm"
                 >
                   Alle Produkte ansehen
                 </Link>
@@ -150,98 +177,7 @@ export default function HomePage() {
           )}
         </div>
       </section>
-
-      {/* Categories */}
-      <section className="py-16 bg-rinos-bg-secondary">
-        <div className="max-w-container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-normal text-rinos-text text-center mb-12">
-            Kategorien
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
-            {categories.map((category) => (
-              <CategoryCard
-                key={category.categoryid}
-                category={category}
-                slug={categoryToSlug(category.category)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-rinos-dark text-white">
-        <div className="max-w-container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-normal mb-6">
-            Bereit für dein nächstes Abenteuer?
-          </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Entdecke jetzt unsere Premium-Fahrräder und finde das perfekte Bike für deine Bedürfnisse.
-          </p>
-          <Link
-            href="/products"
-            className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity"
-          >
-            Jetzt shoppen
-          </Link>
-        </div>
-      </section>
     </div>
   )
 }
 
-// Feature Card Component
-function FeatureCard({ icon, title, description }: {
-  icon: React.ReactNode
-  title: string
-  description: string
-}) {
-  return (
-    <div className="text-center">
-      <div className="flex justify-center mb-4">
-        {icon}
-      </div>
-      <h3 className="text-lg font-normal text-rinos-text mb-2">{title}</h3>
-      <p className="text-sm text-gray-600">{description}</p>
-    </div>
-  )
-}
-
-// Category Card Component
-function CategoryCard({ category, slug }: {
-  category: Category
-  slug: string
-}) {
-  return (
-    <Link href={`/categories/${slug}?id=${category.categoryid}`} className="group block">
-      <div className="bg-white overflow-hidden">
-        <div className="aspect-square bg-rinos-bg-secondary relative overflow-hidden mb-3">
-          {category.categoryimageurl ? (
-            <img
-              src={category.categoryimageurl}
-              alt={category.category}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
-              <span className="text-white text-6xl font-bold opacity-30">
-                {category.category.charAt(0)}
-              </span>
-            </div>
-          )}
-        </div>
-        <div>
-          <h3 className="text-base font-normal text-rinos-text mb-1 group-hover:underline">
-            {category.category}
-          </h3>
-          {category.product_count !== undefined && (
-            <p className="text-sm text-gray-600">
-              {category.product_count} {category.product_count === 1 ? 'Produkt' : 'Produkte'}
-            </p>
-          )}
-        </div>
-      </div>
-    </Link>
-  )
-}
