@@ -15,12 +15,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     <Link href={`/products/${product.articlenr}`} className="group block">
       <div className="bg-white h-full flex flex-col">
         {/* Product Image - Sharp corners, no border */}
-        <div className="relative aspect-square bg-rinos-bg-secondary mb-3 overflow-hidden">
+        <div className="relative aspect-square bg-rinos-bg-secondary mb-3 overflow-hidden max-w-full">
           {product.primary_image ? (
             <img
               src={product.primary_image}
               alt={product.articlename}
-              className="w-full h-full object-cover group-hover:opacity-90 transition-opacity duration-200"
+              className="w-full h-full object-contain group-hover:opacity-90 transition-opacity duration-200"
+              loading="lazy"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">

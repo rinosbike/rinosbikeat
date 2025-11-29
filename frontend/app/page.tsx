@@ -7,27 +7,51 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { productsApi, type Product } from '@/lib/api'
+import { productsApi, categoriesApi, type Product, type Category } from '@/lib/api'
 import ProductCard from '@/components/produkte/ProductCard'
 import { ShoppingBag, Truck, Shield, Award } from 'lucide-react'
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadProducts()
+    loadCategories()
   }, [])
 
   const loadProducts = async () => {
-  try {
-    const response = await productsApi.getAll()
-    setFeaturedProducts(response.products.slice(0, 4))
+    try {
+      const response = await productsApi.getAll()
+      setFeaturedProducts(response.products.slice(0, 4))
     } catch (error) {
       console.error('Fehler beim Laden der Produkte:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadCategories = async () => {
+    try {
+      const response = await categoriesApi.getAll()
+      // Get first 4 categories for homepage display
+      setCategories(response.categories.slice(0, 4))
+    } catch (error) {
+      console.error('Fehler beim Laden der Kategorien:', error)
+    }
+  }
+
+  // Convert category name to URL slug
+  const categoryToSlug = (category: string): string => {
+    return category
+      .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]/g, '')
   }
 
   return (
@@ -134,30 +158,13 @@ export default function HomePage() {
             Kategorien
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-            <CategoryCard
-              title="Gravel Bikes"
-              description="Für Abenteuer abseits der Straße"
-              image="/images/categories/gravel.jpg"
-              link="/products?category=gravel"
-            />
-            <CategoryCard
-              title="Rennräder"
-              description="Schnell und leicht auf der Straße"
-              image="/images/categories/road.jpg"
-              link="/products?category=road"
-            />
-            <CategoryCard
-              title="Mountainbikes"
-              description="Robust für jeden Trail"
-              image="/images/categories/mountain.jpg"
-              link="/products?category=mountain"
-            />
-            <CategoryCard
-              title="Falträder"
-              description="Kompakt und praktisch"
-              image="/images/categories/foldable.jpg"
-              link="/products?category=foldable"
-            />
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.categoryid}
+                category={category}
+                slug={categoryToSlug(category.category)}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -201,28 +208,38 @@ function FeatureCard({ icon, title, description }: {
 }
 
 // Category Card Component
-function CategoryCard({ title, description, image, link }: {
-  title: string
-  description: string
-  image: string
-  link: string
+function CategoryCard({ category, slug }: {
+  category: Category
+  slug: string
 }) {
   return (
-    <Link href={link} className="group block">
+    <Link href={`/categories/${slug}?id=${category.categoryid}`} className="group block">
       <div className="bg-white overflow-hidden">
         <div className="aspect-square bg-rinos-bg-secondary relative overflow-hidden mb-3">
-          {/* Placeholder for category image */}
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
-            <span className="text-white text-6xl font-bold opacity-30">
-              {title[0]}
-            </span>
-          </div>
+          {category.categoryimageurl ? (
+            <img
+              src={category.categoryimageurl}
+              alt={category.category}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-300 to-gray-400">
+              <span className="text-white text-6xl font-bold opacity-30">
+                {category.category.charAt(0)}
+              </span>
+            </div>
+          )}
         </div>
         <div>
           <h3 className="text-base font-normal text-rinos-text mb-1 group-hover:underline">
-            {title}
+            {category.category}
           </h3>
-          <p className="text-sm text-gray-600">{description}</p>
+          {category.product_count !== undefined && (
+            <p className="text-sm text-gray-600">
+              {category.product_count} {category.product_count === 1 ? 'Produkt' : 'Produkte'}
+            </p>
+          )}
         </div>
       </div>
     </Link>
