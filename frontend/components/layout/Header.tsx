@@ -37,15 +37,52 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo - Shopify Style */}
-          <Link href="/" className="text-xl font-normal text-rinos-text tracking-tight">
-            RINOS BIKES
+        <div className="flex items-center justify-between h-20">
+          {/* Logo - Shopify Style with Image */}
+          <Link href="/" className="flex items-center">
+            <img
+              src="/images/logo.png"
+              alt="RINOS Bikes"
+              className="h-12 w-auto"
+            />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            <NavLink href="/products">Produkte</NavLink>
+          {/* Desktop Navigation - Hierarchical Menu */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            <DropdownMenu title="Fahrräder">
+              <DropdownLink href="/products?category=road-bikes">Rennräder</DropdownLink>
+              <DropdownLink href="/products?category=folding-bikes">Falträder</DropdownLink>
+              <DropdownLink href="/products?category=mtb">MTB</DropdownLink>
+              <DropdownLink href="/products?category=gravel">Gravel Bikes</DropdownLink>
+              <DropdownLink href="/products?category=kids-bikes">Kinderfahrräder</DropdownLink>
+            </DropdownMenu>
+
+            <DropdownMenu title="Fahrradteile">
+              <DropdownLink href="/products?category=shifters">Schalthebel</DropdownLink>
+              <DropdownLink href="/products?category=gears">Gänge</DropdownLink>
+              <DropdownLink href="/products?category=crankset">Kurbelsätze</DropdownLink>
+              <DropdownLink href="/products?category=cassette">Kassetten</DropdownLink>
+              <DropdownLink href="/products?category=chains">Ketten</DropdownLink>
+              <DropdownLink href="/products?category=brakes">Bremsen</DropdownLink>
+              <DropdownLink href="/products?category=forks">Gabeln</DropdownLink>
+              <DropdownLink href="/products?category=wheels">Räder</DropdownLink>
+            </DropdownMenu>
+
+            <DropdownMenu title="Zubehör">
+              <DropdownLink href="/products?category=bags">Taschen</DropdownLink>
+              <DropdownLink href="/products?category=pumps">Pumpen</DropdownLink>
+              <DropdownLink href="/products?category=helmets">Helme</DropdownLink>
+              <DropdownLink href="/products?category=locks">Schlösser</DropdownLink>
+              <DropdownLink href="/products?category=lights">Lichter</DropdownLink>
+            </DropdownMenu>
+
+            <DropdownMenu title="Bekleidung">
+              <DropdownLink href="/products?category=gloves">Handschuhe</DropdownLink>
+              <DropdownLink href="/products?category=pants">Hosen</DropdownLink>
+              <DropdownLink href="/products?category=jackets">Jacken</DropdownLink>
+              <DropdownLink href="/products?category=shoes">Schuhe</DropdownLink>
+            </DropdownMenu>
+
             <NavLink href="/ueber-uns">Über uns</NavLink>
             <NavLink href="/kontakt">Kontakt</NavLink>
           </nav>
@@ -194,6 +231,32 @@ function MobileNavLink({ href, children }: { href: string; children: React.React
           ? 'bg-gray-50 text-rinos-text font-medium'
           : 'text-rinos-text hover:bg-gray-50'
       }`}
+    >
+      {children}
+    </Link>
+  )
+}
+
+// Dropdown Menu Component
+function DropdownMenu({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="relative group">
+      <button className="text-sm font-normal text-rinos-text hover:opacity-70 transition-opacity py-2">
+        {title}
+      </button>
+      <div className="absolute left-0 mt-0 w-48 bg-white border border-gray-200 shadow-lg py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// Dropdown Link Component
+function DropdownLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="block px-4 py-2 text-sm text-rinos-text hover:bg-gray-50 transition-colors"
     >
       {children}
     </Link>
