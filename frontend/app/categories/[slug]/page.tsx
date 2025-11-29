@@ -39,16 +39,16 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
+    <div className="min-h-screen bg-white">
+      {/* Page Header - Shopify Style */}
       {category && (
-        <div className="bg-white border-b">
-          <div className="container py-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-container mx-auto px-4 py-8">
+            <h1 className="text-3xl md:text-4xl font-normal text-rinos-text mb-2">
               {category.category}
             </h1>
             {category.categorypath && (
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 {category.categorypath}
               </p>
             )}
@@ -56,22 +56,22 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
         </div>
       )}
 
-      <div className="container py-8">
+      <div className="max-w-container mx-auto px-4 py-8">
         {/* Loading State */}
         {loading && (
           <div className="text-center py-16">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-rinos-primary mb-4"></div>
             <p className="text-gray-600">Lade Produkte...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && (
-          <div className="card bg-red-50 border-red-200 text-center py-8">
+          <div className="bg-red-50 border border-red-200 text-center py-8 px-4">
             <p className="text-red-600 mb-4">{error}</p>
-            <button 
+            <button
               onClick={() => categoryId && loadCategoryProducts(parseInt(categoryId))}
-              className="btn btn-primary"
+              className="bg-rinos-primary text-white px-6 py-2 hover:opacity-90 transition-opacity"
             >
               Erneut versuchen
             </button>
@@ -81,15 +81,15 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
         {/* Results Header */}
         {!loading && !error && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold">
+            <p className="text-sm text-gray-600">
               {products.length} {products.length === 1 ? 'Fahrrad' : 'Fahrräder'}
-            </h2>
+            </p>
           </div>
         )}
 
         {/* No Products */}
         {!loading && !error && products.length === 0 && (
-          <div className="card text-center py-16">
+          <div className="text-center py-16">
             <p className="text-gray-600">Keine Produkte in dieser Kategorie gefunden.</p>
           </div>
         )}
