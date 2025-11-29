@@ -232,54 +232,77 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             Product.fatherarticle == father_articlenr
         ).all()
         
-        # Get variation definitions (filter out None values)
-        var_defs = db.query(VariationData).filter(
-            VariationData.fatherarticle == father_articlenr,
-            VariationData.variation.isnot(None)
-        ).order_by(VariationData.variationsortnr).all()
+        # Get variation definitions with defensive error handling
+        var_defs = []
+        variation_definitions = []
+        try:
+            var_defs_query = db.query(VariationData).filter(
+                VariationData.fatherarticle == father_articlenr
+            )
+            var_defs = var_defs_query.all()
 
-        # Get variation combinations
-        var_combos = db.query(VariationCombinationData).filter(
-            VariationCombinationData.fatherarticle == father_articlenr
-        ).all()
+            # Build variation definitions with extensive null checking
+            for vd in var_defs:
+                try:
+                    if vd is not None and hasattr(vd, 'variation') and vd.variation is not None:
+                        variation_definitions.append({
+                            "type": str(vd.variation),
+                            "value": str(vd.variationvalue) if vd.variationvalue is not None else "",
+                            "sort_order": int(vd.variationsortnr) if vd.variationsortnr is not None else 0
+                        })
+                except Exception as e:
+                    print(f"Error processing variation def: {e}")
+                    continue
+        except Exception as e:
+            print(f"Error querying variation definitions: {e}")
+
+        # Get variation combinations with error handling
+        variation_combinations = []
+        try:
+            var_combos = db.query(VariationCombinationData).filter(
+                VariationCombinationData.fatherarticle == father_articlenr
+            ).all()
+
+            for vc in var_combos:
+                try:
+                    if vc is not None:
+                        variation_combinations.append({
+                            "articlenr": vc.articlenr if vc.articlenr else "",
+                            "variations": [
+                                {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
+                                {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
+                                {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                            ]
+                        })
+                except Exception as e:
+                    print(f"Error processing variation combo: {e}")
+                    continue
+        except Exception as e:
+            print(f"Error querying variation combinations: {e}")
 
         # Group variations by attributes
         variations_by_attr = {}
         for var in variations:
-            for attr in ['colour', 'size', 'type', 'component']:
-                val = getattr(var, attr)
-                if val:
-                    if attr not in variations_by_attr:
-                        variations_by_attr[attr] = {}
-                    if val not in variations_by_attr[attr]:
-                        variations_by_attr[attr][val] = []
-                    variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
+            try:
+                for attr in ['colour', 'size', 'type', 'component']:
+                    val = getattr(var, attr, None)
+                    if val:
+                        if attr not in variations_by_attr:
+                            variations_by_attr[attr] = {}
+                        if val not in variations_by_attr[attr]:
+                            variations_by_attr[attr][val] = []
+                        variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
+            except Exception as e:
+                print(f"Error grouping variation by attribute: {e}")
+                continue
 
         return {
             "status": "success",
             "father_article": father_articlenr,
             "variation_count": len(variations),
             "variations": [v.to_simple_dict(include_categories=False) for v in variations],
-            "variation_definitions": [
-                {
-                    "type": vd.variation,
-                    "value": vd.variationvalue if vd.variationvalue else "",
-                    "sort_order": vd.variationsortnr if vd.variationsortnr else 0
-                }
-                for vd in var_defs
-                if vd and vd.variation  # Extra safety check
-            ],
-            "variation_combinations": [
-                {
-                    "articlenr": vc.articlenr,
-                    "variations": [
-                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
-                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
-                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
-                    ]
-                }
-                for vc in var_combos
-            ],
+            "variation_definitions": variation_definitions,
+            "variation_combinations": variation_combinations,
             "grouped_by_attribute": variations_by_attr
         }
     
