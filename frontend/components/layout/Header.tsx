@@ -11,14 +11,35 @@ import { usePathname } from 'next/navigation'
 import { ShoppingCart, User, Menu, X, Search } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useAuthStore } from '@/store/authStore'
+import { categoriesApi, Category } from '@/lib/api'
+import { buildCategoryTree, CategoryNode } from '@/lib/categoryTree'
+import MegaMenu, { SimpleDropdown } from './MegaMenu'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [categoryTree, setCategoryTree] = useState<CategoryNode[]>([])
+  const [loading, setLoading] = useState(true)
   const pathname = usePathname()
-  
+
   const { itemCount } = useCartStore()
   const { user, isAuthenticated } = useAuthStore()
+
+  // Fetch categories on mount
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await categoriesApi.getAll()
+        const tree = buildCategoryTree(response.categories)
+        setCategoryTree(tree)
+      } catch (error) {
+        console.error('Failed to fetch categories:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [])
 
   // Handle scroll effect
   useEffect(() => {
@@ -47,41 +68,59 @@ export default function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation - Hierarchical Menu */}
+          {/* Desktop Navigation - Dynamic Hierarchical Menu */}
           <nav className="hidden lg:flex items-center space-x-6 flex-1 justify-center">
-            <DropdownMenu title="Fahrräder">
-              <DropdownLink href="/products?category=road-bikes">Rennräder</DropdownLink>
-              <DropdownLink href="/products?category=folding-bikes">Falträder</DropdownLink>
-              <DropdownLink href="/products?category=mtb">MTB</DropdownLink>
-              <DropdownLink href="/products?category=gravel">Gravel Bikes</DropdownLink>
-              <DropdownLink href="/products?category=kids-bikes">Kinderfahrräder</DropdownLink>
-            </DropdownMenu>
+            {!loading && categoryTree.length > 0 && (
+              <>
+                {/* Fahrräder */}
+                {categoryTree.find(cat => cat.category === 'Fahrräder') && (
+                  <MegaMenu
+                    title="Fahrräder"
+                    categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
+                  />
+                )}
 
-            <DropdownMenu title="Fahrradteile">
-              <DropdownLink href="/products?category=shifters">Schalthebel</DropdownLink>
-              <DropdownLink href="/products?category=gears">Gänge</DropdownLink>
-              <DropdownLink href="/products?category=crankset">Kurbelsätze</DropdownLink>
-              <DropdownLink href="/products?category=cassette">Kassetten</DropdownLink>
-              <DropdownLink href="/products?category=chains">Ketten</DropdownLink>
-              <DropdownLink href="/products?category=brakes">Bremsen</DropdownLink>
-              <DropdownLink href="/products?category=forks">Gabeln</DropdownLink>
-              <DropdownLink href="/products?category=wheels">Räder</DropdownLink>
-            </DropdownMenu>
+                {/* Fahrradteile (Teile) */}
+                {categoryTree.find(cat => cat.category === 'Teile') && (
+                  <MegaMenu
+                    title="Fahrradteile"
+                    categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
+                  />
+                )}
 
-            <DropdownMenu title="Zubehör">
-              <DropdownLink href="/products?category=bags">Taschen</DropdownLink>
-              <DropdownLink href="/products?category=pumps">Pumpen</DropdownLink>
-              <DropdownLink href="/products?category=helmets">Helme</DropdownLink>
-              <DropdownLink href="/products?category=locks">Schlösser</DropdownLink>
-              <DropdownLink href="/products?category=lights">Lichter</DropdownLink>
-            </DropdownMenu>
+                {/* Zubehör */}
+                {categoryTree.find(cat => cat.category === 'Zubehör') && (
+                  <MegaMenu
+                    title="Zubehör"
+                    categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
+                  />
+                )}
 
-            <DropdownMenu title="Bekleidung">
-              <DropdownLink href="/products?category=gloves">Handschuhe</DropdownLink>
-              <DropdownLink href="/products?category=pants">Hosen</DropdownLink>
-              <DropdownLink href="/products?category=jackets">Jacken</DropdownLink>
-              <DropdownLink href="/products?category=shoes">Schuhe</DropdownLink>
-            </DropdownMenu>
+                {/* Bekleidung */}
+                {categoryTree.find(cat => cat.category === 'Bekleidung') && (
+                  <MegaMenu
+                    title="Bekleidung"
+                    categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
+                  />
+                )}
+
+                {/* Scooter */}
+                {categoryTree.find(cat => cat.category === 'Scooter') && (
+                  <SimpleDropdown
+                    title="Scooter"
+                    categories={categoryTree.find(cat => cat.category === 'Scooter')?.children || []}
+                  />
+                )}
+
+                {/* Outdoor */}
+                {categoryTree.find(cat => cat.category === 'Outdoor') && (
+                  <SimpleDropdown
+                    title="Outdoor"
+                    categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
+                  />
+                )}
+              </>
+            )}
 
             <NavLink href="/ueber-uns">Über uns</NavLink>
             <NavLink href="/kontakt">Kontakt</NavLink>
