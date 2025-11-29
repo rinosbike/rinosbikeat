@@ -24,10 +24,29 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={assistant.className}>
+        {/* Trust Banner - Above Header */}
+        <section className="bg-black text-white py-3 overflow-hidden">
+          <div className="animate-marquee whitespace-nowrap">
+            <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
+            <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
+            <span className="text-sm mx-4">★ Sehen Sie unsere Bewertungen auf Trustpilot (130+) 4.5★</span>
+          </div>
+        </section>
+
+        {/* Promotional Bar - Above Header */}
+        <section className="bg-rinos-accent text-white text-center py-2">
+          <p className="text-sm font-normal">2025 NEUE MODELLE | Sparen Sie bis zu 300€</p>
+        </section>
+
+        {/* Sticky Header */}
         <Header />
+
+        {/* Main Content */}
         <main className="min-h-screen">
           {children}
         </main>
+
+        {/* Footer */}
         <Footer />
       </body>
     </html>
