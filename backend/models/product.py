@@ -55,13 +55,14 @@ class Category(Base):
 class VariationData(Base):
     """Variation definition - maps to 'variationdata' table"""
     __tablename__ = "variationdata"
-    
-    variationid = Column(Integer, primary_key=True, index=True)
-    fatherarticle = Column(Text, index=True)  # References parent article
+
+    # Note: variationid is NULL in the database, so we use a composite primary key
+    variationid = Column(Integer, nullable=True)
+    fatherarticle = Column(Text, primary_key=True, index=True)  # References parent article
     internalkey = Column(Integer)
-    variation = Column(Text)  # e.g., "Colour", "Size", "Component"
+    variation = Column(Text, primary_key=True)  # e.g., "Colour", "Size", "Component"
     variationsortnr = Column(Integer)  # Sort order
-    variationvalue = Column(Text)  # e.g., "Red", "L", "Shimano GRX"
+    variationvalue = Column(Text, primary_key=True)  # e.g., "Red", "L", "Shimano GRX"
     variationvaluesortnr = Column(Integer)  # Sort order for value
     
     def to_dict(self):
