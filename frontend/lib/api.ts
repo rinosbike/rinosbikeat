@@ -64,6 +64,7 @@ export interface Product {
   primary_image?: string | null;
   images?: string[];
   is_father_article: boolean;
+  is_active?: boolean;
   colour?: string | null;
   size?: string | null;
   component?: string | null;
