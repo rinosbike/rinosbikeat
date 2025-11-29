@@ -53,8 +53,8 @@ class Category(Base):
 
 
 class VariationData(Base):
-    """Variation definition - maps to 'variationdata' table"""
-    __tablename__ = "variationdata"
+    """Variation definition - maps to 'variation' table"""
+    __tablename__ = "variation"
     
     variationid = Column(Integer, primary_key=True, index=True)
     fatherarticle = Column(Text, index=True)  # References parent article
