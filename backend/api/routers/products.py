@@ -122,36 +122,51 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             ]
             product_dict["variation_count"] = len(variations)
             
-            # Get variation combinations from variationcombinationdata
-            var_combinations = db.query(VariationCombinationData).filter(
-                VariationCombinationData.fatherarticle == articlenr
-            ).all()
-            
-            product_dict["variation_combinations"] = [
-                {
-                    "articlenr": vc.articlenr,
-                    "variations": [
-                        {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
-                        {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
-                        {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
-                    ]
-                }
-                for vc in var_combinations
-            ]
-            
-            # Get unique variation options from variationdata (filter out None values)
-            variation_defs = db.query(VariationData).filter(
-                VariationData.fatherarticle == articlenr,
-                VariationData.variation.isnot(None)
-            ).all()
+            # Get variation combinations from variationcombinationdata with error handling
+            variation_combinations = []
+            try:
+                var_combinations = db.query(VariationCombinationData).filter(
+                    VariationCombinationData.fatherarticle == articlenr
+                ).all()
 
+                for vc in var_combinations:
+                    try:
+                        if vc is not None:
+                            variation_combinations.append({
+                                "articlenr": vc.articlenr if vc.articlenr else "",
+                                "variations": [
+                                    {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
+                                    {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
+                                    {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                                ]
+                            })
+                    except Exception as e:
+                        print(f"Error processing variation combination: {e}")
+                        continue
+            except Exception as e:
+                print(f"Error querying variation combinations: {e}")
+
+            product_dict["variation_combinations"] = variation_combinations
+            
+            # Get unique variation options from variationdata with defensive error handling
             variation_options = {}
-            for var_def in variation_defs:
-                if var_def and var_def.variation:  # Safety check
-                    if var_def.variation not in variation_options:
-                        variation_options[var_def.variation] = []
-                    if var_def.variationvalue and var_def.variationvalue not in variation_options[var_def.variation]:
-                        variation_options[var_def.variation].append(var_def.variationvalue)
+            try:
+                variation_defs = db.query(VariationData).filter(
+                    VariationData.fatherarticle == articlenr
+                ).all()
+
+                for var_def in variation_defs:
+                    try:
+                        if var_def is not None and hasattr(var_def, 'variation') and var_def.variation is not None:
+                            if var_def.variation not in variation_options:
+                                variation_options[var_def.variation] = []
+                            if var_def.variationvalue and var_def.variationvalue not in variation_options[var_def.variation]:
+                                variation_options[var_def.variation].append(var_def.variationvalue)
+                    except Exception as e:
+                        print(f"Error processing variation option: {e}")
+                        continue
+            except Exception as e:
+                print(f"Error querying variation options: {e}")
 
             product_dict["variation_options"] = variation_options
         else:
