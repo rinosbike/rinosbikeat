@@ -162,10 +162,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <div>
             <div className="bg-white rounded-lg p-8">
               {/* Category */}
-              {product.category && (
+              {product.categories && product.categories.length > 0 && (
                 <div className="mb-4">
                   <span className="inline-block px-3 py-1 text-sm font-medium bg-blue-100 text-blue-600 rounded">
-                    {product.category}
+                    {product.categories[0].category}
                   </span>
                 </div>
               )}

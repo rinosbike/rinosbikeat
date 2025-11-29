@@ -69,7 +69,13 @@ export interface Product {
   type?: string | null;
   father_article?: string | null;
   gtin?: string | null;
-  variations?: Product[];  
+  variations?: Product[];
+  categories?: Array<{
+    categoryid: number;
+    category: string;
+    categorypath?: string | null;
+    categoryimageurl?: string | null;
+  }>;
 }
 
 export interface ProductVariation {
