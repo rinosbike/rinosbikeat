@@ -57,7 +57,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Banner - Sandman 6 */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      <section className="relative h-[350px] md:h-[450px] overflow-hidden">
         <Image
           src="/images/hero/sandman6.jpg"
           alt="Sandman 6"
@@ -67,58 +67,12 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white px-4">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               Sandman 6 - Praktikabilität mit Leistung
             </h2>
             <Link
               href="/products/sandman-6"
-              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
-            >
-              Entdecken
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Hero Banner - Sandman 4 */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
-        <Image
-          src="/images/hero/sandman4.jpg"
-          alt="Sandman 4"
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Sandman 4 - Erobern Sie alle Terrains und Rennen
-            </h2>
-            <Link
-              href="/products/sandman-4"
-              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
-            >
-              Entdecken
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Hero Banner - Gaia 2 */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
-        <Image
-          src="/images/hero/gaia2.jpg"
-          alt="Gaia 2"
-          fill
-          className="object-cover"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white px-4">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Gaia 2 - Holen Sie sich jetzt Ihr erstes MTB
-            </h2>
-            <Link
-              href="/products/gaia-2"
-              className="inline-block bg-white text-rinos-text px-8 py-3 hover:opacity-90 transition-opacity mt-4"
+              className="inline-block bg-white text-rinos-text px-6 py-3 hover:opacity-90 transition-opacity text-sm font-medium"
             >
               Entdecken
             </Link>
@@ -161,6 +115,52 @@ export default function HomePage() {
               </div>
             </>
           )}
+        </div>
+      </section>
+
+      {/* Hero Banner - Sandman 4 */}
+      <section className="relative h-[350px] md:h-[450px] overflow-hidden">
+        <Image
+          src="/images/hero/sandman4.jpg"
+          alt="Sandman 4"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Sandman 4 - Erobern Sie alle Terrains und Rennen
+            </h2>
+            <Link
+              href="/products/sandman-4"
+              className="inline-block bg-white text-rinos-text px-6 py-3 hover:opacity-90 transition-opacity text-sm font-medium"
+            >
+              Entdecken
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Banner - Gaia 2 */}
+      <section className="relative h-[350px] md:h-[450px] overflow-hidden">
+        <Image
+          src="/images/hero/gaia2.jpg"
+          alt="Gaia 2"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white px-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Gaia 2 - Holen Sie sich jetzt Ihr erstes MTB
+            </h2>
+            <Link
+              href="/products/gaia-2"
+              className="inline-block bg-white text-rinos-text px-6 py-3 hover:opacity-90 transition-opacity text-sm font-medium"
+            >
+              Entdecken
+            </Link>
+          </div>
         </div>
       </section>
     </div>
