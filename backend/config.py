@@ -48,8 +48,7 @@ class Settings(BaseSettings):
         "https://rinosbike.at",
         "https://www.rinosbike.at",
         "https://rinosbikes-frontend.vercel.app",
-        "https://rinosbikes-frontend-git-main-rinosbikes-projects.vercel.app",
-        "https://*.vercel.app"
+        "https://rinosbikes-frontend-git-main-rinosbikes-projects.vercel.app"
     ]
     
     class Config:
