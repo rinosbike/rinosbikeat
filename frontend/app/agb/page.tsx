@@ -17,15 +17,24 @@ export default function AGBPage() {
             <div className="space-y-6">
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">§1 Grundlegende Bestimmungen</h3>
+                <p className="text-gray-700 leading-relaxed mb-3">
+                  Diese Bedingungen gelten für alle Verträge, die über rinosbike.eu abgeschlossen werden.
+                </p>
+                <p className="text-gray-700 leading-relaxed mb-2">
+                  <strong>Verbraucher:</strong> Natürliche Personen, die einen Vertrag zu Zwecken abschließen, die nicht ihrer gewerblichen oder selbstständigen beruflichen Tätigkeit zugerechnet werden können.
+                </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Diese Bedingungen gelten für alle Verträge, die über rinosbike.eu abgeschlossen werden. Wir definieren "Verbraucher" als natürliche Personen, die einen Vertrag zu Zwecken abschließen, die nicht ihrer gewerblichen oder selbstständigen beruflichen Tätigkeit zugerechnet werden können. "Unternehmer" sind natürliche oder juristische Personen, die in Ausübung ihrer gewerblichen oder selbstständigen beruflichen Tätigkeit handeln.
+                  <strong>Unternehmer:</strong> Natürliche oder juristische Personen, die in Ausübung ihrer gewerblichen oder selbstständigen beruflichen Tätigkeit handeln.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">§2 Vertragsabschluss</h3>
                 <p className="text-gray-700 leading-relaxed mb-3">
-                  Bestellungen werden über den Warenkorb aufgegeben. Der Vertrag kommt zustande, wenn wir Ihre Bestellung per E-Mail bestätigen.
+                  Die auf der Website aufgeführten Produkte stellen verbindliche Angebote dar. Käufe erfolgen über ein Online-Warenkorbsystem.
+                </p>
+                <p className="text-gray-700 leading-relaxed mb-3">
+                  Kunden überprüfen die Bestelldetails vor der endgültigen Übermittlung durch Klicken auf "Bestellung aufgeben", wodurch ein rechtsverbindlicher Vertrag entsteht.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
                   Sie haben die Möglichkeit, Ihre Bestellung vor dem Absenden zu überprüfen und zu korrigieren.
@@ -34,18 +43,21 @@ export default function AGBPage() {
 
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">§3 Eigentumsvorbehalt</h3>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed mb-3">
                   Die Ware bleibt bis zur vollständigen Bezahlung des Kaufpreises unser Eigentum.
+                </p>
+                <p className="text-gray-700 leading-relaxed">
+                  Für Geschäftskunden gilt ein zusätzlicher Eigentumsvorbehalt bis zur Begleichung aller Forderungen aus der Geschäftsbeziehung.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">§4 Gewährleistung</h3>
                 <p className="text-gray-700 leading-relaxed mb-3">
-                  Es gelten die gesetzlichen Gewährleistungsrechte. Verbraucher müssen Mängel umgehend melden.
+                  Es gelten die gesetzlichen Gewährleistungsrechte. Verbraucher sollten Mängel umgehend melden; eine Nichteinhaltung beeinträchtigt rechtliche Ansprüche nicht.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Für Unternehmer gilt eine einjährige Gewährleistungsfrist mit eingeschränkten Ausnahmen.
+                  Geschäftskunden erhalten eine einjährige Gewährleistungsfrist mit spezifischen Einschränkungen.
                 </p>
               </div>
 
@@ -55,7 +67,7 @@ export default function AGBPage() {
                   Es gilt deutsches Recht.
                 </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Geschäftssitz: Frankfurt (Oder)
+                  Für Nicht-Verbraucher dient der Geschäftssitz von Rinos Bikes als Gerichtsstand und Erfüllungsort: Frankfurt (Oder), Deutschland.
                 </p>
               </div>
             </div>
@@ -66,7 +78,7 @@ export default function AGBPage() {
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-rinos-text mb-3">Verkäuferidentität</h3>
+                <h3 className="text-xl font-semibold text-rinos-text mb-3">Verkäufer</h3>
                 <p className="text-gray-700 mb-2"><strong>Rinos Bikes GmbH</strong></p>
                 <p className="text-gray-700">Goethestr 11E</p>
                 <p className="text-gray-700 mb-3">15234 Frankfurt (Oder), Deutschland</p>
@@ -80,23 +92,29 @@ export default function AGBPage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold text-rinos-text mb-3">Preise</h3>
+                <h3 className="text-xl font-semibold text-rinos-text mb-3">Preise und Kosten</h3>
+                <p className="text-gray-700 leading-relaxed mb-3">
+                  Die angegebenen Preise verstehen sich inklusive aller Steuern. Versandkosten werden separat ausgewiesen, sofern keine kostenlose Lieferung angegeben ist.
+                </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Alle Preise verstehen sich inklusive aller Steuern. Versandkosten werden separat ausgewiesen.
+                  Bei internationalen Bestellungen können Zölle und Gebühren anfallen, die vom Kunden zu tragen sind.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">Lieferung</h3>
+                <p className="text-gray-700 leading-relaxed mb-3">
+                  Das Risiko geht bei Verbrauchern mit der Lieferung an den Kunden über.
+                </p>
                 <p className="text-gray-700 leading-relaxed">
-                  Das Risiko geht mit der Lieferung an den Verbraucher über.
+                  Geschäftskunden übernehmen das Versandrisiko.
                 </p>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold text-rinos-text mb-3">Streitbeilegung</h3>
                 <p className="text-gray-700 leading-relaxed mb-2">
-                  Die Europäische Kommission stellt eine Plattform für die außergerichtliche Online-Streitbeilegung bereit:
+                  Die Europäische Kommission stellt eine Plattform für die außergerichtliche Online-Streitbeilegung (OS-Plattform) bereit:
                 </p>
                 <p className="text-gray-700">
                   <a href="https://ec.europa.eu/odr" target="_blank" rel="noopener noreferrer" className="text-rinos-accent hover:underline">
@@ -109,7 +127,7 @@ export default function AGBPage() {
 
           <section className="border-t pt-8">
             <p className="text-sm text-gray-600 italic">
-              Zuletzt aktualisiert: 27.10.2020
+              Zuletzt aktualisiert: 27. Oktober 2020
             </p>
           </section>
         </div>

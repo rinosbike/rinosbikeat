@@ -12,8 +12,8 @@ export default function Footer() {
   return (
     <footer className="bg-rinos-dark text-rinos-text-light mt-16">
       <div className="max-w-container mx-auto px-4 py-12">
-        {/* Footer Grid - 5 Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        {/* Footer Grid - 4 Column Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Column 1: Support & Services */}
           <div>
             <h3 className="font-bold text-base mb-4">Support & Service</h3>
@@ -85,39 +85,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: FAQ Section */}
-          <div>
-            <h3 className="font-bold text-base mb-4">FAQ</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/faq/montage" className="text-gray-300 hover:text-white transition-colors">
-                  Montage FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq/spezifikationen" className="text-gray-300 hover:text-white transition-colors">
-                  Fahrrad-Spezifikationen FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq/rueckgabe-garantie" className="text-gray-300 hover:text-white transition-colors">
-                  Rückgabe/Garantie FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq/lieferung-versand" className="text-gray-300 hover:text-white transition-colors">
-                  Lieferung/Versand FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq/allgemein" className="text-gray-300 hover:text-white transition-colors">
-                  Allgemein/Produktpalette FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 5: Newsletter */}
+          {/* Column 4: Newsletter */}
           <div>
             <h3 className="font-bold text-base mb-4">Newsletter</h3>
             <p className="text-sm text-gray-300 mb-4">
