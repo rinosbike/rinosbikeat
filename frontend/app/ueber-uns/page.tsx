@@ -11,19 +11,18 @@ export default function UeberUnsPage() {
         </h1>
 
         <div className="prose max-w-none">
-          <p className="text-gray-600 mb-6">
-            Willkommen bei RINOS Bikes - Ihrem Partner für hochwertige Fahrräder.
+          <p className="text-gray-700 text-lg leading-relaxed mb-6">
+            RinosBike wurde gegründet, um allen Kunden qualitativ hochwertige Produkte zu fairen Preisen anzubieten.
+            Wir bemühen uns, einen Marktplatz mit einer breiten Palette an Outdoor-Produkten anzubieten, die für
+            jeden zugänglich sind.
           </p>
 
-          <p className="text-gray-600 mb-6">
-            Diese Seite wird in Kürze mit ausführlichen Informationen über unser Unternehmen, unsere Mission und unser Team verfügbar sein.
+          <p className="text-gray-700 text-lg leading-relaxed mb-6">
+            Wir freuen uns auf Ihren Besuch!
           </p>
 
-          <h2 className="text-xl font-semibold text-rinos-text mt-8 mb-4">
-            Unsere Mission
-          </h2>
-          <p className="text-gray-600">
-            Wir bieten Premium-Fahrräder für jeden Einsatzbereich - von Gravel über Rennrad bis zum Mountainbike.
+          <p className="text-gray-700 text-lg font-medium">
+            Ihr RinosBike Team
           </p>
         </div>
       </div>
