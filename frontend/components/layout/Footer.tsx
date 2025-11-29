@@ -11,13 +11,13 @@ export default function Footer() {
 
   return (
     <footer className="bg-rinos-dark text-rinos-text-light mt-16">
-      <div className="max-w-container mx-auto px-4 py-12">
+      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Footer Grid - 4 Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
           {/* Column 1: Support & Services */}
           <div>
-            <h3 className="font-bold text-base mb-4">Support & Service</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold text-base mb-4 text-white">Support & Service</h3>
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/rueckgabe" className="text-gray-300 hover:text-white transition-colors">
                   Rückgabe & Erstattung
@@ -38,8 +38,8 @@ export default function Footer() {
 
           {/* Column 2: Company Info */}
           <div>
-            <h3 className="font-bold text-base mb-4">Unternehmensinfo</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold text-base mb-4 text-white">Unternehmensinfo</h3>
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/ueber-uns" className="text-gray-300 hover:text-white transition-colors">
                   Über uns
@@ -60,8 +60,8 @@ export default function Footer() {
 
           {/* Column 3: Legal */}
           <div>
-            <h3 className="font-bold text-base mb-4">Rechtliches</h3>
-            <ul className="space-y-2 text-sm">
+            <h3 className="font-bold text-base mb-4 text-white">Rechtliches</h3>
+            <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/datenschutz" className="text-gray-300 hover:text-white transition-colors">
                   Datenschutz
@@ -87,18 +87,18 @@ export default function Footer() {
 
           {/* Column 4: Newsletter */}
           <div>
-            <h3 className="font-bold text-base mb-4">Newsletter</h3>
+            <h3 className="font-bold text-base mb-4 text-white">Newsletter</h3>
             <p className="text-sm text-gray-300 mb-4">
-              Abonnieren Sie unsere E-Mails
+              Abonnieren Sie unsere E-Mails für exklusive Angebote
             </p>
             <div className="flex flex-col gap-2">
               <input
                 type="email"
-                placeholder="E-Mail"
-                className="px-4 py-2 bg-white text-rinos-primary text-sm border-0 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                placeholder="E-Mail Adresse"
+                className="px-4 py-2.5 bg-white text-rinos-primary text-sm border-0 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
               />
-              <button className="bg-white text-rinos-primary px-6 py-2 text-sm font-medium hover:bg-gray-200 transition-colors">
-                Abonnieren
+              <button className="bg-white text-rinos-primary px-6 py-2.5 text-sm font-medium rounded hover:bg-gray-200 transition-colors">
+                Jetzt abonnieren
               </button>
             </div>
           </div>
@@ -106,8 +106,8 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <div className="flex gap-4 text-xs text-gray-400">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-400">
               <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
               <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
               <Link href="/versand" className="hover:text-white transition-colors">Versand</Link>
@@ -115,20 +115,41 @@ export default function Footer() {
               <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
             </div>
 
-            {/* Payment Icons */}
-            <div className="flex gap-2 items-center">
-              <span className="text-xs text-gray-400">Zahlungsmethoden:</span>
-              <div className="flex gap-2 text-xs text-gray-400">
-                <span>PayPal</span>
-                <span>Klarna</span>
-                <span>Kreditkarte</span>
+            {/* Payment Method Icons */}
+            <div className="flex flex-col gap-2 items-center md:items-end">
+              <span className="text-xs text-gray-400">Sichere Zahlungsmethoden:</span>
+              <div className="flex flex-wrap gap-2 justify-center md:justify-end">
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  PayPal
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  Klarna
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  Visa
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  Mastercard
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  Apple Pay
+                </div>
+                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
+                  Google Pay
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-2">
-            <p>&copy; {currentYear} RINOS Bikes. Alle Rechte vorbehalten.</p>
-            <p className="text-xs">Powered by RINOS</p>
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+              <p>&copy; {currentYear} RINOS Bikes. Alle Rechte vorbehalten.</p>
+              <span className="hidden md:inline text-gray-600">|</span>
+              <p className="text-xs">Powered by RINOS</p>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-gray-500">Trusted by riders worldwide</span>
+            </div>
           </div>
         </div>
       </div>
