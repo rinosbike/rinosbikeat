@@ -71,7 +71,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       // Add to cart via API
       const updatedCart = await cartApi.addItem(
         currentSessionId,
-        product.product_id,
+        product.productid,
         quantity,
         selectedVariation || undefined
       )
