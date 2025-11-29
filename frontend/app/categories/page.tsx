@@ -81,7 +81,7 @@ export default function KategoriePage() {
             {categories.map((category) => (
               <Link
                 key={category.categoryid}
-                href={`/kategorie/${categoryToSlug(category.category)}?id=${category.categoryid}`}
+                href={`/categories/${categoryToSlug(category.category)}?id=${category.categoryid}`}
               >
                 <div className="card group cursor-pointer h-full flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
                   {/* Category Image */}

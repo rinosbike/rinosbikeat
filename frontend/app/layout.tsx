@@ -1,9 +1,14 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Assistant } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
+import Footer from '@/components/layout/Footer'
 
-const inter = Inter({ subsets: ['latin'] })
+const assistant = Assistant({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'RINOS Bikes - Premium Fahrräder aus Deutschland',
@@ -18,16 +23,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de">
-      <body className={inter.className}>
+      <body className={assistant.className}>
         <Header />
         <main className="min-h-screen">
           {children}
         </main>
-        <footer className="bg-gray-900 text-white py-8 mt-16">
-          <div className="container text-center">
-            <p>&copy; 2025 RINOS Bikes GmbH. Alle Rechte vorbehalten.</p>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   )

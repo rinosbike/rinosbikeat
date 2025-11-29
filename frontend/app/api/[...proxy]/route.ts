@@ -1,18 +1,29 @@
 export async function GET(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
-  
+
   try {
     // Get query string from request
     const url = new URL(request.url);
     const queryString = url.search;
     const fullUrl = `${backendUrl}/api/${path}${queryString}`;
-    
+
     console.log('[PROXY GET]', fullUrl);
-    
+
+    // Prepare headers with optional Vercel bypass token
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add Vercel bypass token if available
+    const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (bypassSecret) {
+      headers['x-vercel-protection-bypass'] = bypassSecret;
+    }
+
     const response = await fetch(fullUrl, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
     });
     
     console.log('[PROXY RESPONSE] Status:', response.status);
@@ -47,21 +58,27 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
 }
 
 export async function POST(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
-  
+
   try {
     const url = new URL(request.url);
     const queryString = url.search;
     const fullUrl = `${backendUrl}/api/${path}${queryString}`;
-    
+
     const body = await request.text();
-    
+
     console.log('[PROXY POST]', fullUrl);
-    
+
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (bypassSecret) {
+      headers['x-vercel-protection-bypass'] = bypassSecret;
+    }
+
     const response = await fetch(fullUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: body,
     });
     
@@ -94,21 +111,27 @@ export async function POST(request: Request, { params }: { params: { proxy: stri
 }
 
 export async function PUT(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
-  
+
   try {
     const url = new URL(request.url);
     const queryString = url.search;
     const fullUrl = `${backendUrl}/api/${path}${queryString}`;
-    
+
     const body = await request.text();
-    
+
     console.log('[PROXY PUT]', fullUrl);
-    
+
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (bypassSecret) {
+      headers['x-vercel-protection-bypass'] = bypassSecret;
+    }
+
     const response = await fetch(fullUrl, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: body,
     });
     
@@ -141,19 +164,25 @@ export async function PUT(request: Request, { params }: { params: { proxy: strin
 }
 
 export async function DELETE(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://rinosbikeat-git-main-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
-  
+
   try {
     const url = new URL(request.url);
     const queryString = url.search;
     const fullUrl = `${backendUrl}/api/${path}${queryString}`;
-    
+
     console.log('[PROXY DELETE]', fullUrl);
-    
+
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+    if (bypassSecret) {
+      headers['x-vercel-protection-bypass'] = bypassSecret;
+    }
+
     const response = await fetch(fullUrl, {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
     });
     
     console.log('[PROXY RESPONSE] Status:', response.status);

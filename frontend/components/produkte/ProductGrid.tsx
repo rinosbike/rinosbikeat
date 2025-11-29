@@ -1,6 +1,6 @@
 /**
- * Product Grid Component
- * Displays products in a responsive grid layout
+ * Product Grid Component - Shopify Dawn Style
+ * Clean grid layout matching rinosbike.hr
  */
 
 import { type Product } from '@/lib/api'
@@ -12,7 +12,7 @@ interface ProductGridProps {
 
 export default function ProductGrid({ products }: ProductGridProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
       {products.map((product) => (
         <ProductCard key={product.productid} product={product} />
       ))}
