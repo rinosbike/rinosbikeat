@@ -7,7 +7,7 @@
 
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ShoppingCart, User, Menu, X, Search, ChevronDown, Star } from 'lucide-react'
@@ -86,60 +86,127 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Section: Trustpilot Banner */}
-        <div className="py-2 border-b border-gray-100">
-          <div className="flex items-center justify-between">
+    <>
+      {/* Promotional Banner - Above Header */}
+      <div className="bg-black text-white">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-4 py-2 text-sm">
+            <Link
+              href="/categories/gravel-bikes?id=103"
+              className="hover:opacity-80 transition-opacity"
+            >
+              <span className="font-semibold">2025 NEUE MODELLE | Sparen Sie bis zu 300€</span>
+            </Link>
+            <span className="hidden sm:inline">→</span>
             <a
               href="https://de.trustpilot.com/review/rinosbike.eu"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-700 hover:opacity-70 transition-opacity"
+              className="hidden sm:flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <span>Sehen Sie unsere <strong>196</strong> Bewertungen auf</span>
-              <span className="flex items-center gap-1 text-green-600 font-semibold">
-                <Star className="w-4 h-4 fill-green-600" />
-                Trustpilot
+              <span>Sehen Sie unsere Bewertungen auf</span>
+              <span className="flex items-center gap-1 text-green-400 font-semibold">
+                <Star className="w-4 h-4 fill-green-400" />
+                Trustpilot (130+) 4.5★
               </span>
             </a>
-
-            {/* Country/Currency Selector */}
-            <div className="relative" ref={countryCurrencyRef}>
-              <button
-                onClick={() => setCountryCurrencyOpen(!countryCurrencyOpen)}
-                className="flex items-center gap-1 text-sm text-rinos-text hover:opacity-70 transition-opacity"
-              >
-                <span>Deutschland | EUR €</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              {countryCurrencyOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
-                  <button className="block w-full text-left px-4 py-2 text-sm text-rinos-text hover:bg-gray-50">
-                    Deutschland | EUR €
-                  </button>
-                  <button className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
-                    Österreich | EUR €
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </div>
+      </div>
 
-        {/* Middle Section: Logo Left, Icons Right */}
-        <div className="flex items-center justify-between py-4">
-          {/* Logo - Left Side */}
-          <Link href="/" className="flex items-center">
-            <img
-              src="/images/logo.png"
-              alt="RINOS Bikes"
-              className="h-20 w-auto object-contain"
-            />
-          </Link>
+      {/* Main Header - Logo, Navigation, Icons on same level */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-3">
+            {/* Logo */}
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <img
+                src="/images/logo.png"
+                alt="RINOS Bikes"
+                className="h-16 w-auto object-contain"
+              />
+            </Link>
 
-          {/* Right Side: Icons */}
-          <div className="flex items-center space-x-4">
+            {/* Desktop Navigation - Center */}
+            <nav className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+              {!loading && categoryTree.length > 0 && (
+                <>
+                  {/* Fahrräder */}
+                  {categoryTree.find(cat => cat.category === 'Fahrräder') && (
+                    <MegaMenu
+                      title={getCategoryDisplayName('Fahrräder')}
+                      categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
+                    />
+                  )}
+
+                  {/* Fahrradteile */}
+                  {categoryTree.find(cat => cat.category === 'Teile') && (
+                    <MegaMenu
+                      title={getCategoryDisplayName('Teile')}
+                      categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
+                    />
+                  )}
+
+                  {/* Zubehör */}
+                  {categoryTree.find(cat => cat.category === 'Zubehör') && (
+                    <MegaMenu
+                      title={getCategoryDisplayName('Zubehör')}
+                      categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
+                    />
+                  )}
+
+                  {/* Bekleidung */}
+                  {categoryTree.find(cat => cat.category === 'Bekleidung') && (
+                    <MegaMenu
+                      title={getCategoryDisplayName('Bekleidung')}
+                      categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
+                    />
+                  )}
+
+                  {/* Wintersport */}
+                  {categoryTree.find(cat => cat.category === 'Wintersport') && (
+                    <SimpleDropdown
+                      title={getCategoryDisplayName('Wintersport')}
+                      categories={categoryTree.find(cat => cat.category === 'Wintersport')?.children || []}
+                    />
+                  )}
+
+                  {/* Outdoor */}
+                  {categoryTree.find(cat => cat.category === 'Outdoor') && (
+                    <SimpleDropdown
+                      title={getCategoryDisplayName('Outdoor')}
+                      categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
+                    />
+                  )}
+                </>
+              )}
+            </nav>
+
+            {/* Right Side: Country Selector & Icons */}
+            <div className="flex items-center space-x-4 flex-shrink-0">
+              {/* Country/Currency Selector - Desktop */}
+              <div className="hidden lg:block relative" ref={countryCurrencyRef}>
+                <button
+                  onClick={() => setCountryCurrencyOpen(!countryCurrencyOpen)}
+                  className="flex items-center gap-1 text-sm text-rinos-text hover:opacity-70 transition-opacity"
+                >
+                  <span>DE | EUR €</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                {countryCurrencyOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
+                    <button className="block w-full text-left px-4 py-2 text-sm text-rinos-text hover:bg-gray-50">
+                      Deutschland | EUR €
+                    </button>
+                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+                      Österreich | EUR €
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Icons */}
+              <div className="flex items-center space-x-2">
             {/* Search */}
             <Link
               href="/suche"
@@ -200,7 +267,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-rinos-text hover:opacity-70"
+              className="lg:hidden p-2 text-rinos-text hover:opacity-70"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? (
@@ -209,66 +276,11 @@ export default function Header() {
                 <Menu className="w-6 h-6" />
               )}
             </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Navigation Menu - Horizontal Layout */}
-        <nav className="hidden md:block border-t border-gray-200 py-3">
-          <div className="flex items-center justify-center gap-6">
-            {!loading && categoryTree.length > 0 && (
-              <>
-                {/* Fahrräder */}
-                {categoryTree.find(cat => cat.category === 'Fahrräder') && (
-                  <MegaMenu
-                    title={getCategoryDisplayName('Fahrräder')}
-                    categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
-                  />
-                )}
-
-                {/* Fahrradteile */}
-                {categoryTree.find(cat => cat.category === 'Teile') && (
-                  <MegaMenu
-                    title={getCategoryDisplayName('Teile')}
-                    categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
-                  />
-                )}
-
-                {/* Zubehör */}
-                {categoryTree.find(cat => cat.category === 'Zubehör') && (
-                  <MegaMenu
-                    title={getCategoryDisplayName('Zubehör')}
-                    categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
-                  />
-                )}
-
-                {/* Bekleidung */}
-                {categoryTree.find(cat => cat.category === 'Bekleidung') && (
-                  <MegaMenu
-                    title={getCategoryDisplayName('Bekleidung')}
-                    categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
-                  />
-                )}
-
-                {/* Wintersport */}
-                {categoryTree.find(cat => cat.category === 'Wintersport') && (
-                  <SimpleDropdown
-                    title={getCategoryDisplayName('Wintersport')}
-                    categories={categoryTree.find(cat => cat.category === 'Wintersport')?.children || []}
-                  />
-                )}
-
-                {/* Outdoor */}
-                {categoryTree.find(cat => cat.category === 'Outdoor') && (
-                  <SimpleDropdown
-                    title={getCategoryDisplayName('Outdoor')}
-                    categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </nav>
-      </div>
+      </header>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
@@ -332,7 +344,7 @@ export default function Header() {
           </nav>
         </div>
       )}
-    </header>
+    </>
   )
 }
 
