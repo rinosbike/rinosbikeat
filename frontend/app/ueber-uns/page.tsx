@@ -5,7 +5,7 @@
 export default function UeberUnsPage() {
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-container mx-auto px-4 py-12">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-12">
         <h1 className="text-3xl md:text-4xl font-normal text-rinos-text mb-8">
           Über uns
         </h1>

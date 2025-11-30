@@ -5,13 +5,12 @@
  */
 
 export const DESIGN_SYSTEM = {
-  // Container widths
+  // Container widths (EXACT rinosbike.eu values)
   container: {
     maxWidth: '1200px',
     padding: {
-      mobile: '1rem',      // 16px
-      tablet: '1.5rem',    // 24px
-      desktop: '2rem',     // 32px
+      mobile: '1.5rem',    // 24px (matches rinosbike.eu)
+      desktop: '5rem',     // 80px (matches rinosbike.eu)
     }
   },
 
@@ -25,11 +24,11 @@ export const DESIGN_SYSTEM = {
     }
   },
 
-  // Section spacing
+  // Section spacing (EXACT rinosbike.eu values)
   section: {
     paddingY: {
-      mobile: '3rem',      // 48px
-      desktop: '4rem',     // 64px
+      mobile: '3rem',      // 48px (matches rinosbike.eu)
+      desktop: '4rem',     // 64px (matches rinosbike.eu)
     },
     gap: {
       small: '1rem',       // 16px
@@ -78,10 +77,10 @@ export const DESIGN_SYSTEM = {
   }
 } as const
 
-// Tailwind class helpers
+// Tailwind class helpers (EXACT rinosbike.eu values)
 export const LAYOUT_CLASSES = {
-  container: 'max-w-container mx-auto px-4 sm:px-6 lg:px-8',
-  section: 'py-12 md:py-16',
+  container: 'max-w-container mx-auto px-6 md:px-20',  // 24px / 80px
+  section: 'py-12 md:py-16',  // 48px / 64px
   sectionAlt: 'py-8 md:py-12',
   hero: 'relative h-[400px] md:h-[450px] overflow-hidden',
   heroSecondary: 'relative h-[350px] md:h-[400px] overflow-hidden',
