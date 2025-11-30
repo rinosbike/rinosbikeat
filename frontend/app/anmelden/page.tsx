@@ -70,9 +70,30 @@ export default function AnmeldenPage() {
     setError(null)
     setSuccess(null)
 
-    // Password validation
+    // Client-side password validation
     if (registerPassword.length < 8) {
       setError('Passwort muss mindestens 8 Zeichen lang sein')
+      setLoading(false)
+      return
+    }
+
+    // Check for uppercase letter
+    if (!/[A-Z]/.test(registerPassword)) {
+      setError('Passwort muss mindestens einen Großbuchstaben enthalten')
+      setLoading(false)
+      return
+    }
+
+    // Check for lowercase letter
+    if (!/[a-z]/.test(registerPassword)) {
+      setError('Passwort muss mindestens einen Kleinbuchstaben enthalten')
+      setLoading(false)
+      return
+    }
+
+    // Check for digit
+    if (!/[0-9]/.test(registerPassword)) {
+      setError('Passwort muss mindestens eine Ziffer enthalten')
       setLoading(false)
       return
     }
@@ -90,7 +111,17 @@ export default function AnmeldenPage() {
         router.push('/profil')
       }, 1500)
     } catch (err: any) {
-      setError(extractErrorMessage(err) || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      console.error('Registration error:', err)
+      const errorMsg = extractErrorMessage(err)
+
+      // Translate common error messages to German
+      if (errorMsg.includes('already registered') || errorMsg.includes('Email already')) {
+        setError('Diese E-Mail-Adresse ist bereits registriert')
+      } else if (errorMsg.includes('status code 500') || err.response?.status === 500) {
+        setError('Serverfehler. Bitte versuchen Sie es später erneut.')
+      } else {
+        setError(errorMsg || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      }
     } finally {
       setLoading(false)
     }
@@ -303,7 +334,7 @@ export default function AnmeldenPage() {
                   </button>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  Mindestens 8 Zeichen
+                  Mindestens 8 Zeichen mit Groß- und Kleinbuchstaben sowie Ziffer
                 </p>
               </div>
 
