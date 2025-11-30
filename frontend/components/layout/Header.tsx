@@ -146,9 +146,12 @@ export default function Header() {
           {/* Right Side: Icons */}
           <div className="flex items-center space-x-4">
             {/* Search */}
-            <button className="p-2 text-rinos-text hover:opacity-70 transition-opacity">
+            <Link
+              href="/suche"
+              className="p-2 text-rinos-text hover:opacity-70 transition-opacity"
+            >
               <Search className="w-5 h-5" />
-            </button>
+            </Link>
 
             {/* User */}
             {isAuthenticated ? (
