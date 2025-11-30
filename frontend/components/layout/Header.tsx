@@ -279,32 +279,32 @@ export default function Header() {
             {!loading && categoryTree.length > 0 && (
               <>
                 {categoryTree.find(cat => cat.category === 'Fahrräder') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Fahrräder')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/fahrrader?id=${categoryTree.find(cat => cat.category === 'Fahrräder')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Fahrräder')}
                   </MobileNavLink>
                 )}
                 {categoryTree.find(cat => cat.category === 'Teile') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Teile')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/teile?id=${categoryTree.find(cat => cat.category === 'Teile')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Teile')}
                   </MobileNavLink>
                 )}
                 {categoryTree.find(cat => cat.category === 'Zubehör') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Zubehör')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/zubehor?id=${categoryTree.find(cat => cat.category === 'Zubehör')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Zubehör')}
                   </MobileNavLink>
                 )}
                 {categoryTree.find(cat => cat.category === 'Bekleidung') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Bekleidung')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/bekleidung?id=${categoryTree.find(cat => cat.category === 'Bekleidung')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Bekleidung')}
                   </MobileNavLink>
                 )}
                 {categoryTree.find(cat => cat.category === 'Wintersport') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Wintersport')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/wintersport?id=${categoryTree.find(cat => cat.category === 'Wintersport')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Wintersport')}
                   </MobileNavLink>
                 )}
                 {categoryTree.find(cat => cat.category === 'Outdoor') && (
-                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Outdoor')?.categoryid || ''}`}>
+                  <MobileNavLink href={`/categories/outdoor?id=${categoryTree.find(cat => cat.category === 'Outdoor')?.categoryid || ''}`}>
                     {getCategoryDisplayName('Outdoor')}
                   </MobileNavLink>
                 )}

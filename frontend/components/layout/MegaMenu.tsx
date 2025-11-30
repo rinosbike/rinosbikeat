@@ -78,7 +78,7 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
                     </button>
                   ) : (
                     <Link
-                      href={`/categories/${category.categoryid}`}
+                      href={`/categories/${category.category.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
                       className="block px-3 py-2 text-sm text-rinos-text hover:bg-gray-50 transition-colors"
                     >
                       {category.category}
@@ -102,7 +102,7 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
                     ?.children.map((subcat) => (
                       <div key={subcat.categoryid} className="space-y-2">
                         <Link
-                          href={`/categories/${subcat.categoryid}`}
+                          href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
                           className="block px-3 py-2 text-sm font-medium text-rinos-text hover:text-rinos-primary transition-colors"
                         >
                           {subcat.category}
@@ -119,7 +119,7 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
                             {subcat.children.slice(0, 5).map((thirdLevel) => (
                               <Link
                                 key={thirdLevel.categoryid}
-                                href={`/categories/${thirdLevel.categoryid}`}
+                                href={`/categories/${thirdLevel.category.toLowerCase().replace(/\s+/g, '-')}?id=${thirdLevel.categoryid}`}
                                 className="block px-2 py-1 text-xs text-gray-600 hover:text-rinos-primary transition-colors"
                               >
                                 {thirdLevel.category}
@@ -132,7 +132,7 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
                             ))}
                             {subcat.children.length > 5 && (
                               <Link
-                                href={`/categories/${subcat.categoryid}`}
+                                href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
                                 className="block px-2 py-1 text-xs text-rinos-primary hover:underline"
                               >
                                 Alle anzeigen ({subcat.children.length})
@@ -193,7 +193,7 @@ export function SimpleDropdown({ title, categories }: { title: string; categorie
           {categories.map((category) => (
             <Link
               key={category.categoryid}
-              href={`/categories/${category.categoryid}`}
+              href={`/categories/${category.category.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
               className="block px-4 py-2 text-sm text-rinos-text hover:bg-gray-50 transition-colors"
               onClick={() => setIsOpen(false)}
             >
