@@ -23,7 +23,15 @@ module.exports = {
         sans: ['Assistant', 'system-ui', 'sans-serif'],
       },
       maxWidth: {
-        'container': '1200px',  // Shopify page width
+        'container': '1200px',  // Matches rinosbike.eu --page-width
+      },
+      padding: {
+        'page': '1.5rem',      // Mobile (24px)
+        'page-tablet': '5rem',  // Tablet/Desktop (80px)
+      },
+      spacing: {
+        'section-mobile': '3rem',   // 48px
+        'section-desktop': '4rem',  // 64px
       },
       borderRadius: {
         'none': '0',  // Sharp corners like Shopify
