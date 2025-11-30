@@ -469,7 +469,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <div className="space-y-3">
                 <button
                   onClick={handleAddToCart}
-                  disabled={!product.is_active || addingToCart}
+                  disabled={addingToCart}
                   className="btn btn-primary w-full btn-lg flex items-center justify-center space-x-2"
                 >
                   {addingToCart ? (
@@ -492,21 +492,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
                 <button
                   onClick={handleBuyNow}
-                  disabled={!product.is_active || addingToCart}
+                  disabled={addingToCart}
                   className="btn btn-outline w-full btn-lg"
                 >
                   Jetzt kaufen
                 </button>
               </div>
-
-              {/* Status */}
-              {!product.is_active && (
-                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600 font-medium">
-                    Dieses Produkt ist derzeit nicht verfügbar.
-                  </p>
-                </div>
-              )}
 
               {/* Success Message */}
               {addedToCart && (

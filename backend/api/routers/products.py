@@ -101,15 +101,28 @@ def get_products(
 def get_product(articlenr: str, db: Session = Depends(get_db)):
     """
     Get single product details with categories and variations
+    If requesting a child product, returns the father product with all variations
     """
     try:
         # Get the main product
         product = db.query(Product).filter(Product.articlenr == articlenr).first()
-        
+
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
-        
-        product_dict = product.to_dict(include_categories=True)
+
+        # If this is a child product, get the father instead
+        if product.fatherarticle:
+            father_product = db.query(Product).filter(Product.articlenr == product.fatherarticle).first()
+            if father_product:
+                # Use the father product but indicate which variation was requested
+                product_dict = father_product.to_dict(include_categories=True)
+                product_dict["requested_variation"] = articlenr
+                product = father_product  # Continue with father for variation loading
+            else:
+                # Father not found, just return the child product
+                product_dict = product.to_dict(include_categories=True)
+        else:
+            product_dict = product.to_dict(include_categories=True)
         
         # If this is a father article, get variations
         if product.isfatherarticle:
