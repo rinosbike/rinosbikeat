@@ -27,8 +27,8 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Footer Grid - 4 Column Layout with Menu Headings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+        {/* Footer Grid - 3 Column Layout with Menu Headings */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12 mb-12">
           {/* Column 1: Help & Services */}
           <div>
             <h3 className="font-bold text-base mb-4 text-white">Kundenservice</h3>
@@ -95,38 +95,6 @@ export default function Footer() {
               <li>
                 <Link href="/widerrufsrecht" className="text-gray-300 hover:text-white transition-colors">
                   Widerrufsrecht
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: FAQ */}
-          <div>
-            <h3 className="font-bold text-base mb-4 text-white">FAQ</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/faq-montage" className="text-gray-300 hover:text-white transition-colors">
-                  Montage FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq-spezifikationen" className="text-gray-300 hover:text-white transition-colors">
-                  Fahrrad-Spezifikationen FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq-rueckgabe" className="text-gray-300 hover:text-white transition-colors">
-                  Rückgabe / Garantie FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq-lieferung" className="text-gray-300 hover:text-white transition-colors">
-                  Lieferung / Versand FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq-allgemein" className="text-gray-300 hover:text-white transition-colors">
-                  Allgemein / Produktpalette FAQ
                 </Link>
               </li>
             </ul>
