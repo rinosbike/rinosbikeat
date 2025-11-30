@@ -69,7 +69,7 @@ async def register_user(
             detail="Email already registered"
         )
     
-    # Create new user with ISO datetime string for timestamps
+    # Create new user
     new_user = WebUser(
         email=user_data.email,
         password_hash=hash_password(user_data.password),
@@ -78,8 +78,8 @@ async def register_user(
         phone=user_data.phone,
         language_preference=user_data.language_preference or "en",
         email_verified=False,
-        is_active=True,
-        created_at=datetime.utcnow().isoformat()
+        is_active=True
+        # created_at will be set automatically by the database default
     )
     
     db.add(new_user)
