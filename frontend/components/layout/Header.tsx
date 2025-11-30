@@ -2,6 +2,7 @@
  * Header Component - RINOS Bikes
  * Navigation bar with cart, search, and user menu
  * Matches rinosbike.eu design
+ * German language interface
  */
 
 'use client'
