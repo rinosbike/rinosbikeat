@@ -15,7 +15,10 @@ import Pagination from '@/components/categories/Pagination'
 
 export default function CategoryProductsPage({ params }: { params: { slug: string } }) {
   const searchParams = useSearchParams()
-  const categoryId = searchParams.get('id')
+
+  // Get category ID from either query param (?id=103) or slug (if slug is numeric)
+  const queryId = searchParams.get('id')
+  const categoryId = queryId || (params.slug && !isNaN(Number(params.slug)) ? params.slug : null)
 
   const [category, setCategory] = useState<Category | null>(null)
   const [allProducts, setAllProducts] = useState<Product[]>([])
@@ -33,6 +36,9 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
   useEffect(() => {
     if (categoryId) {
       loadCategoryProducts(parseInt(categoryId))
+    } else {
+      setError('Keine Kategorie-ID gefunden')
+      setLoading(false)
     }
   }, [categoryId])
 
