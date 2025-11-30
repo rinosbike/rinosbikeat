@@ -16,12 +16,12 @@ import { categoriesApi, Category } from '@/lib/api'
 import { buildCategoryTree, CategoryNode } from '@/lib/categoryTree'
 import MegaMenu, { SimpleDropdown } from './MegaMenu'
 
-// Category name mapping (German to English)
-const categoryMapping: Record<string, string> = {
-  'Fahrräder': 'Bicycles',
-  'Teile': 'Bicycle Parts',
-  'Zubehör': 'Accessories',
-  'Bekleidung': 'Clothing',
+// Category name mapping for display (keep German names, map Teile to Fahrradteile)
+const categoryDisplayNames: Record<string, string> = {
+  'Fahrräder': 'Fahrräder',
+  'Teile': 'Fahrradteile',
+  'Zubehör': 'Zubehör',
+  'Bekleidung': 'Bekleidung',
   'Wintersport': 'Wintersport',
   'Outdoor': 'Outdoor',
 }
@@ -79,73 +79,71 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Helper function to get English category name
-  const getEnglishCategoryName = (germanName: string): string => {
-    return categoryMapping[germanName] || germanName
+  // Helper function to get display category name
+  const getCategoryDisplayName = (germanName: string): string => {
+    return categoryDisplayNames[germanName] || germanName
   }
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Row: Logo, Trustpilot Banner, Actions */}
-        <div className="flex items-center justify-between h-20">
-          {/* Logo - Left */}
-          <Link href="/" className="flex items-center flex-shrink-0">
+        {/* Top Section: Logo Centered */}
+        <div className="flex justify-center py-4">
+          <Link href="/" className="flex items-center">
             <img
               src="/images/logo.png"
               alt="RINOS Bikes"
-              className="h-14 w-auto object-contain"
+              className="h-16 w-auto object-contain"
             />
           </Link>
+        </div>
 
-          {/* Trustpilot Banner - Center */}
-          <div className="hidden lg:flex items-center justify-center flex-1">
+        {/* Middle Section: Trustpilot, Country/Currency, Actions */}
+        <div className="flex items-center justify-between pb-4">
+          {/* Left Side: Trustpilot Banner */}
+          <div className="flex flex-col gap-2">
             <Link
               href="/reviews"
               className="flex items-center gap-2 text-sm text-gray-700 hover:opacity-70 transition-opacity"
             >
-              <span>See our <strong>196</strong> reviews on</span>
+              <span>Sehen Sie unsere <strong>196</strong> Bewertungen auf</span>
               <span className="flex items-center gap-1 text-green-600 font-semibold">
                 <Star className="w-4 h-4 fill-green-600" />
                 Trustpilot
               </span>
             </Link>
-          </div>
-
-          {/* Mobile Trustpilot Banner */}
-          <div className="lg:hidden flex items-center justify-center flex-1">
             <Link
               href="/reviews"
-              className="flex items-center gap-1 text-xs text-gray-700 hover:opacity-70 transition-opacity"
+              className="flex items-center gap-1 text-sm text-gray-700 hover:opacity-70 transition-opacity lg:hidden"
             >
-              <span><strong>196</strong> reviews</span>
+              <span><strong>196</strong> Bewertungen</span>
               <Star className="w-3 h-3 fill-green-600 text-green-600" />
             </Link>
-          </div>
-
-          {/* Right Actions */}
-          <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
+            
             {/* Country/Currency Selector */}
             <div className="relative" ref={countryCurrencyRef}>
               <button
                 onClick={() => setCountryCurrencyOpen(!countryCurrencyOpen)}
                 className="flex items-center gap-1 text-sm text-rinos-text hover:opacity-70 transition-opacity"
               >
-                <span>Germany | EUR €</span>
+                <span>Deutschland | EUR €</span>
                 <ChevronDown className="w-4 h-4" />
               </button>
               {countryCurrencyOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
+                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
                   <button className="block w-full text-left px-4 py-2 text-sm text-rinos-text hover:bg-gray-50">
-                    Germany | EUR €
+                    Deutschland | EUR €
                   </button>
                   <button className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
-                    Austria | EUR €
+                    Österreich | EUR €
                   </button>
                 </div>
               )}
             </div>
+          </div>
 
+          {/* Right Side: Icons */}
+          <div className="flex items-center space-x-4">
             {/* Search */}
             <button className="p-2 text-rinos-text hover:opacity-70 transition-opacity">
               <Search className="w-5 h-5" />
@@ -200,53 +198,53 @@ export default function Header() {
                 </span>
               )}
             </Link>
-          </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 text-rinos-text hover:opacity-70"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
+            {/* Mobile Menu Button */}
+            <button
+              className="lg:hidden p-2 text-rinos-text hover:opacity-70"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Navigation Menu - Horizontal Spread */}
         <nav className="hidden lg:flex items-center justify-center gap-6 py-4 border-t border-gray-200">
           {!loading && categoryTree.length > 0 && (
             <>
-              {/* Bicycles */}
+              {/* Fahrräder */}
               {categoryTree.find(cat => cat.category === 'Fahrräder') && (
                 <MegaMenu
-                  title={getEnglishCategoryName('Fahrräder')}
+                  title={getCategoryDisplayName('Fahrräder')}
                   categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
                 />
               )}
 
-              {/* Bicycle Parts */}
+              {/* Fahrradteile */}
               {categoryTree.find(cat => cat.category === 'Teile') && (
                 <MegaMenu
-                  title={getEnglishCategoryName('Teile')}
+                  title={getCategoryDisplayName('Teile')}
                   categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
                 />
               )}
 
-              {/* Accessories */}
+              {/* Zubehör */}
               {categoryTree.find(cat => cat.category === 'Zubehör') && (
                 <MegaMenu
-                  title={getEnglishCategoryName('Zubehör')}
+                  title={getCategoryDisplayName('Zubehör')}
                   categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
                 />
               )}
 
-              {/* Clothing */}
+              {/* Bekleidung */}
               {categoryTree.find(cat => cat.category === 'Bekleidung') && (
                 <MegaMenu
-                  title={getEnglishCategoryName('Bekleidung')}
+                  title={getCategoryDisplayName('Bekleidung')}
                   categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
                 />
               )}
@@ -254,7 +252,7 @@ export default function Header() {
               {/* Wintersport */}
               {categoryTree.find(cat => cat.category === 'Wintersport') && (
                 <SimpleDropdown
-                  title={getEnglishCategoryName('Wintersport')}
+                  title={getCategoryDisplayName('Wintersport')}
                   categories={categoryTree.find(cat => cat.category === 'Wintersport')?.children || []}
                 />
               )}
@@ -262,7 +260,7 @@ export default function Header() {
               {/* Outdoor */}
               {categoryTree.find(cat => cat.category === 'Outdoor') && (
                 <SimpleDropdown
-                  title={getEnglishCategoryName('Outdoor')}
+                  title={getCategoryDisplayName('Outdoor')}
                   categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
                 />
               )}
@@ -273,11 +271,42 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white">
+        <div className="lg:hidden border-t border-gray-200 bg-white">
           <nav className="px-4 py-4 space-y-1">
-            <MobileNavLink href="/products">Produkte</MobileNavLink>
-            <MobileNavLink href="/ueber-uns">Über uns</MobileNavLink>
-            <MobileNavLink href="/kontakt">Kontakt</MobileNavLink>
+            {!loading && categoryTree.length > 0 && (
+              <>
+                {categoryTree.find(cat => cat.category === 'Fahrräder') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Fahrräder')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Fahrräder')}
+                  </MobileNavLink>
+                )}
+                {categoryTree.find(cat => cat.category === 'Teile') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Teile')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Teile')}
+                  </MobileNavLink>
+                )}
+                {categoryTree.find(cat => cat.category === 'Zubehör') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Zubehör')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Zubehör')}
+                  </MobileNavLink>
+                )}
+                {categoryTree.find(cat => cat.category === 'Bekleidung') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Bekleidung')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Bekleidung')}
+                  </MobileNavLink>
+                )}
+                {categoryTree.find(cat => cat.category === 'Wintersport') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Wintersport')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Wintersport')}
+                  </MobileNavLink>
+                )}
+                {categoryTree.find(cat => cat.category === 'Outdoor') && (
+                  <MobileNavLink href={`/categories/${categoryTree.find(cat => cat.category === 'Outdoor')?.categoryid || ''}`}>
+                    {getCategoryDisplayName('Outdoor')}
+                  </MobileNavLink>
+                )}
+              </>
+            )}
             <hr className="my-2 border-gray-200" />
             <MobileNavLink href="/cart">
               Warenkorb {itemCount > 0 && `(${itemCount})`}
