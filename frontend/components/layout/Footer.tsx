@@ -27,10 +27,11 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Footer Grid - 4 Column Layout (No Headings - matches EU site) */}
+        {/* Footer Grid - 4 Column Layout with Menu Headings */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
-          {/* Column 1 */}
+          {/* Column 1: Help & Services */}
           <div>
+            <h3 className="font-bold text-base mb-4 text-white">Kundenservice</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/rueckgabe" className="text-gray-300 hover:text-white transition-colors">
@@ -50,8 +51,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 2 */}
+          {/* Column 2: Information */}
           <div>
+            <h3 className="font-bold text-base mb-4 text-white">Informationen</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/ueber-uns" className="text-gray-300 hover:text-white transition-colors">
@@ -71,8 +73,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3 */}
+          {/* Column 3: Legal Information */}
           <div>
+            <h3 className="font-bold text-base mb-4 text-white">Rechtliches</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/datenschutz" className="text-gray-300 hover:text-white transition-colors">
@@ -97,8 +100,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4 */}
+          {/* Column 4: FAQ */}
           <div>
+            <h3 className="font-bold text-base mb-4 text-white">FAQ</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/faq-montage" className="text-gray-300 hover:text-white transition-colors">
