@@ -30,6 +30,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   // Add to cart states
   const [selectedVariation, setSelectedVariation] = useState<number | null>(null)
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({})
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [addingToCart, setAddingToCart] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
@@ -215,16 +216,59 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <div className="bg-white rounded-lg p-8 flex items-center justify-center">
-            {product.primary_image ? (
-              <img
-                src={product.primary_image}
-                alt={product.articlename}
-                className="w-full max-w-md h-auto object-contain"
-              />
+          {/* Product Image Gallery */}
+          <div className="bg-white rounded-lg p-4">
+            {product.images && product.images.length > 0 ? (
+              <div className="space-y-4">
+                {/* Main Image */}
+                <div className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
+                  <img
+                    src={product.images[selectedImageIndex]}
+                    alt={`${product.articlename} - Image ${selectedImageIndex + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Image Counter */}
+                {product.images.length > 1 && (
+                  <div className="text-center text-sm text-gray-600">
+                    {selectedImageIndex + 1} / {product.images.length}
+                  </div>
+                )}
+
+                {/* Thumbnail Navigation */}
+                {product.images.length > 1 && (
+                  <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto">
+                    {product.images.map((image, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`aspect-square rounded border-2 overflow-hidden transition-all ${
+                          selectedImageIndex === index
+                            ? 'border-blue-600 ring-2 ring-blue-200'
+                            : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : product.primary_image ? (
+              <div className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                <img
+                  src={product.primary_image}
+                  alt={product.articlename}
+                  className="w-full h-full object-contain"
+                />
+              </div>
             ) : (
-              <div className="aspect-square w-full max-w-md bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+              <div className="aspect-square w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
                 <div className="text-9xl font-bold text-gray-300">
                   {product.articlename.charAt(0)}
                 </div>
