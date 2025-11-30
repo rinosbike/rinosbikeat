@@ -33,6 +33,20 @@ export default function HomePage() {
 
   return (
     <div className="bg-white">
+      {/* Welcome Section */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-container mx-auto px-6 md:px-20">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+              Willkommen in der Welt von Rinos
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600">
+              Hier finden Sie alle unsere Fahrradmodelle sowie eine vielfältige Auswahl an Zubehör
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Trust Banner */}
       <TrustBanner />
 
@@ -48,7 +62,7 @@ export default function HomePage() {
           quality={90}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex items-center">
-          <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="max-w-container mx-auto px-6 md:px-20 w-full">
             <div className="max-w-xl text-white">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
                 Sandman 6
@@ -67,9 +81,113 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Featured Blog Section */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="max-w-container mx-auto px-6 md:px-20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
+              Rinos Bicycles. Was gibt&apos;s Neues?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {/* Blog Post 1 */}
+            <article className="group cursor-pointer">
+              <div className="relative h-64 overflow-hidden bg-gray-200 mb-4">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                  <span className="text-sm">Blog Image</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500">15. März 2024</p>
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  Neue Saison, neue Trails
+                </h3>
+                <p className="text-gray-600 line-clamp-3">
+                  Entdecken Sie unsere neuesten Routen und Tipps für die kommende Fahrradsaison.
+                </p>
+              </div>
+            </article>
+
+            {/* Blog Post 2 */}
+            <article className="group cursor-pointer">
+              <div className="relative h-64 overflow-hidden bg-gray-200 mb-4">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                  <span className="text-sm">Blog Image</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500">8. März 2024</p>
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  Wartungstipps für Ihr Fahrrad
+                </h3>
+                <p className="text-gray-600 line-clamp-3">
+                  So halten Sie Ihr RINOS Bike in Top-Zustand – einfache Wartungsschritte für Zuhause.
+                </p>
+              </div>
+            </article>
+
+            {/* Blog Post 3 */}
+            <article className="group cursor-pointer">
+              <div className="relative h-64 overflow-hidden bg-gray-200 mb-4">
+                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                  <span className="text-sm">Blog Image</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500">1. März 2024</p>
+                <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  Gravel vs. Mountainbike
+                </h3>
+                <p className="text-gray-600 line-clamp-3">
+                  Welches Fahrrad passt zu Ihnen? Ein Vergleich der beiden beliebten Kategorien.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/blog"
+              className="inline-block bg-gray-900 text-white px-8 py-3 text-lg font-medium hover:bg-gray-800 transition-colors"
+            >
+              Alle Beiträge ansehen
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Sandman 4 Hero Banner */}
+      <section className="relative h-[400px] md:h-[450px] overflow-hidden">
+        <Image
+          src="/images/hero/sandman4.jpg"
+          alt="Sandman 4 - Erobern Sie alle Gelände und Rennen"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+          quality={90}
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/30 to-transparent flex items-center justify-end">
+          <div className="max-w-container mx-auto px-6 md:px-20 w-full">
+            <div className="max-w-xl text-white ml-auto text-right">
+              <p className="text-lg md:text-xl mb-2 font-light">Sandman 4</p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+                Erobern Sie alle Gelände und Rennen
+              </h2>
+              <Link
+                href="/products/3426"
+                className="inline-block bg-white text-gray-900 px-8 py-3 text-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                Entdecken
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Gaia 2 MTB Banner */}
       <section className="bg-gray-50 py-12 md:py-16">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-container mx-auto px-6 md:px-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="relative h-[400px] lg:h-[500px] overflow-hidden rounded-lg">
               <Image
@@ -100,7 +218,7 @@ export default function HomePage() {
 
       {/* Featured Products */}
       <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-container mx-auto px-6 md:px-20">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
               Ausgewählte Produkte
@@ -138,7 +256,7 @@ export default function HomePage() {
 
       {/* Build Your Bike Section */}
       <section className="bg-gray-50 py-12 md:py-16">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-container mx-auto px-6 md:px-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="order-2 lg:order-1 text-center lg:text-left">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -169,7 +287,7 @@ export default function HomePage() {
 
       {/* Why Choose RINOS */}
       <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-container mx-auto px-6 md:px-20">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
               Warum RINOS Bikes?
