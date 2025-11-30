@@ -1,6 +1,6 @@
 /**
  * Trust Banner Component
- * Scrolling marquee with key selling points
+ * Simple banner with key selling points
  */
 
 'use client'
@@ -15,19 +15,15 @@ export default function TrustBanner() {
   ]
 
   return (
-    <div className="bg-black text-white py-3 overflow-hidden">
-      <div className="flex animate-scroll whitespace-nowrap">
-        {/* Repeat trust points multiple times for continuous scroll */}
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center">
-            {trustPoints.map((point, index) => (
-              <div key={`${i}-${index}`} className="flex items-center mx-8">
-                <span className="text-sm font-light">{point}</span>
-                <span className="mx-8">•</span>
-              </div>
-            ))}
-          </div>
-        ))}
+    <div className="bg-black text-white py-6">
+      <div className="max-w-container mx-auto px-6 md:px-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+          {trustPoints.map((point, index) => (
+            <div key={index}>
+              <span className="text-sm font-light">{point}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
