@@ -80,8 +80,9 @@ export const DESIGN_SYSTEM = {
 // Tailwind class helpers (EXACT rinosbike.eu values)
 export const LAYOUT_CLASSES = {
   container: 'max-w-container mx-auto px-6 md:px-20',  // 24px / 80px
-  section: 'py-12 md:py-16',  // 48px / 64px
+  section: 'py-12 md:py-16',  // 48px / 64px (for product/category pages)
   sectionAlt: 'py-8 md:py-12',
+  staticPage: 'py-5 md:py-7',  // 20px / 28px (for impressum, kontakt, etc - matches rinosbike.eu)
   hero: 'relative h-[400px] md:h-[450px] overflow-hidden',
   heroSecondary: 'relative h-[350px] md:h-[400px] overflow-hidden',
   productGrid: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6',

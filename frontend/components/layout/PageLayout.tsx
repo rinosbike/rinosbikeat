@@ -23,7 +23,7 @@ export default function PageLayout({
 }: PageLayoutProps) {
   return (
     <div className={`min-h-screen bg-white ${className}`}>
-      <div className={`${LAYOUT_CLASSES.container} ${LAYOUT_CLASSES.section} ${containerClassName}`}>
+      <div className={`${LAYOUT_CLASSES.container} ${LAYOUT_CLASSES.staticPage} ${containerClassName}`}>
         {title && (
           <div className="mb-8 md:mb-12">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
