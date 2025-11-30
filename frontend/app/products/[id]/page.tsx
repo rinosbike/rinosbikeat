@@ -217,11 +217,19 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Image */}
           <div className="bg-white rounded-lg p-8 flex items-center justify-center">
-            <div className="aspect-square w-full max-w-md bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-              <div className="text-9xl font-bold text-gray-300">
-                {product.articlename.charAt(0)}
+            {product.primary_image ? (
+              <img
+                src={product.primary_image}
+                alt={product.articlename}
+                className="w-full max-w-md h-auto object-contain"
+              />
+            ) : (
+              <div className="aspect-square w-full max-w-md bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                <div className="text-9xl font-bold text-gray-300">
+                  {product.articlename.charAt(0)}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -245,15 +253,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <p className="text-sm text-gray-500 mb-6">
                 Art.-Nr.: {product.articlenr}
               </p>
-
-              {/* Description */}
-              {product.shortdescription && (
-                <div className="mb-6 pb-6 border-b">
-                  <p className="text-gray-700 leading-relaxed">
-                    {product.shortdescription}
-                  </p>
-                </div>
-              )}
 
               {/* Variations - Grouped by Attribute */}
               {variationData && variationData.variations.length > 0 ? (
@@ -495,6 +494,31 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Product Descriptions */}
+        <div className="max-w-4xl mx-auto mt-12 space-y-8">
+          {/* Short Description */}
+          {product.shortdescription && (
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h2 className="text-2xl font-bold mb-4">Produktinformationen</h2>
+              <div
+                className="prose prose-sm max-w-none text-gray-700"
+                dangerouslySetInnerHTML={{ __html: product.shortdescription }}
+              />
+            </div>
+          )}
+
+          {/* Long Description */}
+          {product.longdescription && (
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h2 className="text-2xl font-bold mb-4">Produktbeschreibung</h2>
+              <div
+                className="prose prose-sm max-w-none text-gray-700"
+                dangerouslySetInnerHTML={{ __html: product.longdescription }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
