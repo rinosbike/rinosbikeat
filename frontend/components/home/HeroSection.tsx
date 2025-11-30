@@ -15,8 +15,8 @@ interface HeroSectionProps {
   buttonText: string
   buttonLink: string
   alignment?: 'left' | 'right' | 'center'
-  overlayOpacity?: number
   height?: 'default' | 'secondary'
+  overlayOpacity?: number // 0-100, matches EU site's image_overlay_opacity
 }
 
 export default function HeroSection({
@@ -27,8 +27,8 @@ export default function HeroSection({
   buttonText,
   buttonLink,
   alignment = 'left',
-  overlayOpacity = 40,
-  height = 'default'
+  height = 'default',
+  overlayOpacity = 0
 }: HeroSectionProps) {
   const heightClass = height === 'default'
     ? 'h-[400px] md:h-[450px]'
@@ -40,12 +40,6 @@ export default function HeroSection({
     center: 'justify-center text-center'
   }
 
-  const gradientClasses = {
-    left: 'bg-gradient-to-r from-black/0 to-transparent',
-    right: 'bg-gradient-to-l from-black/0 to-transparent',
-    center: 'bg-black/0'
-  }
-
   return (
     <section className={`relative ${heightClass} overflow-hidden`}>
       <Image
@@ -55,8 +49,16 @@ export default function HeroSection({
         className="object-cover object-center"
         sizes="100vw"
         quality={90}
+        priority
       />
-      <div className={`absolute inset-0 ${gradientClasses[alignment]} flex items-center ${alignmentClasses[alignment]}`}>
+      {/* Dark overlay - matches EU site's ::after implementation */}
+      {overlayOpacity > 0 && (
+        <div
+          className="absolute inset-0 bg-black pointer-events-none"
+          style={{ opacity: overlayOpacity / 100 }}
+        />
+      )}
+      <div className={`absolute inset-0 flex items-center ${alignmentClasses[alignment]}`}>
         <div className="max-w-container mx-auto px-6 md:px-20 w-full">
           <div className={`max-w-xl text-white ${alignment === 'right' ? 'ml-auto' : alignment === 'center' ? 'mx-auto' : ''}`}>
             {subtitle && (

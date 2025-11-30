@@ -86,7 +86,8 @@ export default function HomePage() {
         title="Praktikabilität mit Leistung"
         buttonText="Entdecken"
         buttonLink="/products/3427"
-        alignment="left"
+        alignment="right"
+        overlayOpacity={0}
       />
 
       {/* Featured Blog Section */}
@@ -109,6 +110,7 @@ export default function HomePage() {
         buttonText="Entdecken"
         buttonLink="/products/3426"
         alignment="right"
+        overlayOpacity={30}
       />
 
       {/* Gaia 2 MTB Banner */}
