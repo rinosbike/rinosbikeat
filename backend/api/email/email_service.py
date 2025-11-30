@@ -73,22 +73,24 @@ def send_email(
         message['Subject'] = subject
         message['From'] = f"{EmailConfig.FROM_NAME} <{EmailConfig.FROM_EMAIL}>"
         message['To'] = to_email
-        
+
         # Add text version if provided
         if text_content:
             text_part = MIMEText(text_content, 'plain', 'utf-8')
             message.attach(text_part)
-        
+
         # Add HTML version
         html_part = MIMEText(html_content, 'html', 'utf-8')
         message.attach(html_part)
-        
+
         # Connect to SMTP server
         with smtplib.SMTP(EmailConfig.SMTP_HOST, EmailConfig.SMTP_PORT) as server:
-            server.starttls()  # Enable TLS
+            # Only use STARTTLS for port 587, not for port 25
+            if EmailConfig.SMTP_PORT == 587:
+                server.starttls()  # Enable TLS for port 587
             server.login(EmailConfig.SMTP_USERNAME, EmailConfig.SMTP_PASSWORD)
             server.send_message(message)
-        
+
         print(f"✅ Email sent to {to_email}: {subject}")
         return True
         
