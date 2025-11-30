@@ -15,13 +15,13 @@ export default function Footer() {
         {/* Newsletter Section - Above Footer Grid */}
         <div className="mb-12 max-w-md">
           <h3 className="font-bold text-lg mb-4 text-white">Abonnieren Sie unsere E-Mails</h3>
-          <div className="flex gap-2">
+          <div>
             <input
               type="email"
               placeholder="E-Mail"
-              className="flex-1 px-4 py-2.5 bg-white text-gray-900 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="w-full px-4 py-2.5 bg-white text-gray-900 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-gray-400 mb-2"
             />
-            <button className="bg-white text-gray-900 px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors whitespace-nowrap">
+            <button className="w-full bg-white text-gray-900 px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors">
               Abonnieren
             </button>
           </div>
@@ -133,53 +133,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-700 pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-400">
-              <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
-              <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
-              <Link href="/versand" className="hover:text-white transition-colors">Versand</Link>
-              <Link href="/kontakt" className="hover:text-white transition-colors">Kontakt</Link>
-              <Link href="/cookies" className="hover:text-white transition-colors">Cookies</Link>
-            </div>
-
-            {/* Payment Method Icons */}
-            <div className="flex flex-col gap-2 items-center md:items-end">
-              <span className="text-xs text-gray-400">Sichere Zahlungsmethoden:</span>
-              <div className="flex flex-wrap gap-2 justify-center md:justify-end">
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  PayPal
-                </div>
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  Klarna
-                </div>
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  Visa
-                </div>
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  Mastercard
-                </div>
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  Apple Pay
-                </div>
-                <div className="bg-white px-3 py-1.5 rounded text-xs font-semibold text-gray-700 shadow-sm">
-                  Google Pay
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 gap-4">
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-              <p>&copy; {currentYear} RINOS Bikes. Alle Rechte vorbehalten.</p>
-              <span className="hidden md:inline text-gray-600">|</span>
-              <p className="text-xs">Powered by RINOS</p>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-500">Trusted by riders worldwide</span>
-            </div>
-          </div>
+        {/* Copyright */}
+        <div className="border-t border-gray-700 pt-8 text-center">
+          <p className="text-sm text-gray-400">&copy; {currentYear} RINOS Bikes. Alle Rechte vorbehalten.</p>
         </div>
       </div>
     </footer>
