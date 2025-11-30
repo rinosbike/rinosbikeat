@@ -1,25 +1,38 @@
 /**
  * Header Component - RINOS Bikes
  * Navigation bar with cart, search, and user menu
+ * Matches rinosbike.eu design
  */
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingCart, User, Menu, X, Search } from 'lucide-react'
+import { ShoppingCart, User, Menu, X, Search, ChevronDown, Star } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useAuthStore } from '@/store/authStore'
 import { categoriesApi, Category } from '@/lib/api'
 import { buildCategoryTree, CategoryNode } from '@/lib/categoryTree'
 import MegaMenu, { SimpleDropdown } from './MegaMenu'
 
+// Category name mapping (German to English)
+const categoryMapping: Record<string, string> = {
+  'Fahrräder': 'Bicycles',
+  'Teile': 'Bicycle Parts',
+  'Zubehör': 'Accessories',
+  'Bekleidung': 'Clothing',
+  'Wintersport': 'Wintersport',
+  'Outdoor': 'Outdoor',
+}
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [categoryTree, setCategoryTree] = useState<CategoryNode[]>([])
   const [loading, setLoading] = useState(true)
+  const [countryCurrencyOpen, setCountryCurrencyOpen] = useState(false)
+  const countryCurrencyRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
   const { itemCount } = useCartStore()
@@ -55,11 +68,28 @@ export default function Header() {
     setMobileMenuOpen(false)
   }, [pathname])
 
+  // Close country/currency dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (countryCurrencyRef.current && !countryCurrencyRef.current.contains(event.target as Node)) {
+        setCountryCurrencyOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Helper function to get English category name
+  const getEnglishCategoryName = (germanName: string): string => {
+    return categoryMapping[germanName] || germanName
+  }
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Row: Logo, Trustpilot Banner, Actions */}
         <div className="flex items-center justify-between h-20">
-          {/* Logo - Shopify Style with Image */}
+          {/* Logo - Left */}
           <Link href="/" className="flex items-center flex-shrink-0">
             <img
               src="/images/logo.png"
@@ -68,98 +98,66 @@ export default function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation - Horizontal Menu Bar */}
-          <nav className="hidden md:block flex-1">
-            <div className="grid grid-cols-8 gap-4 items-center justify-items-center">
-              {!loading && categoryTree.length > 0 && (
-                <>
-                  {/* Fahrräder */}
-                  {categoryTree.find(cat => cat.category === 'Fahrräder') && (
-                    <MegaMenu
-                      title="Fahrräder"
-                      categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
-                    />
-                  )}
+          {/* Trustpilot Banner - Center */}
+          <div className="hidden lg:flex items-center justify-center flex-1">
+            <Link
+              href="/reviews"
+              className="flex items-center gap-2 text-sm text-gray-700 hover:opacity-70 transition-opacity"
+            >
+              <span>See our <strong>196</strong> reviews on</span>
+              <span className="flex items-center gap-1 text-green-600 font-semibold">
+                <Star className="w-4 h-4 fill-green-600" />
+                Trustpilot
+              </span>
+            </Link>
+          </div>
 
-                  {/* Fahrradteile (Teile) */}
-                  {categoryTree.find(cat => cat.category === 'Teile') && (
-                    <MegaMenu
-                      title="Fahrradteile"
-                      categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
-                    />
-                  )}
+          {/* Mobile Trustpilot Banner */}
+          <div className="lg:hidden flex items-center justify-center flex-1">
+            <Link
+              href="/reviews"
+              className="flex items-center gap-1 text-xs text-gray-700 hover:opacity-70 transition-opacity"
+            >
+              <span><strong>196</strong> reviews</span>
+              <Star className="w-3 h-3 fill-green-600 text-green-600" />
+            </Link>
+          </div>
 
-                  {/* Zubehör */}
-                  {categoryTree.find(cat => cat.category === 'Zubehör') && (
-                    <MegaMenu
-                      title="Zubehör"
-                      categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
-                    />
-                  )}
-
-                  {/* Bekleidung */}
-                  {categoryTree.find(cat => cat.category === 'Bekleidung') && (
-                    <MegaMenu
-                      title="Bekleidung"
-                      categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
-                    />
-                  )}
-
-                  {/* Scooter */}
-                  {categoryTree.find(cat => cat.category === 'Scooter') && (
-                    <SimpleDropdown
-                      title="Scooter"
-                      categories={categoryTree.find(cat => cat.category === 'Scooter')?.children || []}
-                    />
-                  )}
-
-                  {/* Outdoor */}
-                  {categoryTree.find(cat => cat.category === 'Outdoor') && (
-                    <SimpleDropdown
-                      title="Outdoor"
-                      categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
-                    />
-                  )}
-                </>
-              )}
-
-              <NavLink href="/ueber-uns">Über uns</NavLink>
-              <NavLink href="/kontakt">Kontakt</NavLink>
-            </div>
-          </nav>
-
-          {/* Desktop Actions */}
+          {/* Right Actions */}
           <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
+            {/* Country/Currency Selector */}
+            <div className="relative" ref={countryCurrencyRef}>
+              <button
+                onClick={() => setCountryCurrencyOpen(!countryCurrencyOpen)}
+                className="flex items-center gap-1 text-sm text-rinos-text hover:opacity-70 transition-opacity"
+              >
+                <span>Germany | EUR €</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+              {countryCurrencyOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
+                  <button className="block w-full text-left px-4 py-2 text-sm text-rinos-text hover:bg-gray-50">
+                    Germany | EUR €
+                  </button>
+                  <button className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+                    Austria | EUR €
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Search */}
             <button className="p-2 text-rinos-text hover:opacity-70 transition-opacity">
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Cart */}
-            <Link
-              href="/cart"
-              className="relative p-2 text-rinos-text hover:opacity-70 transition-opacity"
-            >
-              <ShoppingCart className="w-5 h-5" />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rinos-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
-                </span>
-              )}
-            </Link>
-
-            {/* User Menu */}
+            {/* User */}
             {isAuthenticated ? (
               <div className="relative group">
-                <button className="flex items-center space-x-2 p-2 text-rinos-text hover:opacity-70 transition-opacity">
+                <button className="p-2 text-rinos-text hover:opacity-70 transition-opacity">
                   <User className="w-5 h-5" />
-                  <span className="text-sm">
-                    {user?.first_name || 'Konto'}
-                  </span>
                 </button>
-
-                {/* Dropdown */}
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-sm py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-sm py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
                   <Link
                     href="/profil"
                     className="block px-4 py-2 text-rinos-text hover:bg-gray-50"
@@ -184,16 +182,29 @@ export default function Header() {
             ) : (
               <Link
                 href="/anmelden"
-                className="bg-rinos-primary text-white px-6 py-2 hover:opacity-90 transition-opacity text-sm"
+                className="p-2 text-rinos-text hover:opacity-70 transition-opacity"
               >
-                Anmelden
+                <User className="w-5 h-5" />
               </Link>
             )}
+
+            {/* Cart */}
+            <Link
+              href="/cart"
+              className="relative p-2 text-rinos-text hover:opacity-70 transition-opacity"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rinos-primary text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-rinos-text hover:opacity-70"
+            className="lg:hidden p-2 text-rinos-text hover:opacity-70"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -203,6 +214,61 @@ export default function Header() {
             )}
           </button>
         </div>
+
+        {/* Navigation Menu - Horizontal Spread */}
+        <nav className="hidden lg:flex items-center justify-center gap-6 py-4 border-t border-gray-200">
+          {!loading && categoryTree.length > 0 && (
+            <>
+              {/* Bicycles */}
+              {categoryTree.find(cat => cat.category === 'Fahrräder') && (
+                <MegaMenu
+                  title={getEnglishCategoryName('Fahrräder')}
+                  categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
+                />
+              )}
+
+              {/* Bicycle Parts */}
+              {categoryTree.find(cat => cat.category === 'Teile') && (
+                <MegaMenu
+                  title={getEnglishCategoryName('Teile')}
+                  categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
+                />
+              )}
+
+              {/* Accessories */}
+              {categoryTree.find(cat => cat.category === 'Zubehör') && (
+                <MegaMenu
+                  title={getEnglishCategoryName('Zubehör')}
+                  categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
+                />
+              )}
+
+              {/* Clothing */}
+              {categoryTree.find(cat => cat.category === 'Bekleidung') && (
+                <MegaMenu
+                  title={getEnglishCategoryName('Bekleidung')}
+                  categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
+                />
+              )}
+
+              {/* Wintersport */}
+              {categoryTree.find(cat => cat.category === 'Wintersport') && (
+                <SimpleDropdown
+                  title={getEnglishCategoryName('Wintersport')}
+                  categories={categoryTree.find(cat => cat.category === 'Wintersport')?.children || []}
+                />
+              )}
+
+              {/* Outdoor */}
+              {categoryTree.find(cat => cat.category === 'Outdoor') && (
+                <SimpleDropdown
+                  title={getEnglishCategoryName('Outdoor')}
+                  categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
+                />
+              )}
+            </>
+          )}
+        </nav>
       </div>
 
       {/* Mobile Menu */}

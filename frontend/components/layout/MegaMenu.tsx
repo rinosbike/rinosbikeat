@@ -5,9 +5,9 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChevronDown } from 'lucide-react'
 import { CategoryNode } from '@/lib/categoryTree'
 
 interface MegaMenuProps {
@@ -19,12 +19,28 @@ interface MegaMenuProps {
 export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   if (categories.length === 0) return null
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+        setActiveSubmenu(null)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen])
+
   return (
     <div
-      className="relative group"
+      ref={menuRef}
+      className="relative"
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => {
         setIsOpen(false)
@@ -32,8 +48,12 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
       }}
     >
       {/* Main Button */}
-      <button className="text-sm font-normal text-rinos-text hover:opacity-70 transition-opacity py-2">
-        {title}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 text-sm font-normal text-rinos-text hover:opacity-70 transition-opacity py-2"
+      >
+        <span>{title}</span>
+        <ChevronDown className="w-4 h-4" />
       </button>
 
       {/* Mega Dropdown */}
@@ -136,29 +156,57 @@ export default function MegaMenu({ title, categories, maxColumns = 4 }: MegaMenu
  * Simple Dropdown Menu (for categories without many subcategories)
  */
 export function SimpleDropdown({ title, categories }: { title: string; categories: CategoryNode[] }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
   if (categories.length === 0) return null
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen])
+
   return (
-    <div className="relative group">
-      <button className="text-sm font-normal text-rinos-text hover:opacity-70 transition-opacity py-2">
-        {title}
+    <div
+      ref={menuRef}
+      className="relative"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 text-sm font-normal text-rinos-text hover:opacity-70 transition-opacity py-2"
+      >
+        <span>{title}</span>
+        <ChevronDown className="w-4 h-4" />
       </button>
-      <div className="absolute left-0 mt-0 w-56 bg-white border border-gray-200 shadow-lg py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all z-50">
-        {categories.map((category) => (
-          <Link
-            key={category.categoryid}
-            href={`/categories/${category.categoryid}`}
-            className="block px-4 py-2 text-sm text-rinos-text hover:bg-gray-50 transition-colors"
-          >
-            {category.category}
-            {category.product_count && category.product_count > 0 && (
-              <span className="text-xs text-gray-500 ml-2">
-                ({category.product_count})
-              </span>
-            )}
-          </Link>
-        ))}
-      </div>
+      {isOpen && (
+        <div className="absolute left-0 mt-0 w-56 bg-white border border-gray-200 shadow-lg py-2 z-50">
+          {categories.map((category) => (
+            <Link
+              key={category.categoryid}
+              href={`/categories/${category.categoryid}`}
+              className="block px-4 py-2 text-sm text-rinos-text hover:bg-gray-50 transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              {category.category}
+              {category.product_count && category.product_count > 0 && (
+                <span className="text-xs text-gray-500 ml-2">
+                  ({category.product_count})
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
