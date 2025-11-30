@@ -116,7 +116,7 @@ export default function WarenkorbPage() {
 
   if (loading) {
     return (
-      <div className="container py-16">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-16">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Lädt Warenkorb...</p>
@@ -129,7 +129,7 @@ export default function WarenkorbPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container py-8">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-8">Warenkorb</h1>
 
         {isEmpty ? (

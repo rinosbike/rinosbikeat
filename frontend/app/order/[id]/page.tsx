@@ -45,7 +45,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
 
   if (loading) {
     return (
-      <div className="container py-16">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-16">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600">Lädt Bestellung...</p>
@@ -56,7 +56,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
 
   if (error || !order) {
     return (
-      <div className="container py-16">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-16">
         <div className="card text-center max-w-md mx-auto">
           <div className="text-6xl mb-4">❌</div>
           <h2 className="text-2xl font-bold mb-2">Bestellung nicht gefunden</h2>
@@ -73,7 +73,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 print:bg-white">
-      <div className="container py-8">
+      <div className="max-w-container mx-auto px-6 md:px-20 py-8">
         {/* Success Header */}
         <div className="card text-center mb-8 print:shadow-none">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
