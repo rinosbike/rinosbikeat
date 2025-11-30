@@ -26,13 +26,30 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
   }, [categoryId])
 
   const loadCategoryProducts = async (id: number) => {
+    setLoading(true)
+    setError(null)
+
     try {
-      const response = await categoriesApi.getProducts(id)
+      console.log('Loading products for category:', id)
+
+      // Set a timeout for the API call
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout')), 30000)
+      )
+
+      const apiPromise = categoriesApi.getProducts(id)
+
+      const response = await Promise.race([apiPromise, timeoutPromise]) as any
+
+      console.log('Products loaded:', response.products?.length || 0)
       setCategory(response.category)
-      setProducts(response.products)
-    } catch (err) {
+      setProducts(response.products || [])
+    } catch (err: any) {
       console.error('Fehler beim Laden der Produkte:', err)
-      setError('Produkte konnten nicht geladen werden.')
+      const errorMessage = err.message === 'Request timeout'
+        ? 'Die Anfrage hat zu lange gedauert. Bitte versuchen Sie es erneut.'
+        : err.response?.data?.detail || 'Produkte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
