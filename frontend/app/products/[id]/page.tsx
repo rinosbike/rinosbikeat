@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { productsApi, cartApi, type Product, type ProductVariation } from '@/lib/api'
+import { productsApi, cartApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart, Check, AlertCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
@@ -23,11 +23,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { sessionId, itemCount, setItemCount, generateSessionId } = useCartStore()
   
   const [product, setProduct] = useState<Product | null>(null)
+  const [variationData, setVariationData] = useState<ProductVariationsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   // Add to cart states
   const [selectedVariation, setSelectedVariation] = useState<number | null>(null)
+  const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   const [addingToCart, setAddingToCart] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
@@ -43,9 +45,33 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       // params.id can be either a numeric product ID or an article number string
       const data = await productsApi.getById(params.id)
       setProduct(data)
-      
-      // Pre-select first variation if available
-      if (data.variations && data.variations.length > 0) {
+
+      // If product has variations and is a father article, load detailed variation data
+      if (data.is_father_article && data.variations && data.variations.length > 0) {
+        try {
+          const varData = await variationsApi.getVariations(data.articlenr)
+          setVariationData(varData)
+
+          // Pre-select first variation
+          if (varData.variations.length > 0) {
+            setSelectedVariation(varData.variations[0].productid)
+
+            // Initialize selected attributes from first variation
+            const firstVar = varData.variations[0]
+            const attrs: Record<string, string> = {}
+            if (firstVar.colour) attrs['colour'] = firstVar.colour
+            if (firstVar.size) attrs['size'] = firstVar.size
+            if (firstVar.component) attrs['component'] = firstVar.component
+            if (firstVar.type) attrs['type'] = firstVar.type
+            setSelectedAttributes(attrs)
+          }
+        } catch (varErr) {
+          console.warn('Could not load variation data, using basic variations:', varErr)
+          // Fallback to basic variation handling
+          setSelectedVariation(data.variations[0].productid)
+        }
+      } else if (data.variations && data.variations.length > 0) {
+        // Simple variation handling for non-father articles
         setSelectedVariation(data.variations[0].productid)
       }
     } catch (err) {
@@ -98,9 +124,49 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     router.push('/warenkorb')
   }
 
+  const handleAttributeChange = (attributeType: string, value: string) => {
+    const newAttrs = { ...selectedAttributes, [attributeType]: value }
+    setSelectedAttributes(newAttrs)
+
+    // Find matching variation based on all selected attributes
+    if (variationData) {
+      const matchingVariation = variationData.variations.find(v => {
+        return Object.entries(newAttrs).every(([key, val]) => {
+          const varValue = v[key as keyof typeof v]
+          return varValue === val
+        })
+      })
+
+      if (matchingVariation) {
+        setSelectedVariation(matchingVariation.productid)
+      }
+    }
+  }
+
+  const getAvailableValuesForAttribute = (attributeType: string): string[] => {
+    if (!variationData) return []
+
+    const values = new Set<string>()
+    variationData.variations.forEach(v => {
+      const value = v[attributeType as keyof typeof v]
+      if (value && typeof value === 'string') {
+        values.add(value)
+      }
+    })
+
+    return Array.from(values).sort()
+  }
+
   const getSelectedVariationPrice = () => {
     if (!product || !selectedVariation) return product?.price || 0
 
+    // Check variation data first for more accurate pricing
+    if (variationData) {
+      const variation = variationData.variations.find(v => v.productid === selectedVariation)
+      if (variation) return variation.price
+    }
+
+    // Fallback to basic variations
     const variation = product.variations?.find(v => v.productid === selectedVariation)
     if (!variation) return product.price
 
@@ -189,33 +255,133 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 </div>
               )}
 
-              {/* Variations */}
-              {product.variations && product.variations.length > 0 && (
-                <div className="mb-6">
-                  <label className="label">Variante wählen</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {product.variations.map((variation) => (
-                      <button
-                        key={variation.productid}
-                        onClick={() => setSelectedVariation(variation.productid)}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          selectedVariation === variation.productid
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="font-medium">
-                          {variation.colour || variation.size || variation.component || variation.type || variation.articlenr}
-                        </div>
-                        {variation.price !== product.price && (
-                          <div className="text-sm text-gray-600">
-                            {variation.price.toFixed(2)} EUR
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+              {/* Variations - Grouped by Attribute */}
+              {variationData && variationData.variations.length > 0 ? (
+                <div className="mb-6 space-y-4">
+                  {/* Colour Selection */}
+                  {getAvailableValuesForAttribute('colour').length > 0 && (
+                    <div>
+                      <label className="label">Farbe</label>
+                      <div className="flex flex-wrap gap-2">
+                        {getAvailableValuesForAttribute('colour').map((colour) => (
+                          <button
+                            key={colour}
+                            onClick={() => handleAttributeChange('colour', colour)}
+                            className={`px-4 py-2 border-2 transition-all ${
+                              selectedAttributes['colour'] === colour
+                                ? 'border-blue-600 bg-blue-50 font-medium'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {colour}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Size Selection */}
+                  {getAvailableValuesForAttribute('size').length > 0 && (
+                    <div>
+                      <label className="label">Größe</label>
+                      <div className="flex flex-wrap gap-2">
+                        {getAvailableValuesForAttribute('size').map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => handleAttributeChange('size', size)}
+                            className={`px-4 py-2 border-2 transition-all ${
+                              selectedAttributes['size'] === size
+                                ? 'border-blue-600 bg-blue-50 font-medium'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Component Selection */}
+                  {getAvailableValuesForAttribute('component').length > 0 && (
+                    <div>
+                      <label className="label">Komponente</label>
+                      <div className="flex flex-wrap gap-2">
+                        {getAvailableValuesForAttribute('component').map((component) => (
+                          <button
+                            key={component}
+                            onClick={() => handleAttributeChange('component', component)}
+                            className={`px-4 py-2 border-2 transition-all ${
+                              selectedAttributes['component'] === component
+                                ? 'border-blue-600 bg-blue-50 font-medium'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {component}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Type Selection */}
+                  {getAvailableValuesForAttribute('type').length > 0 && (
+                    <div>
+                      <label className="label">Typ</label>
+                      <div className="flex flex-wrap gap-2">
+                        {getAvailableValuesForAttribute('type').map((type) => (
+                          <button
+                            key={type}
+                            onClick={() => handleAttributeChange('type', type)}
+                            className={`px-4 py-2 border-2 transition-all ${
+                              selectedAttributes['type'] === type
+                                ? 'border-blue-600 bg-blue-50 font-medium'
+                                : 'border-gray-300 hover:border-gray-400'
+                            }`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selected Variation Info */}
+                  {selectedVariation && (
+                    <div className="text-sm text-gray-600 pt-2 border-t">
+                      Art.-Nr.: {variationData.variations.find(v => v.productid === selectedVariation)?.articlenr}
+                    </div>
+                  )}
                 </div>
+              ) : (
+                /* Fallback: Simple Variation List */
+                product.variations && product.variations.length > 0 && (
+                  <div className="mb-6">
+                    <label className="label">Variante wählen</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {product.variations.map((variation) => (
+                        <button
+                          key={variation.productid}
+                          onClick={() => setSelectedVariation(variation.productid)}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            selectedVariation === variation.productid
+                              ? 'border-blue-600 bg-blue-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          <div className="font-medium">
+                            {variation.colour || variation.size || variation.component || variation.type || variation.articlenr}
+                          </div>
+                          {variation.price !== product.price && (
+                            <div className="text-sm text-gray-600">
+                              {variation.price.toFixed(2)} EUR
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
               )}
 
               {/* Quantity */}
