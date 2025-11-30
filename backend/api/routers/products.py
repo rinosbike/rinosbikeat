@@ -154,22 +154,22 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             try:
                 for child in variations:
                     # Extract variation attributes from child products
-                    if child.colour and child.colour not in variation_options.get('Colour', []):
+                    if hasattr(child, 'colour') and child.colour and child.colour not in variation_options.get('Colour', []):
                         if 'Colour' not in variation_options:
                             variation_options['Colour'] = []
                         variation_options['Colour'].append(child.colour)
 
-                    if child.size and child.size not in variation_options.get('Size', []):
+                    if hasattr(child, 'size') and child.size and child.size not in variation_options.get('Size', []):
                         if 'Size' not in variation_options:
                             variation_options['Size'] = []
                         variation_options['Size'].append(child.size)
 
-                    if child.component and child.component not in variation_options.get('Component', []):
+                    if hasattr(child, 'component') and child.component and child.component not in variation_options.get('Component', []):
                         if 'Component' not in variation_options:
                             variation_options['Component'] = []
                         variation_options['Component'].append(child.component)
 
-                    if child.type and child.type not in variation_options.get('Type', []):
+                    if hasattr(child, 'type') and child.type and child.type not in variation_options.get('Type', []):
                         if 'Type' not in variation_options:
                             variation_options['Type'] = []
                         variation_options['Type'].append(child.type)
@@ -316,11 +316,11 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
                 try:
                     if vc is not None:
                         variation_combinations.append({
-                            "articlenr": vc.articlenr if vc.articlenr else "",
+                            "articlenr": vc.articlenr if hasattr(vc, 'articlenr') and vc.articlenr else "",
                             "variations": [
-                                {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
-                                {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
-                                {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
+                                {"type": vc.variation1, "value": vc.variationvalue1} if hasattr(vc, 'variation1') and vc.variation1 else None,
+                                {"type": vc.variation2, "value": vc.variationvalue2} if hasattr(vc, 'variation2') and vc.variation2 else None,
+                                {"type": vc.variation3, "value": vc.variationvalue3} if hasattr(vc, 'variation3') and vc.variation3 else None
                             ]
                         })
                 except Exception as e:
