@@ -112,34 +112,33 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
         
         # If this is a father article, get variations
         if product.isfatherarticle:
-            # Get child variations
-            variations = db.query(Product).filter(
+            # Get child variations - filter out None values
+            variations = [v for v in db.query(Product).filter(
                 Product.fatherarticle == articlenr
-            ).all()
-            
+            ).all() if v is not None]
+
             product_dict["variations"] = [
-                v.to_simple_dict(include_categories=False) for v in variations
+                v.to_simple_dict(include_categories=False) for v in variations if v is not None
             ]
             product_dict["variation_count"] = len(variations)
             
             # Get variation combinations from variationcombinationdata with error handling
             variation_combinations = []
             try:
-                var_combinations = db.query(VariationCombinationData).filter(
+                var_combinations = [vc for vc in db.query(VariationCombinationData).filter(
                     VariationCombinationData.fatherarticle == articlenr
-                ).all()
+                ).all() if vc is not None]
 
                 for vc in var_combinations:
                     try:
-                        if vc is not None:
-                            variation_combinations.append({
-                                "articlenr": vc.articlenr if vc.articlenr else "",
-                                "variations": [
-                                    {"type": vc.variation1, "value": vc.variationvalue1} if vc.variation1 else None,
-                                    {"type": vc.variation2, "value": vc.variationvalue2} if vc.variation2 else None,
-                                    {"type": vc.variation3, "value": vc.variationvalue3} if vc.variation3 else None
-                                ]
-                            })
+                        variation_combinations.append({
+                            "articlenr": vc.articlenr if hasattr(vc, 'articlenr') and vc.articlenr else "",
+                            "variations": [
+                                {"type": vc.variation1, "value": vc.variationvalue1} if hasattr(vc, 'variation1') and vc.variation1 else None,
+                                {"type": vc.variation2, "value": vc.variationvalue2} if hasattr(vc, 'variation2') and vc.variation2 else None,
+                                {"type": vc.variation3, "value": vc.variationvalue3} if hasattr(vc, 'variation3') and vc.variation3 else None
+                            ]
+                        })
                     except Exception as e:
                         print(f"Error processing variation combination: {e}")
                         continue
@@ -180,21 +179,26 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
         else:
             # This is a child product
             if product.fatherarticle:
-                # Get the father article
-                father = db.query(Product).filter(
-                    Product.articlenr == product.fatherarticle
-                ).first()
-                if father:
-                    product_dict["father_product"] = father.to_simple_dict(include_categories=False)
-                
-                # Get sibling variations
-                siblings = db.query(Product).filter(
-                    Product.fatherarticle == product.fatherarticle,
-                    Product.articlenr != articlenr
-                ).all()
-                product_dict["other_variations"] = [
-                    s.to_simple_dict(include_categories=False) for s in siblings
-                ]
+                try:
+                    # Get the father article
+                    father = db.query(Product).filter(
+                        Product.articlenr == product.fatherarticle
+                    ).first()
+                    if father:
+                        product_dict["father_product"] = father.to_simple_dict(include_categories=False)
+
+                    # Get sibling variations - filter out None values
+                    siblings = [s for s in db.query(Product).filter(
+                        Product.fatherarticle == product.fatherarticle,
+                        Product.articlenr != articlenr
+                    ).all() if s is not None]
+
+                    product_dict["other_variations"] = [
+                        s.to_simple_dict(include_categories=False) for s in siblings if s is not None
+                    ]
+                except Exception as e:
+                    print(f"Error loading father/sibling data: {e}")
+                    product_dict["other_variations"] = []
         
         # Get availability status
         total_stock = db.query(func.sum(InventoryData.quantity)).filter(
@@ -250,24 +254,24 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
         if not father_articlenr:
             raise HTTPException(status_code=404, detail="Product has no variations")
         
-        # Get all variations (child articles)
-        variations = db.query(Product).filter(
+        # Get all variations (child articles) - filter out None values
+        variations = [v for v in db.query(Product).filter(
             Product.fatherarticle == father_articlenr
-        ).all()
-        
+        ).all() if v is not None]
+
         # Extract variation definitions from variationcombinationdata instead of variationdata
         # This avoids the NULL primary key issue in variationdata table
         variation_definitions = []
         variation_types = set()
         try:
-            # Get unique variation types and values from variationcombinationdata
-            var_combos = db.query(VariationCombinationData).filter(
+            # Get unique variation types and values from variationcombinationdata - filter None
+            var_combos = [vc for vc in db.query(VariationCombinationData).filter(
                 VariationCombinationData.fatherarticle == father_articlenr
-            ).all()
+            ).all() if vc is not None]
 
             for vc in var_combos:
                 try:
-                    if vc.variation1 and vc.variationvalue1:
+                    if hasattr(vc, 'variation1') and vc.variation1 and hasattr(vc, 'variationvalue1') and vc.variationvalue1:
                         var_key = f"{vc.variation1}|{vc.variationvalue1}"
                         if var_key not in variation_types:
                             variation_types.add(var_key)
@@ -276,7 +280,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
                                 "value": vc.variationvalue1,
                                 "sort_order": 0
                             })
-                    if vc.variation2 and vc.variationvalue2:
+                    if hasattr(vc, 'variation2') and vc.variation2 and hasattr(vc, 'variationvalue2') and vc.variationvalue2:
                         var_key = f"{vc.variation2}|{vc.variationvalue2}"
                         if var_key not in variation_types:
                             variation_types.add(var_key)
@@ -285,7 +289,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
                                 "value": vc.variationvalue2,
                                 "sort_order": 1
                             })
-                    if vc.variation3 and vc.variationvalue3:
+                    if hasattr(vc, 'variation3') and vc.variation3 and hasattr(vc, 'variationvalue3') and vc.variationvalue3:
                         var_key = f"{vc.variation3}|{vc.variationvalue3}"
                         if var_key not in variation_types:
                             variation_types.add(var_key)
