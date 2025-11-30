@@ -25,13 +25,14 @@ class WebUser(Base):
     password_hash = Column(String(255), nullable=False)
     
     # Profile
-    first_name = Column(String(100), nullable=False)
-    last_name = Column(String(100), nullable=False)
+    first_name = Column(String(100), nullable=True)
+    last_name = Column(String(100), nullable=True)
     phone = Column(String(50), nullable=True)
-    
+    language_preference = Column(String(5), default="en")
+
     # Status
     is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
+    email_verified = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     
     # Newsletter
