@@ -2,15 +2,12 @@
  * Imprint Page - /impressum
  */
 
+import PageLayout from '@/components/layout/PageLayout'
+
 export default function ImpressumPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl md:text-4xl font-normal text-rinos-text mb-8">
-          Impressum
-        </h1>
-
-        <div className="prose max-w-none">
+    <PageLayout title="Impressum">
+      <div className="prose max-w-none">
           <h2 className="text-xl font-semibold text-rinos-text mb-4">
             Angaben gemäß § 5 TMG
           </h2>
@@ -60,7 +57,6 @@ export default function ImpressumPage() {
             </a>
           </p>
         </div>
-      </div>
-    </div>
+    </PageLayout>
   )
 }

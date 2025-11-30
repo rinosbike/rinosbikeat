@@ -37,7 +37,7 @@ export default function HomePage() {
       <TrustBanner />
 
       {/* Main Hero - Sandman 6 */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      <section className="relative h-[400px] md:h-[450px] overflow-hidden">
         <Image
           src="/images/hero/sandman6.jpg"
           alt="Sandman 6 - Praktikabilität mit Leistung"
@@ -45,6 +45,7 @@ export default function HomePage() {
           className="object-cover object-center"
           priority
           sizes="100vw"
+          quality={90}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent flex items-center">
           <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 w-full">
