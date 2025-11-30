@@ -32,6 +32,23 @@ export default function AnmeldenPage() {
   const [registerLastName, setRegisterLastName] = useState('')
   const [registerPhone, setRegisterPhone] = useState('')
 
+  const extractErrorMessage = (err: any): string => {
+    // Handle validation errors (array format)
+    if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
+      return err.response.data.detail.map((e: any) => e.msg || JSON.stringify(e)).join(', ')
+    }
+    // Handle string errors
+    if (typeof err.response?.data?.detail === 'string') {
+      return err.response.data.detail
+    }
+    // Handle object errors
+    if (err.response?.data?.detail && typeof err.response.data.detail === 'object') {
+      return JSON.stringify(err.response.data.detail)
+    }
+    // Default error message
+    return err.message || 'Ein Fehler ist aufgetreten'
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -41,7 +58,7 @@ export default function AnmeldenPage() {
       await login(loginEmail, loginPassword)
       router.push('/profil')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.')
+      setError(extractErrorMessage(err) || 'Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.')
     } finally {
       setLoading(false)
     }
@@ -73,7 +90,7 @@ export default function AnmeldenPage() {
         router.push('/profil')
       }, 1500)
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
+      setError(extractErrorMessage(err) || 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.')
     } finally {
       setLoading(false)
     }
