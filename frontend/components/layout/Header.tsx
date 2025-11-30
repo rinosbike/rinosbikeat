@@ -68,62 +68,64 @@ export default function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation - Dynamic Hierarchical Menu */}
-          <nav className="hidden lg:flex items-center space-x-6 flex-1 justify-center">
-            {!loading && categoryTree.length > 0 && (
-              <>
-                {/* Fahrräder */}
-                {categoryTree.find(cat => cat.category === 'Fahrräder') && (
-                  <MegaMenu
-                    title="Fahrräder"
-                    categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
-                  />
-                )}
+          {/* Desktop Navigation - Horizontal Menu Bar */}
+          <nav className="hidden md:block flex-1">
+            <div className="grid grid-cols-8 gap-4 items-center justify-items-center">
+              {!loading && categoryTree.length > 0 && (
+                <>
+                  {/* Fahrräder */}
+                  {categoryTree.find(cat => cat.category === 'Fahrräder') && (
+                    <MegaMenu
+                      title="Fahrräder"
+                      categories={categoryTree.find(cat => cat.category === 'Fahrräder')?.children || []}
+                    />
+                  )}
 
-                {/* Fahrradteile (Teile) */}
-                {categoryTree.find(cat => cat.category === 'Teile') && (
-                  <MegaMenu
-                    title="Fahrradteile"
-                    categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
-                  />
-                )}
+                  {/* Fahrradteile (Teile) */}
+                  {categoryTree.find(cat => cat.category === 'Teile') && (
+                    <MegaMenu
+                      title="Fahrradteile"
+                      categories={categoryTree.find(cat => cat.category === 'Teile')?.children || []}
+                    />
+                  )}
 
-                {/* Zubehör */}
-                {categoryTree.find(cat => cat.category === 'Zubehör') && (
-                  <MegaMenu
-                    title="Zubehör"
-                    categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
-                  />
-                )}
+                  {/* Zubehör */}
+                  {categoryTree.find(cat => cat.category === 'Zubehör') && (
+                    <MegaMenu
+                      title="Zubehör"
+                      categories={categoryTree.find(cat => cat.category === 'Zubehör')?.children || []}
+                    />
+                  )}
 
-                {/* Bekleidung */}
-                {categoryTree.find(cat => cat.category === 'Bekleidung') && (
-                  <MegaMenu
-                    title="Bekleidung"
-                    categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
-                  />
-                )}
+                  {/* Bekleidung */}
+                  {categoryTree.find(cat => cat.category === 'Bekleidung') && (
+                    <MegaMenu
+                      title="Bekleidung"
+                      categories={categoryTree.find(cat => cat.category === 'Bekleidung')?.children || []}
+                    />
+                  )}
 
-                {/* Scooter */}
-                {categoryTree.find(cat => cat.category === 'Scooter') && (
-                  <SimpleDropdown
-                    title="Scooter"
-                    categories={categoryTree.find(cat => cat.category === 'Scooter')?.children || []}
-                  />
-                )}
+                  {/* Scooter */}
+                  {categoryTree.find(cat => cat.category === 'Scooter') && (
+                    <SimpleDropdown
+                      title="Scooter"
+                      categories={categoryTree.find(cat => cat.category === 'Scooter')?.children || []}
+                    />
+                  )}
 
-                {/* Outdoor */}
-                {categoryTree.find(cat => cat.category === 'Outdoor') && (
-                  <SimpleDropdown
-                    title="Outdoor"
-                    categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
-                  />
-                )}
-              </>
-            )}
+                  {/* Outdoor */}
+                  {categoryTree.find(cat => cat.category === 'Outdoor') && (
+                    <SimpleDropdown
+                      title="Outdoor"
+                      categories={categoryTree.find(cat => cat.category === 'Outdoor')?.children || []}
+                    />
+                  )}
+                </>
+              )}
 
-            <NavLink href="/ueber-uns">Über uns</NavLink>
-            <NavLink href="/kontakt">Kontakt</NavLink>
+              <NavLink href="/ueber-uns">Über uns</NavLink>
+              <NavLink href="/kontakt">Kontakt</NavLink>
+            </div>
           </nav>
 
           {/* Desktop Actions */}
@@ -191,7 +193,7 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-rinos-text hover:opacity-70"
+            className="md:hidden p-2 text-rinos-text hover:opacity-70"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
@@ -205,7 +207,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-200 bg-white">
+        <div className="md:hidden border-t border-gray-200 bg-white">
           <nav className="px-4 py-4 space-y-1">
             <MobileNavLink href="/products">Produkte</MobileNavLink>
             <MobileNavLink href="/ueber-uns">Über uns</MobileNavLink>
