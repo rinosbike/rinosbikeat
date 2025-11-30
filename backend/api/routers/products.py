@@ -127,8 +127,9 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
         # If this is a father article, get variations
         if product.isfatherarticle:
             # Get child variations - filter out None values
+            # Use product.articlenr (father's article number), not the requested articlenr
             variations = [v for v in db.query(Product).filter(
-                Product.fatherarticle == articlenr
+                Product.fatherarticle == product.articlenr
             ).all() if v is not None]
 
             product_dict["variations"] = [
@@ -140,7 +141,7 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             variation_combinations = []
             try:
                 var_combinations = [vc for vc in db.query(VariationCombinationData).filter(
-                    VariationCombinationData.fatherarticle == articlenr
+                    VariationCombinationData.fatherarticle == product.articlenr
                 ).all() if vc is not None]
 
                 for vc in var_combinations:
