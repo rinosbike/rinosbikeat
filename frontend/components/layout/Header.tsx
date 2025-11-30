@@ -103,8 +103,10 @@ export default function Header() {
         <div className="flex items-center justify-between pb-4">
           {/* Left Side: Trustpilot Banner */}
           <div className="flex flex-col gap-2">
-            <Link
-              href="/reviews"
+            <a
+              href="https://de.trustpilot.com/review/rinosbike.eu"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-gray-700 hover:opacity-70 transition-opacity"
             >
               <span>Sehen Sie unsere <strong>196</strong> Bewertungen auf</span>
@@ -112,14 +114,16 @@ export default function Header() {
                 <Star className="w-4 h-4 fill-green-600" />
                 Trustpilot
               </span>
-            </Link>
-            <Link
-              href="/reviews"
+            </a>
+            <a
+              href="https://de.trustpilot.com/review/rinosbike.eu"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-1 text-sm text-gray-700 hover:opacity-70 transition-opacity lg:hidden"
             >
               <span><strong>196</strong> Bewertungen</span>
               <Star className="w-3 h-3 fill-green-600 text-green-600" />
-            </Link>
+            </a>
             
             {/* Country/Currency Selector */}
             <div className="relative" ref={countryCurrencyRef}>
