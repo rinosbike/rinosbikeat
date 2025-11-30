@@ -11,7 +11,6 @@ export default function TrustBanner() {
     'Lebenslanger Kundensupport',
     'Direktverkauf - Keine Zwischenhändler',
     '95% Vormontiert',
-    'Kostenloser Versand ab 100€',
   ]
 
   return (

@@ -2,6 +2,7 @@
 """
 Products API - Enhanced version with category and variation support
 Handles father/child article structure with proper category mapping
+Includes defensive error handling for variation combinations
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
