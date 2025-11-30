@@ -41,9 +41,9 @@ export default function HeroSection({
   }
 
   const gradientClasses = {
-    left: 'bg-gradient-to-r from-black/40 to-transparent',
-    right: 'bg-gradient-to-l from-black/30 to-transparent',
-    center: 'bg-black/30'
+    left: 'bg-gradient-to-r from-black/0 to-transparent',
+    right: 'bg-gradient-to-l from-black/0 to-transparent',
+    center: 'bg-black/0'
   }
 
   return (

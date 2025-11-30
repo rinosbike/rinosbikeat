@@ -63,8 +63,8 @@ export const DESIGN_SYSTEM = {
       desktop: 4,
     },
     gap: {
-      mobile: '1rem',      // 16px
-      desktop: '1.5rem',   // 24px
+      mobile: '0.25rem',   // 4px (matches rinosbike.eu)
+      desktop: '0.5rem',   // 8px (matches rinosbike.eu)
     }
   },
 
@@ -85,6 +85,6 @@ export const LAYOUT_CLASSES = {
   staticPage: 'py-5 md:py-7',  // 20px / 28px (for impressum, kontakt, etc - matches rinosbike.eu)
   hero: 'relative h-[400px] md:h-[450px] overflow-hidden',
   heroSecondary: 'relative h-[350px] md:h-[400px] overflow-hidden',
-  productGrid: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6',
+  productGrid: 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-2',
   twoColGrid: 'grid grid-cols-1 lg:grid-cols-2 gap-8 items-center',
 } as const

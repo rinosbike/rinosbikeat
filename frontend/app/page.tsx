@@ -90,7 +90,7 @@ export default function HomePage() {
       />
 
       {/* Featured Blog Section */}
-      <section className="py-12 md:py-16 bg-white">
+      <section className="py-7 md:py-9 bg-white">
         <div className="max-w-container mx-auto px-6 md:px-20">
           <SectionHeader
             title="Rinos Bicycles. Was gibt's Neues?"

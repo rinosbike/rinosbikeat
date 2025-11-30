@@ -14,39 +14,35 @@
 
 @layer components {
   /* Container class removed - using max-w-container with explicit padding instead */
-  
+
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-block text-center;
+    @apply px-4 py-2 font-medium transition-colors duration-200 inline-block text-center border border-gray-300;
   }
-  
+
   .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800;
+    @apply bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800 border-blue-600;
   }
-  
+
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400;
+    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 border-gray-200;
   }
-  
+
   .btn-outline {
-    @apply border-2 border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100;
+    @apply border border-blue-600 text-blue-600 hover:bg-blue-50 active:bg-blue-100;
   }
-  
+
   .btn-lg {
     @apply px-6 py-3 text-lg;
   }
-  
+
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 transition-shadow duration-200;
+    @apply bg-white p-6 border border-gray-200;
   }
-  
-  .card:hover {
-    @apply shadow-xl;
-  }
-  
+
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all;
+    @apply w-full px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all;
   }
-  
+
   .label {
     @apply block text-sm font-medium text-gray-700 mb-2;
   }

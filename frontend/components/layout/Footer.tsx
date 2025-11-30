@@ -12,11 +12,26 @@ export default function Footer() {
   return (
     <footer className="bg-rinos-dark text-rinos-text-light mt-16">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Newsletter Section - Above Footer Grid */}
+        <div className="mb-12 max-w-md">
+          <h3 className="font-bold text-lg mb-4 text-white">Abonnieren Sie unsere E-Mails</h3>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              placeholder="E-Mail"
+              className="flex-1 px-4 py-2.5 bg-white text-gray-900 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            />
+            <button className="bg-white text-gray-900 px-6 py-2.5 text-sm font-medium hover:bg-gray-200 transition-colors whitespace-nowrap">
+              Abonnieren
+            </button>
+          </div>
+        </div>
+
         {/* Footer Grid - 4 Column Layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
-          {/* Column 1: Support & Services */}
+          {/* Column 1: Customer Service */}
           <div>
-            <h3 className="font-bold text-base mb-4 text-white">Support & Service</h3>
+            <h3 className="font-bold text-base mb-4 text-white">Kundenservice</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/rueckgabe" className="text-gray-300 hover:text-white transition-colors">
@@ -85,22 +100,36 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Newsletter */}
+          {/* Column 4: Help Resources (FAQ) */}
           <div>
-            <h3 className="font-bold text-base mb-4 text-white">Newsletter</h3>
-            <p className="text-sm text-gray-300 mb-4">
-              Abonnieren Sie unsere E-Mails für exklusive Angebote
-            </p>
-            <div className="flex flex-col gap-2">
-              <input
-                type="email"
-                placeholder="E-Mail Adresse"
-                className="px-4 py-2.5 bg-white text-rinos-primary text-sm border-0 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-              />
-              <button className="bg-white text-rinos-primary px-6 py-2.5 text-sm font-medium rounded hover:bg-gray-200 transition-colors">
-                Jetzt abonnieren
-              </button>
-            </div>
+            <h3 className="font-bold text-base mb-4 text-white">Hilfe & FAQ</h3>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <Link href="/faq-montage" className="text-gray-300 hover:text-white transition-colors">
+                  Montage FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq-spezifikationen" className="text-gray-300 hover:text-white transition-colors">
+                  Fahrrad-Spezifikationen FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq-rueckgabe" className="text-gray-300 hover:text-white transition-colors">
+                  Rückgabe / Garantie FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq-lieferung" className="text-gray-300 hover:text-white transition-colors">
+                  Lieferung / Versand FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq-allgemein" className="text-gray-300 hover:text-white transition-colors">
+                  Allgemein / Produktpalette FAQ
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
