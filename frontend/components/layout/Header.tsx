@@ -88,21 +88,9 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Section: Logo Centered */}
-        <div className="flex justify-center py-4">
-          <Link href="/" className="flex items-center">
-            <img
-              src="/images/logo.png"
-              alt="RINOS Bikes"
-              className="h-16 w-auto object-contain"
-            />
-          </Link>
-        </div>
-
-        {/* Middle Section: Trustpilot, Country/Currency, Actions */}
-        <div className="flex items-center justify-between pb-4">
-          {/* Left Side: Trustpilot Banner */}
-          <div className="flex flex-col gap-2">
+        {/* Top Section: Trustpilot Banner */}
+        <div className="py-2 border-b border-gray-100">
+          <div className="flex items-center justify-between">
             <a
               href="https://de.trustpilot.com/review/rinosbike.eu"
               target="_blank"
@@ -115,16 +103,7 @@ export default function Header() {
                 Trustpilot
               </span>
             </a>
-            <a
-              href="https://de.trustpilot.com/review/rinosbike.eu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm text-gray-700 hover:opacity-70 transition-opacity lg:hidden"
-            >
-              <span><strong>196</strong> Bewertungen</span>
-              <Star className="w-3 h-3 fill-green-600 text-green-600" />
-            </a>
-            
+
             {/* Country/Currency Selector */}
             <div className="relative" ref={countryCurrencyRef}>
               <button
@@ -135,7 +114,7 @@ export default function Header() {
                 <ChevronDown className="w-4 h-4" />
               </button>
               {countryCurrencyOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg py-2 z-50">
                   <button className="block w-full text-left px-4 py-2 text-sm text-rinos-text hover:bg-gray-50">
                     Deutschland | EUR €
                   </button>
@@ -146,6 +125,18 @@ export default function Header() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Middle Section: Logo Left, Icons Right */}
+        <div className="flex items-center justify-between py-4">
+          {/* Logo - Left Side */}
+          <Link href="/" className="flex items-center">
+            <img
+              src="/images/logo.png"
+              alt="RINOS Bikes"
+              className="h-20 w-auto object-contain"
+            />
+          </Link>
 
           {/* Right Side: Icons */}
           <div className="flex items-center space-x-4">
