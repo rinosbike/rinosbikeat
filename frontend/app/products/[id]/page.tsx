@@ -28,7 +28,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [error, setError] = useState<string | null>(null)
 
   // Add to cart states
-  const [selectedVariation, setSelectedVariation] = useState<number | null>(null)
+  const [selectedVariation, setSelectedVariation] = useState<string | null>(null) // Changed to article number
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({})
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
@@ -69,30 +69,32 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           console.log('Variation data loaded:', varData)
           setVariationData(varData)
 
-          // Pre-select first variation
-          if (varData.variations.length > 0) {
-            setSelectedVariation(varData.variations[0].productid)
+          // Pre-select first variation from variation_combinations
+          if (varData.variation_combinations && varData.variation_combinations.length > 0) {
+            const firstCombo = varData.variation_combinations[0]
+            setSelectedVariation(firstCombo.articlenr)
 
-            // Initialize selected attributes from first variation
-            const firstVar = varData.variations[0]
+            // Initialize selected attributes from first combination
             const attrs: Record<string, string> = {}
-            if (firstVar.colour) attrs['colour'] = firstVar.colour
-            if (firstVar.size) attrs['size'] = firstVar.size
-            if (firstVar.component) attrs['component'] = firstVar.component
-            if (firstVar.type) attrs['type'] = firstVar.type
+            firstCombo.variations.forEach(v => {
+              if (v.type && v.value) {
+                attrs[v.type] = v.value
+              }
+            })
             setSelectedAttributes(attrs)
+            console.log('Pre-selected variation:', firstCombo.articlenr, attrs)
           }
         } catch (varErr) {
-          console.error('Could not load variation data, using basic variations:', varErr)
+          console.error('Could not load variation data:', varErr)
           console.log('Error details:', varErr)
           // Fallback to basic variation handling
           if (data.variations && data.variations.length > 0) {
-            setSelectedVariation(data.variations[0].productid)
+            setSelectedVariation(data.variations[0].articlenr)
           }
         }
       } else if (data.variations && data.variations.length > 0) {
         // Simple variation handling for non-father articles
-        setSelectedVariation(data.variations[0].productid)
+        setSelectedVariation(data.variations[0].articlenr)
       }
     } catch (err) {
       console.error('Fehler beim Laden des Produkts:', err)
@@ -107,28 +109,36 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
     try {
       setAddingToCart(true)
-      
+
       // Ensure we have a session ID
       let currentSessionId = sessionId
       if (!currentSessionId) {
         currentSessionId = generateSessionId()
       }
 
+      // Convert article number to product ID
+      let productIdToAdd = product.productid
+      if (selectedVariation && variationData && variationData.variations) {
+        const selectedVar = variationData.variations.find(v => v.articlenr === selectedVariation)
+        if (selectedVar) {
+          productIdToAdd = selectedVar.productid
+        }
+      }
+
       // Add to cart via API
       const updatedCart = await cartApi.addItem(
         currentSessionId,
-        product.productid,
-        quantity,
-        selectedVariation || undefined
+        productIdToAdd,
+        quantity
       )
 
       // Update cart count
       setItemCount(updatedCart.items.length)
-      
+
       // Show success message
       setAddedToCart(true)
       setTimeout(() => setAddedToCart(false), 3000)
-      
+
       // Reset quantity
       setQuantity(1)
     } catch (err) {
@@ -148,48 +158,42 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     const newAttrs = { ...selectedAttributes, [attributeType]: value }
     setSelectedAttributes(newAttrs)
 
-    // Find matching variation based on all selected attributes
-    if (variationData) {
-      const matchingVariation = variationData.variations.find(v => {
-        return Object.entries(newAttrs).every(([key, val]) => {
-          const varValue = v[key as keyof typeof v]
-          return varValue === val
+    // Find matching variation from variation_combinations
+    if (variationData && variationData.variation_combinations) {
+      const matchingCombo = variationData.variation_combinations.find(combo => {
+        // Check if all selected attributes match this combination
+        return Object.entries(newAttrs).every(([type, val]) => {
+          return combo.variations.some(v => v.type === type && v.value === val)
         })
       })
 
-      if (matchingVariation) {
-        setSelectedVariation(matchingVariation.productid)
+      if (matchingCombo) {
+        setSelectedVariation(matchingCombo.articlenr)
+        console.log('Matched variation:', matchingCombo.articlenr, newAttrs)
       }
     }
   }
 
   const getAvailableValuesForAttribute = (attributeType: string): string[] => {
-    if (!variationData) return []
+    if (!variationData || !variationData.variation_options) return []
 
-    const values = new Set<string>()
-    variationData.variations.forEach(v => {
-      const value = v[attributeType as keyof typeof v]
-      if (value && typeof value === 'string') {
-        values.add(value)
-      }
-    })
-
-    const result = Array.from(values).sort()
-    console.log(`Available ${attributeType} values:`, result)
-    return result
+    // Return values directly from variation_options
+    const values = variationData.variation_options[attributeType] || []
+    console.log(`Available ${attributeType} values:`, values)
+    return values
   }
 
   const getSelectedVariationPrice = () => {
     if (!product || !selectedVariation) return product?.price || 0
 
     // Check variation data first for more accurate pricing
-    if (variationData) {
-      const variation = variationData.variations.find(v => v.productid === selectedVariation)
+    if (variationData && variationData.variations) {
+      const variation = variationData.variations.find(v => v.articlenr === selectedVariation)
       if (variation) return variation.price
     }
 
     // Fallback to basic variations
-    const variation = product.variations?.find(v => v.productid === selectedVariation)
+    const variation = product.variations?.find(v => v.articlenr === selectedVariation)
     if (!variation) return product.price
 
     // Variations are full products with their own prices
@@ -319,101 +323,35 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 Art.-Nr.: {product.articlenr}
               </p>
 
-              {/* Variations - Grouped by Attribute */}
-              {variationData && variationData.variations.length > 0 ? (
+              {/* Variations - Dynamically render based on variation_options */}
+              {variationData && variationData.variation_options && Object.keys(variationData.variation_options).length > 0 ? (
                 <div className="mb-6 space-y-4">
-                  {/* Colour Selection */}
-                  {getAvailableValuesForAttribute('colour').length > 0 && (
-                    <div>
-                      <label className="label">Farbe</label>
+                  {/* Dynamically render each variation type */}
+                  {Object.entries(variationData.variation_options).map(([varType, values]) => (
+                    <div key={varType}>
+                      <label className="label">{varType}</label>
                       <div className="flex flex-wrap gap-2">
-                        {getAvailableValuesForAttribute('colour').map((colour) => (
+                        {values.map((value) => (
                           <button
-                            key={colour}
-                            onClick={() => handleAttributeChange('colour', colour)}
+                            key={value}
+                            onClick={() => handleAttributeChange(varType, value)}
                             className={`px-4 py-2 border-2 transition-all ${
-                              selectedAttributes['colour'] === colour
+                              selectedAttributes[varType] === value
                                 ? 'border-blue-600 bg-blue-50 font-medium'
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                           >
-                            {colour}
+                            {value}
                           </button>
                         ))}
                       </div>
                     </div>
-                  )}
-
-                  {/* Size Selection */}
-                  {getAvailableValuesForAttribute('size').length > 0 && (
-                    <div>
-                      <label className="label">Größe</label>
-                      <div className="flex flex-wrap gap-2">
-                        {getAvailableValuesForAttribute('size').map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => handleAttributeChange('size', size)}
-                            className={`px-4 py-2 border-2 transition-all ${
-                              selectedAttributes['size'] === size
-                                ? 'border-blue-600 bg-blue-50 font-medium'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Component Selection */}
-                  {getAvailableValuesForAttribute('component').length > 0 && (
-                    <div>
-                      <label className="label">Komponente</label>
-                      <div className="flex flex-wrap gap-2">
-                        {getAvailableValuesForAttribute('component').map((component) => (
-                          <button
-                            key={component}
-                            onClick={() => handleAttributeChange('component', component)}
-                            className={`px-4 py-2 border-2 transition-all ${
-                              selectedAttributes['component'] === component
-                                ? 'border-blue-600 bg-blue-50 font-medium'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
-                          >
-                            {component}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Type Selection */}
-                  {getAvailableValuesForAttribute('type').length > 0 && (
-                    <div>
-                      <label className="label">Typ</label>
-                      <div className="flex flex-wrap gap-2">
-                        {getAvailableValuesForAttribute('type').map((type) => (
-                          <button
-                            key={type}
-                            onClick={() => handleAttributeChange('type', type)}
-                            className={`px-4 py-2 border-2 transition-all ${
-                              selectedAttributes['type'] === type
-                                ? 'border-blue-600 bg-blue-50 font-medium'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
-                          >
-                            {type}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  ))}
 
                   {/* Selected Variation Info */}
                   {selectedVariation && (
                     <div className="text-sm text-gray-600 pt-2 border-t">
-                      Art.-Nr.: {variationData.variations.find(v => v.productid === selectedVariation)?.articlenr}
+                      Art.-Nr.: {selectedVariation}
                     </div>
                   )}
                 </div>
@@ -425,16 +363,16 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <div className="grid grid-cols-2 gap-3">
                       {product.variations.map((variation) => (
                         <button
-                          key={variation.productid}
-                          onClick={() => setSelectedVariation(variation.productid)}
+                          key={variation.articlenr}
+                          onClick={() => setSelectedVariation(variation.articlenr)}
                           className={`p-4 rounded-lg border-2 transition-all ${
-                            selectedVariation === variation.productid
+                            selectedVariation === variation.articlenr
                               ? 'border-blue-600 bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
                           <div className="font-medium">
-                            {variation.colour || variation.size || variation.component || variation.type || variation.articlenr}
+                            {variation.articlenr}
                           </div>
                           {variation.price !== product.price && (
                             <div className="text-sm text-gray-600">

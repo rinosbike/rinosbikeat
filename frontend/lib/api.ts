@@ -230,6 +230,7 @@ export interface ProductVariationsResponse {
   father_article: string;
   variation_count: number;
   variations: ProductVariationDetail[];
+  variation_options: Record<string, string[]>; // e.g., { "Farbe": ["Schwarz/Grün", ...], "Größe": [...] }
   variation_combinations: Array<{
     articlenr: string;
     variations: Array<{ type: string | null; value: string | null }>;
