@@ -12,6 +12,8 @@ import { categoriesApi, type Category, type Product } from '@/lib/api'
 import ProductGrid from '@/components/produkte/ProductGrid'
 import CategoryFilters from '@/components/categories/CategoryFilters'
 import Pagination from '@/components/categories/Pagination'
+import BikeComparisonSection from '@/components/produkte/BikeComparisonSection'
+import FeaturesHighlight from '@/components/produkte/FeaturesHighlight'
 
 export default function CategoryProductsPage({ params }: { params: { slug: string } }) {
   const searchParams = useSearchParams()
@@ -195,6 +197,28 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
           </>
         )}
       </div>
+
+      {/* Shopify-Style Sections */}
+      {!loading && !error && allProducts.length > 0 && (
+        <>
+          {category?.category?.toLowerCase().includes('gravel') ? (
+            <>
+              <FeaturesHighlight
+                title="Was macht RINOS Sandman Gravel Bikes besonders?"
+                description="Premium Carbon Gravel Bikes mit hochwertigen Komponenten zu fairen Preisen. Entwickelt für Abenteuer."
+                columns={4}
+              />
+              <BikeComparisonSection comparisonType="sandman" />
+            </>
+          ) : (
+            <FeaturesHighlight
+              title="Was macht RINOS Bikes besonders?"
+              description="Premium Bikes mit hochwertigen Komponenten zu fairen Preisen"
+              columns={4}
+            />
+          )}
+        </>
+      )}
     </div>
   )
 }

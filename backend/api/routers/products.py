@@ -89,12 +89,46 @@ def get_products(
             "total": total_count,
             "page": (skip // limit) + 1 if limit > 0 else 1,
             "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
-            "products": [p.to_simple_dict(include_categories=True) for p in products]
+            "products": [p.to_simple_dict(include_categories=True, db_session=db) for p in products]
         }
     
     except Exception as e:
         print(f"Error in get_products: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+@router.get("/debug/{articlenr}")
+def debug_get_product(articlenr: str, db: Session = Depends(get_db)):
+    """
+    Minimal debug endpoint - bypasses to_dict() to isolate error
+    """
+    try:
+        # Step 1: Query product
+        product = db.query(Product).filter(Product.articlenr == articlenr).first()
+
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+
+        # Step 2: Return minimal data without calling to_dict()
+        return {
+            "status": "success",
+            "debug_info": {
+                "articlenr": product.articlenr,
+                "articlename": product.articlename,
+                "is_father": product.isfatherarticle,
+                "father_article": product.fatherarticle,
+                "price": float(product.priceEUR) if product.priceEUR else 0
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_traceback = traceback.format_exc()
+        print(f"DEBUG ERROR for {articlenr}: {str(e)}")
+        print(f"Full traceback:\n{error_traceback}")
+        raise HTTPException(status_code=500, detail=f"Debug error: {str(e)}")
 
 
 @router.get("/{articlenr}")
@@ -115,14 +149,15 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             father_product = db.query(Product).filter(Product.articlenr == product.fatherarticle).first()
             if father_product:
                 # Use the father product but indicate which variation was requested
-                product_dict = father_product.to_dict(include_categories=True)
+                # Pass db_session to avoid lazy-loading issues in serverless
+                product_dict = father_product.to_dict(include_categories=True, db_session=db)
                 product_dict["requested_variation"] = articlenr
                 product = father_product  # Continue with father for variation loading
             else:
                 # Father not found, just return the child product
-                product_dict = product.to_dict(include_categories=True)
+                product_dict = product.to_dict(include_categories=True, db_session=db)
         else:
-            product_dict = product.to_dict(include_categories=True)
+            product_dict = product.to_dict(include_categories=True, db_session=db)
         
         # If this is a father article, get variations
         if product.isfatherarticle:
@@ -133,7 +168,7 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             ).all() if v is not None]
 
             product_dict["variations"] = [
-                v.to_simple_dict(include_categories=False) for v in variations if v is not None
+                v.to_simple_dict(include_categories=False, db_session=db) for v in variations if v is not None
             ]
             product_dict["variation_count"] = len(variations)
             
@@ -213,7 +248,7 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
                         Product.articlenr == product.fatherarticle
                     ).first()
                     if father:
-                        product_dict["father_product"] = father.to_simple_dict(include_categories=False)
+                        product_dict["father_product"] = father.to_simple_dict(include_categories=False, db_session=db)
 
                     # Get sibling variations - filter out None values
                     siblings = [s for s in db.query(Product).filter(
@@ -222,7 +257,7 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
                     ).all() if s is not None]
 
                     product_dict["other_variations"] = [
-                        s.to_simple_dict(include_categories=False) for s in siblings if s is not None
+                        s.to_simple_dict(include_categories=False, db_session=db) for s in siblings if s is not None
                     ]
                 except Exception as e:
                     print(f"Error loading father/sibling data: {e}")
@@ -370,7 +405,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
                             variations_by_attr[attr] = {}
                         if val not in variations_by_attr[attr]:
                             variations_by_attr[attr][val] = []
-                        variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False))
+                        variations_by_attr[attr][val].append(var.to_simple_dict(include_categories=False, db_session=db))
             except Exception as e:
                 print(f"Error grouping variation by attribute: {e}")
                 continue
@@ -379,7 +414,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             "status": "success",
             "father_article": father_articlenr,
             "variation_count": len(variations),
-            "variations": [v.to_simple_dict(include_categories=False) for v in variations],
+            "variations": [v.to_simple_dict(include_categories=False, db_session=db) for v in variations],
             "variation_definitions": variation_definitions,
             "variation_combinations": variation_combinations,
             "grouped_by_attribute": variations_by_attr
@@ -433,9 +468,9 @@ def search_products(
             "total": total_count,
             "page": (skip // limit) + 1 if limit > 0 else 1,
             "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
-            "products": [p.to_simple_dict(include_categories=True) for p in products]
+            "products": [p.to_simple_dict(include_categories=True, db_session=db) for p in products]
         }
-    
+
     except Exception as e:
         print(f"Error in search_products: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
@@ -540,9 +575,9 @@ def get_category_products(
             "total": total_count,
             "page": (skip // limit) + 1 if limit > 0 else 1,
             "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
-            "products": [p.to_simple_dict(include_categories=False) for p in products]
+            "products": [p.to_simple_dict(include_categories=False, db_session=db) for p in products]
         }
-    
+
     except HTTPException:
         raise
     except Exception as e:
@@ -689,9 +724,9 @@ def get_featured_products(
         return {
             "status": "success",
             "count": len(products),
-            "products": [p.to_simple_dict(include_categories=True) for p in products]
+            "products": [p.to_simple_dict(include_categories=True, db_session=db) for p in products]
         }
-    
+
     except Exception as e:
         print(f"Error in get_featured_products: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")

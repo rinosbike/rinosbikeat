@@ -174,11 +174,12 @@ class Product(Base):
     Image27URL = Column(Text)
     Image28URL = Column(Text)
     
-    # Relationships
+    # Relationships - using eager loading for serverless compatibility
     categories = relationship(
         "Category",
         secondary=product_category_association,
-        back_populates="products"
+        back_populates="products",
+        lazy="joined"  # Eager load to avoid lazy-loading issues in serverless
     )
     
     def get_all_images(self):
@@ -194,13 +195,14 @@ class Product(Base):
         """Get the first available image or None"""
         return self.Image1URL or None
     
-    def to_dict(self, include_categories=True, include_variations=False):
+    def to_dict(self, include_categories=True, include_variations=False, db_session=None):
         """
         Convert to dictionary for API response
 
         Args:
             include_categories: Include category information
             include_variations: Include variation data (for father articles)
+            db_session: Optional SQLAlchemy session for manual category loading
         """
         data = {
             "productid": self.productid,
@@ -227,19 +229,44 @@ class Product(Base):
         # Include categories if requested
         if include_categories:
             try:
-                if self.categories and len(self.categories) > 0:
-                    data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                # If db_session provided, manually load categories to avoid lazy-loading issues
+                if db_session is not None:
+                    from sqlalchemy import select
+                    from sqlalchemy.orm import object_session
+
+                    # Query categories manually via join
+                    categories_query = db_session.query(Category).join(
+                        product_category_association,
+                        Category.categoryid == product_category_association.c.categoryid
+                    ).filter(
+                        product_category_association.c.productid == self.productid
+                    ).all()
+
+                    data["categories"] = [cat.to_dict() for cat in categories_query if cat is not None]
                 else:
-                    data["categories"] = []
+                    # Fallback to ORM relationship
+                    if self.categories and len(self.categories) > 0:
+                        data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                    else:
+                        data["categories"] = []
             except (AttributeError, TypeError) as e:
                 print(f"Error loading categories for product {self.articlenr}: {e}")
+                data["categories"] = []
+            except Exception as e:
+                print(f"Unexpected error loading categories for product {self.articlenr}: {e}")
+                import traceback
+                traceback.print_exc()
                 data["categories"] = []
 
         return data
     
-    def to_simple_dict(self, include_categories=True):
+    def to_simple_dict(self, include_categories=True, db_session=None):
         """
         Simplified version for product listings
+
+        Args:
+            include_categories: Include category information
+            db_session: Optional SQLAlchemy session for manual category loading
         """
         data = {
             "productid": self.productid,
@@ -256,12 +283,30 @@ class Product(Base):
         # Include categories if requested
         if include_categories:
             try:
-                if self.categories and len(self.categories) > 0:
-                    data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                # If db_session provided, manually load categories to avoid lazy-loading issues
+                if db_session is not None:
+                    # Query categories manually via join
+                    categories_query = db_session.query(Category).join(
+                        product_category_association,
+                        Category.categoryid == product_category_association.c.categoryid
+                    ).filter(
+                        product_category_association.c.productid == self.productid
+                    ).all()
+
+                    data["categories"] = [cat.to_dict() for cat in categories_query if cat is not None]
                 else:
-                    data["categories"] = []
+                    # Fallback to ORM relationship
+                    if self.categories and len(self.categories) > 0:
+                        data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                    else:
+                        data["categories"] = []
             except (AttributeError, TypeError) as e:
                 print(f"Error loading categories for product {self.articlenr}: {e}")
+                data["categories"] = []
+            except Exception as e:
+                print(f"Unexpected error loading categories for product {self.articlenr}: {e}")
+                import traceback
+                traceback.print_exc()
                 data["categories"] = []
 
         return data
