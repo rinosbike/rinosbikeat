@@ -48,9 +48,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       setProduct(data)
 
       // If product has variations and is a father article, load detailed variation data
+      console.log('Product data loaded:', {
+        is_father_article: data.is_father_article,
+        has_variations: !!data.variations,
+        variations_count: data.variations?.length || 0,
+        articlenr: data.articlenr
+      })
+
       if (data.is_father_article && data.variations && data.variations.length > 0) {
         try {
+          console.log('Loading variation data for:', data.articlenr)
           const varData = await variationsApi.getVariations(data.articlenr)
+          console.log('Variation data loaded:', varData)
           setVariationData(varData)
 
           // Pre-select first variation
