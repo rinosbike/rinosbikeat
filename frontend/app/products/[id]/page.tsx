@@ -76,9 +76,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             setSelectedAttributes(attrs)
           }
         } catch (varErr) {
-          console.warn('Could not load variation data, using basic variations:', varErr)
+          console.error('Could not load variation data, using basic variations:', varErr)
+          console.log('Error details:', varErr)
           // Fallback to basic variation handling
-          setSelectedVariation(data.variations[0].productid)
+          if (data.variations && data.variations.length > 0) {
+            setSelectedVariation(data.variations[0].productid)
+          }
         }
       } else if (data.variations && data.variations.length > 0) {
         // Simple variation handling for non-father articles
@@ -164,7 +167,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       }
     })
 
-    return Array.from(values).sort()
+    const result = Array.from(values).sort()
+    console.log(`Available ${attributeType} values:`, result)
+    return result
   }
 
   const getSelectedVariationPrice = () => {
