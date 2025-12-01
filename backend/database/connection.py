@@ -16,11 +16,18 @@ DATABASE_URL = (
     settings.DATABASE_URL  # Fallback to config
 )
 
-# Create engine - back to UTF-8
+# Create engine - optimized for serverless (Vercel)
 engine = create_engine(
     DATABASE_URL,
     echo=settings.DEBUG,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    pool_size=1,  # Minimal pool for serverless
+    max_overflow=0,  # No overflow connections
+    pool_recycle=3600,  # Recycle connections after 1 hour
+    connect_args={
+        "connect_timeout": 10,
+        "options": "-c timezone=utc"
+    }
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
