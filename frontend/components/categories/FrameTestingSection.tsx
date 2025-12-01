@@ -48,7 +48,7 @@ const defaultStats: TestStat[] = [
 export default function FrameTestingSection({
   title = 'Entwickelt für Langlebigkeit',
   description = 'Jeder RINOS Rahmen durchläuft rigorose Tests, um höchste Qualität und Sicherheit zu gewährleisten. Unsere Carbon-Rahmen werden nach strengsten Standards geprüft.',
-  videoUrl = 'https://www.youtube.com/embed/frame-testing-video',
+  videoUrl = 'https://player.vimeo.com/video/1101897970',
   stats = defaultStats,
   className = ''
 }: FrameTestingSectionProps) {

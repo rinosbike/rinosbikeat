@@ -39,7 +39,7 @@ const defaultBenefits: AssemblyBenefit[] = [
 export default function AssemblyGuideSection({
   title = 'Baue dein RINOS Bike zusammen',
   description = 'Dein Bike kommt 95% vormontiert an. Mit unserer detaillierten Anleitung ist der Rest in kürzester Zeit erledigt.',
-  videoUrl = 'https://www.youtube.com/embed/assembly-video',
+  videoUrl = 'https://www.youtube.com/embed/olcCPsOTT6w',
   videoThumbnail = '/images/assembly-thumbnail.jpg',
   benefits = defaultBenefits,
   className = ''

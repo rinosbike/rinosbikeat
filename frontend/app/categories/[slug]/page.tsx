@@ -382,7 +382,6 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
             // Sequence from rinosbike.eu/collections/mtb
             return (
               <>
-                <BikeComparisonSection comparisonType="sandman" />
                 <FeaturesHighlight
                   title="Was macht RINOS MTB Bikes besonders?"
                   description="Robuste Mountain Bikes für anspruchsvolles Gelände. Entwickelt für Trail und Enduro."
