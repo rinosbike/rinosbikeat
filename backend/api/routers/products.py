@@ -258,7 +258,10 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error in get_product: {str(e)}")
+        import traceback
+        error_traceback = traceback.format_exc()
+        print(f"Error in get_product for {articlenr}: {str(e)}")
+        print(f"Full traceback:\n{error_traceback}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
