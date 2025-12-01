@@ -42,8 +42,8 @@ const defaultGeometryData: GeometryData[] = [
 ];
 
 export default function SizingChartSection({
-  title = 'Größentabelle',
-  description = 'Finde die perfekte Rahmengröße für deine Körpergröße. Bei Fragen zur Größenwahl beraten wir dich gerne.',
+  title = 'GrÃ¶ÃŸentabelle',
+  description = 'Finde die perfekte RahmengrÃ¶ÃŸe fÃ¼r deine KÃ¶rpergrÃ¶ÃŸe. Bei Fragen zur GrÃ¶ÃŸenwahl beraten wir dich gerne.',
   sizeRecommendations = defaultSizeRecommendations,
   geometryData = defaultGeometryData,
   bikeType = 'gravel',
@@ -93,10 +93,10 @@ export default function SizingChartSection({
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">
-                Größenempfehlung
+                GrÃ¶ÃŸenempfehlung
               </h3>
               <p className="text-gray-600">
-                Gib deine Körpergröße ein für eine persönliche Empfehlung
+                Gib deine KÃ¶rpergrÃ¶ÃŸe ein fÃ¼r eine persÃ¶nliche Empfehlung
               </p>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function SizingChartSection({
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="flex-1">
               <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-2">
-                Körpergröße (cm)
+                KÃ¶rpergrÃ¶ÃŸe (cm)
               </label>
               <input
                 type="number"
@@ -119,7 +119,7 @@ export default function SizingChartSection({
             </div>
             {recommendedSize && (
               <div className="flex-1 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
-                <p className="text-sm text-green-800 font-medium mb-1">Empfohlene Größe:</p>
+                <p className="text-sm text-green-800 font-medium mb-1">Empfohlene GrÃ¶ÃŸe:</p>
                 <p className="text-3xl font-bold text-green-900">{recommendedSize}</p>
               </div>
             )}
@@ -132,9 +132,9 @@ export default function SizingChartSection({
             <table className="w-full">
               <thead className="bg-gray-900 text-white">
                 <tr>
-                  <th className="px-6 py-4 text-left font-semibold">Rahmengröße</th>
-                  <th className="px-6 py-4 text-left font-semibold">Körpergröße (cm)</th>
-                  <th className="px-6 py-4 text-left font-semibold">Schrittlänge (cm)</th>
+                  <th className="px-6 py-4 text-left font-semibold">RahmengrÃ¶ÃŸe</th>
+                  <th className="px-6 py-4 text-left font-semibold">KÃ¶rpergrÃ¶ÃŸe (cm)</th>
+                  <th className="px-6 py-4 text-left font-semibold">SchrittlÃ¤nge (cm)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -179,7 +179,7 @@ export default function SizingChartSection({
               <table className="w-full">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-6 py-4 text-left font-semibold text-gray-900">Größe</th>
+                    <th className="px-6 py-4 text-left font-semibold text-gray-900">GrÃ¶ÃŸe</th>
                     <th className="px-6 py-4 text-left font-semibold text-gray-900">Reach (mm)</th>
                     <th className="px-6 py-4 text-left font-semibold text-gray-900">Stack (mm)</th>
                     <th className="px-6 py-4 text-left font-semibold text-gray-900">Oberrohr (mm)</th>
@@ -212,10 +212,10 @@ export default function SizingChartSection({
             </div>
             <div>
               <h4 className="font-bold text-lg text-gray-900 mb-2">
-                Unsicher bei der Größenwahl?
+                Unsicher bei der GrÃ¶ÃŸenwahl?
               </h4>
               <p className="text-gray-700 mb-3">
-                Wir helfen dir gerne bei der Auswahl der richtigen Rahmengröße. Kontaktiere uns per E-Mail oder Telefon für eine persönliche Beratung.
+                Wir helfen dir gerne bei der Auswahl der richtigen RahmengrÃ¶ÃŸe. Kontaktiere uns per E-Mail oder Telefon fÃ¼r eine persÃ¶nliche Beratung.
               </p>
               <div className="flex flex-wrap gap-4">
                 <a

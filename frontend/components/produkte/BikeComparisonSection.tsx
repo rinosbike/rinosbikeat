@@ -151,21 +151,13 @@ export default function BikeComparisonSection({
         />
 
         {/* Additional Info */}
-        <div className="mt-12 grid md:grid-cols-3 gap-6">
+        <div className="mt-12 grid md:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="font-bold text-lg text-gray-900 mb-2">
               Handgefertigte Laufräder
             </h3>
             <p className="text-gray-600">
               Jedes Laufrad wird von Hand gefertigt und individuell für dein Bike zusammengebaut - Made by Trudi in Frankfurt Oder.
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="font-bold text-lg text-gray-900 mb-2">
-              30 Tage Rückgaberecht
-            </h3>
-            <p className="text-gray-600">
-              Teste dein RINOS Bike 30 Tage lang. Nicht zufrieden? Einfach zurücksenden.
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">

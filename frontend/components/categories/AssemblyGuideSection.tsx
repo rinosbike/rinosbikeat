@@ -22,12 +22,12 @@ const defaultBenefits: AssemblyBenefit[] = [
   {
     icon: <Check className="w-6 h-6" />,
     title: 'Einfach zu befolgen',
-    description: 'Schritt-für-Schritt Anleitung mit klaren Bildern und Videos'
+    description: 'Schritt-fÃ¼r-Schritt Anleitung mit klaren Bildern und Videos'
   },
   {
     icon: <Wrench className="w-6 h-6" />,
     title: 'Grundwerkzeug',
-    description: 'Nur Standard-Werkzeuge erforderlich - keine Spezialausrüstung nötig'
+    description: 'Nur Standard-Werkzeuge erforderlich - keine SpezialausrÃ¼stung nÃ¶tig'
   },
   {
     icon: <Clock className="w-6 h-6" />,
@@ -38,7 +38,7 @@ const defaultBenefits: AssemblyBenefit[] = [
 
 export default function AssemblyGuideSection({
   title = 'Baue dein RINOS Bike zusammen',
-  description = 'Dein Bike kommt 95% vormontiert an. Mit unserer detaillierten Anleitung ist der Rest in kürzester Zeit erledigt.',
+  description = 'Dein Bike kommt 95% vormontiert an. Mit unserer detaillierten Anleitung ist der Rest in kÃ¼rzester Zeit erledigt.',
   videoUrl = 'https://www.youtube.com/embed/assembly-video',
   videoThumbnail = '/images/assembly-thumbnail.jpg',
   benefits = defaultBenefits,
@@ -125,10 +125,10 @@ export default function AssemblyGuideSection({
             </div>
             <div className="flex-1">
               <h4 className="font-bold text-lg text-gray-900 mb-1">
-                Professionelle Unterstützung verfügbar
+                Professionelle UnterstÃ¼tzung verfÃ¼gbar
               </h4>
               <p className="text-gray-700">
-                Brauchst du Hilfe? Unser Support-Team steht dir jederzeit zur Verfügung. Optional bieten wir auch einen professionellen Montageservice an.
+                Brauchst du Hilfe? Unser Support-Team steht dir jederzeit zur VerfÃ¼gung. Optional bieten wir auch einen professionellen Montageservice an.
               </p>
             </div>
           </div>

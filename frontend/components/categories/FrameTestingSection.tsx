@@ -23,31 +23,31 @@ const defaultStats: TestStat[] = [
     icon: <TrendingUp className="w-8 h-8" />,
     value: '10.000+',
     label: 'Zyklen getestet',
-    description: 'Umfangreiche Belastungstests für maximale Haltbarkeit'
+    description: 'Umfangreiche Belastungstests fÃ¼r maximale Haltbarkeit'
   },
   {
     icon: <Award className="w-8 h-8" />,
     value: 'ISO 4210',
     label: 'Zertifiziert',
-    description: 'Entspricht höchsten internationalen Sicherheitsstandards'
+    description: 'Entspricht hÃ¶chsten internationalen Sicherheitsstandards'
   },
   {
     icon: <Shield className="w-8 h-8" />,
     value: '5x',
     label: 'Sicherheitsfaktor',
-    description: 'Fünffache Sicherheit gegenüber Mindestanforderungen'
+    description: 'FÃ¼nffache Sicherheit gegenÃ¼ber Mindestanforderungen'
   },
   {
     icon: <CheckCircle className="w-8 h-8" />,
     value: '2 Jahre',
     label: 'Garantie',
-    description: 'Vollständige Herstellergarantie auf Rahmen und Gabel'
+    description: 'VollstÃ¤ndige Herstellergarantie auf Rahmen und Gabel'
   }
 ];
 
 export default function FrameTestingSection({
-  title = 'Entwickelt für Langlebigkeit',
-  description = 'Jeder RINOS Rahmen durchläuft rigorose Tests, um höchste Qualität und Sicherheit zu gewährleisten. Unsere Carbon-Rahmen werden nach strengsten Standards geprüft.',
+  title = 'Entwickelt fÃ¼r Langlebigkeit',
+  description = 'Jeder RINOS Rahmen durchlÃ¤uft rigorose Tests, um hÃ¶chste QualitÃ¤t und Sicherheit zu gewÃ¤hrleisten. Unsere Carbon-Rahmen werden nach strengsten Standards geprÃ¼ft.',
   videoUrl = 'https://www.youtube.com/embed/frame-testing-video',
   stats = defaultStats,
   className = ''
@@ -91,7 +91,7 @@ export default function FrameTestingSection({
                   </div>
                 </>
               ) : (
-                /* YouTube iframe */}
+                /* YouTube iframe */
                 <iframe
                   className="w-full h-full"
                   src={videoUrl}
@@ -137,10 +137,10 @@ export default function FrameTestingSection({
               <span className="text-2xl font-bold text-blue-600">1</span>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Materialprüfung
+              MaterialprÃ¼fung
             </h3>
             <p className="text-gray-600">
-              Jede Carbon-Charge wird auf Festigkeit und Qualität geprüft, bevor sie in der Produktion verwendet wird.
+              Jede Carbon-Charge wird auf Festigkeit und QualitÃ¤t geprÃ¼ft, bevor sie in der Produktion verwendet wird.
             </p>
           </div>
 
@@ -152,7 +152,7 @@ export default function FrameTestingSection({
               Belastungstests
             </h3>
             <p className="text-gray-600">
-              Simulierte Fahrten unter extremen Bedingungen über 10.000+ Zyklen um Langlebigkeit zu garantieren.
+              Simulierte Fahrten unter extremen Bedingungen Ã¼ber 10.000+ Zyklen um Langlebigkeit zu garantieren.
             </p>
           </div>
 
@@ -164,7 +164,7 @@ export default function FrameTestingSection({
               Zertifizierung
             </h3>
             <p className="text-gray-600">
-              Unabhängige Prüfung und Zertifizierung nach ISO 4210 Standards durch akkreditierte Testlabore.
+              UnabhÃ¤ngige PrÃ¼fung und Zertifizierung nach ISO 4210 Standards durch akkreditierte Testlabore.
             </p>
           </div>
         </div>
@@ -174,10 +174,10 @@ export default function FrameTestingSection({
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl font-bold mb-3">
-                Qualität, auf die du dich verlassen kannst
+                QualitÃ¤t, auf die du dich verlassen kannst
               </h3>
               <p className="text-gray-300 mb-4">
-                Unsere Rahmen werden in Frankfurt (Oder), Deutschland entwickelt und getestet. Jeder Rahmen trägt das RINOS Qualitätssiegel und wird mit einer 2-jährigen Garantie ausgeliefert.
+                Unsere Rahmen werden in Frankfurt (Oder), Deutschland entwickelt und getestet. Jeder Rahmen trÃ¤gt das RINOS QualitÃ¤tssiegel und wird mit einer 2-jÃ¤hrigen Garantie ausgeliefert.
               </p>
               <div className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-yellow-400" />

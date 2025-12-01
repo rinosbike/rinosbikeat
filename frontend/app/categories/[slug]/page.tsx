@@ -223,7 +223,7 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
           'item': {
             '@type': 'Product',
             'name': product.articlename,
-            'description': product.description || product.articlename,
+            'description': product.shortdescription || product.longdescription || product.articlename,
             'offers': {
               '@type': 'Offer',
               'price': product.price,
@@ -371,10 +371,9 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
               <>
                 <FeaturesHighlight
                   title="Was macht RINOS ODIN Road Bikes besonders?"
-                  description="Hochwertige Rennräder mit Carbon-Rahmen und Premium-Komponenten. Entwickelt für Performance und Komfort."
+                  description="UCI-zertifizierte Carbon-Rahmen, 2 Jahre Garantie, kostenloser EU-Versand, Made in Germany. Hochwertige Rennräder mit Premium-Komponenten."
                   columns={4}
                 />
-                <BikeComparisonSection comparisonType="sandman" />
                 <SizingChartSection />
               </>
             )
