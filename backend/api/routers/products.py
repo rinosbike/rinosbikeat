@@ -140,25 +140,38 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             # Get variation combinations from variationcombinationdata with error handling
             variation_combinations = []
             try:
-                var_combinations = [vc for vc in db.query(VariationCombinationData).filter(
+                var_combinations_query = db.query(VariationCombinationData).filter(
                     VariationCombinationData.fatherarticle == product.articlenr
-                ).all() if vc is not None]
+                ).all()
+
+                # Filter out None values and validate each object
+                var_combinations = []
+                for vc in var_combinations_query:
+                    if vc is not None:
+                        var_combinations.append(vc)
 
                 for vc in var_combinations:
                     try:
+                        if vc is None:
+                            continue
+
                         variation_combinations.append({
-                            "articlenr": vc.articlenr if hasattr(vc, 'articlenr') and vc.articlenr else "",
+                            "articlenr": getattr(vc, 'articlenr', '') if vc else "",
                             "variations": [
-                                {"type": vc.variation1, "value": vc.variationvalue1} if hasattr(vc, 'variation1') and vc.variation1 else None,
-                                {"type": vc.variation2, "value": vc.variationvalue2} if hasattr(vc, 'variation2') and vc.variation2 else None,
-                                {"type": vc.variation3, "value": vc.variationvalue3} if hasattr(vc, 'variation3') and vc.variation3 else None
+                                {"type": getattr(vc, 'variation1', None), "value": getattr(vc, 'variationvalue1', None)} if vc and getattr(vc, 'variation1', None) else None,
+                                {"type": getattr(vc, 'variation2', None), "value": getattr(vc, 'variationvalue2', None)} if vc and getattr(vc, 'variation2', None) else None,
+                                {"type": getattr(vc, 'variation3', None), "value": getattr(vc, 'variationvalue3', None)} if vc and getattr(vc, 'variation3', None) else None
                             ]
                         })
+                    except (AttributeError, TypeError) as e:
+                        print(f"Error processing variation combination (attribute error): {e}")
+                        continue
                     except Exception as e:
                         print(f"Error processing variation combination: {e}")
                         continue
             except Exception as e:
                 print(f"Error querying variation combinations: {e}")
+                variation_combinations = []
 
             product_dict["variation_combinations"] = variation_combinations
             
