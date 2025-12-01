@@ -240,7 +240,7 @@ export interface ProductVariationsResponse {
 export const variationsApi = {
   // Get variations for a product
   getVariations: async (articlenr: string): Promise<ProductVariationsResponse> => {
-    const response = await apiClient.get(`/${articlenr}/variations`);
+    const response = await apiClient.get(`/father/${articlenr}/variations`);
     return response.data;
   },
 };
