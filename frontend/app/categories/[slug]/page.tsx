@@ -2,6 +2,7 @@
  * Category Products Page - /categories/[slug]
  * Browse products in a specific category
  * Based on rinosbike.eu Shopify collection pages
+ * Updated: MTB and Road bike sections fixed
  */
 
 'use client'
