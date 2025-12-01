@@ -43,7 +43,7 @@ const bikeModels: ComparisonColumn[] = [
 const comparisonRows: ComparisonRow[] = [
   {
     label: 'Preis',
-    values: ['1.899 €', '2.099 €', '2.299 €', '2.699 €', '2.999 €', '3.499 €'],
+    values: ['1.499 €', '1.699 €', '1.899 €', '2.199 €', '2.599 €', '2.999 €'],
     highlighted: true
   },
   {
