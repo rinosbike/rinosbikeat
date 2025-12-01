@@ -47,18 +47,25 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       const data = await productsApi.getById(params.id)
       setProduct(data)
 
-      // If product has variations and is a father article, load detailed variation data
+      // Determine the article number to use for fetching variations
+      // If this is a child article, use the father's article number
+      // If this is a father article, use its own article number
+      const fatherArticleNr = data.father_article || data.articlenr
+
       console.log('Product data loaded:', {
         is_father_article: data.is_father_article,
         has_variations: !!data.variations,
         variations_count: data.variations?.length || 0,
-        articlenr: data.articlenr
+        articlenr: data.articlenr,
+        father_article: data.father_article,
+        using_articlenr: fatherArticleNr
       })
 
-      if (data.is_father_article && data.variations && data.variations.length > 0) {
+      // Load detailed variation data if this product has variations (either as father or child)
+      if ((data.is_father_article && data.variations && data.variations.length > 0) || data.father_article) {
         try {
-          console.log('Loading variation data for:', data.articlenr)
-          const varData = await variationsApi.getVariations(data.articlenr)
+          console.log('Loading variation data for father article:', fatherArticleNr)
+          const varData = await variationsApi.getVariations(fatherArticleNr)
           console.log('Variation data loaded:', varData)
           setVariationData(varData)
 
