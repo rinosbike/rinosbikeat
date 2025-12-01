@@ -197,7 +197,7 @@ class Product(Base):
     def to_dict(self, include_categories=True, include_variations=False):
         """
         Convert to dictionary for API response
-        
+
         Args:
             include_categories: Include category information
             include_variations: Include variation data (for father articles)
@@ -223,11 +223,18 @@ class Product(Base):
             "primary_image": self.get_primary_image(),
             "images": self.get_all_images()
         }
-        
+
         # Include categories if requested
-        if include_categories and self.categories:
-            data["categories"] = [cat.to_dict() for cat in self.categories]
-        
+        if include_categories:
+            try:
+                if self.categories and len(self.categories) > 0:
+                    data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                else:
+                    data["categories"] = []
+            except (AttributeError, TypeError) as e:
+                print(f"Error loading categories for product {self.articlenr}: {e}")
+                data["categories"] = []
+
         return data
     
     def to_simple_dict(self, include_categories=True):
@@ -245,11 +252,18 @@ class Product(Base):
             "is_father_article": self.isfatherarticle,
             "primary_image": self.get_primary_image()
         }
-        
+
         # Include categories if requested
-        if include_categories and self.categories:
-            data["categories"] = [cat.to_dict() for cat in self.categories]
-        
+        if include_categories:
+            try:
+                if self.categories and len(self.categories) > 0:
+                    data["categories"] = [cat.to_dict() for cat in self.categories if cat is not None]
+                else:
+                    data["categories"] = []
+            except (AttributeError, TypeError) as e:
+                print(f"Error loading categories for product {self.articlenr}: {e}")
+                data["categories"] = []
+
         return data
     
     def to_full_dict(self):
