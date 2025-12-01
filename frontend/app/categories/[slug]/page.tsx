@@ -14,6 +14,9 @@ import CategoryFilters from '@/components/categories/CategoryFilters'
 import Pagination from '@/components/categories/Pagination'
 import BikeComparisonSection from '@/components/produkte/BikeComparisonSection'
 import FeaturesHighlight from '@/components/produkte/FeaturesHighlight'
+import AssemblyGuideSection from '@/components/categories/AssemblyGuideSection'
+import SizingChartSection from '@/components/categories/SizingChartSection'
+import FrameTestingSection from '@/components/categories/FrameTestingSection'
 
 export default function CategoryProductsPage({ params }: { params: { slug: string } }) {
   const searchParams = useSearchParams()
@@ -43,6 +46,70 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
       setLoading(false)
     }
   }, [categoryId])
+
+  // SEO: Update document title and meta tags based on category
+  useEffect(() => {
+    if (category) {
+      const categoryType = getCategoryType()
+      let title = ''
+      let description = ''
+
+      switch (categoryType) {
+        case 'gravel':
+          title = 'RINOS Sandman Gravel Bikes | Premium Carbon Gravel Bikes kaufen'
+          description = 'Hochwertige Carbon Gravel Bikes von RINOS. Shimano GRX Komponenten, bis 50mm Reifenbreite, perfekt für Bikepacking. 2 Jahre Garantie. Jetzt online kaufen!'
+          break
+        case 'road':
+          title = 'RINOS ODIN Rennräder | Carbon Road Bikes online kaufen'
+          description = 'Premium Carbon Rennräder von RINOS. UCI-zertifiziert, Shimano 105 & Ultegra Komponenten, Made in Germany. 2 Jahre Garantie. Jetzt bestellen!'
+          break
+        case 'mtb':
+          title = 'RINOS Mountain Bikes | MTB Carbon Bikes kaufen'
+          description = 'Hochwertige Mountain Bikes von RINOS. Robuste Carbon-Rahmen für Trail und Enduro. Premium Komponenten. 2 Jahre Garantie.'
+          break
+        default:
+          title = `${category.category} | RINOS Bikes`
+          description = `Entdecke ${category.category} von RINOS. Premium Bikes mit hochwertigen Komponenten zu fairen Preisen.`
+      }
+
+      // Update document title
+      document.title = title
+
+      // Update or create meta description
+      let metaDescription = document.querySelector('meta[name="description"]')
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta')
+        metaDescription.setAttribute('name', 'description')
+        document.head.appendChild(metaDescription)
+      }
+      metaDescription.setAttribute('content', description)
+
+      // Update Open Graph tags
+      let ogTitle = document.querySelector('meta[property="og:title"]')
+      if (!ogTitle) {
+        ogTitle = document.createElement('meta')
+        ogTitle.setAttribute('property', 'og:title')
+        document.head.appendChild(ogTitle)
+      }
+      ogTitle.setAttribute('content', title)
+
+      let ogDescription = document.querySelector('meta[property="og:description"]')
+      if (!ogDescription) {
+        ogDescription = document.createElement('meta')
+        ogDescription.setAttribute('property', 'og:description')
+        document.head.appendChild(ogDescription)
+      }
+      ogDescription.setAttribute('content', description)
+
+      let ogType = document.querySelector('meta[property="og:type"]')
+      if (!ogType) {
+        ogType = document.createElement('meta')
+        ogType.setAttribute('property', 'og:type')
+        document.head.appendChild(ogType)
+      }
+      ogType.setAttribute('content', 'website')
+    }
+  }, [category])
 
   useEffect(() => {
     // Apply sorting and pagination
@@ -122,8 +189,87 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
     document.getElementById('product-grid-container')?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Determine category type for conditional rendering
+  const getCategoryType = (): 'gravel' | 'road' | 'mtb' | 'default' => {
+    const catName = category?.category?.toLowerCase() || ''
+    const catPath = category?.categorypath?.toLowerCase() || ''
+
+    if (catName.includes('gravel') || catPath.includes('gravel')) return 'gravel'
+    if (catName.includes('road') || catName.includes('straße') || catName.includes('rennrad') || catPath.includes('road')) return 'road'
+    if (catName.includes('mtb') || catName.includes('mountain') || catPath.includes('mtb')) return 'mtb'
+
+    return 'default'
+  }
+
+  // Generate JSON-LD structured data for SEO
+  const generateStructuredData = () => {
+    if (!category || allProducts.length === 0) return null
+
+    const categoryType = getCategoryType()
+    let categoryName = category.category
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      'name': categoryName,
+      'description': category.categorypath || `${categoryName} von RINOS`,
+      'url': typeof window !== 'undefined' ? window.location.href : '',
+      'mainEntity': {
+        '@type': 'ItemList',
+        'numberOfItems': allProducts.length,
+        'itemListElement': allProducts.slice(0, 10).map((product, index) => ({
+          '@type': 'ListItem',
+          'position': index + 1,
+          'item': {
+            '@type': 'Product',
+            'name': product.articlename,
+            'description': product.description || product.articlename,
+            'offers': {
+              '@type': 'Offer',
+              'price': product.price,
+              'priceCurrency': 'EUR',
+              'availability': 'https://schema.org/InStock',
+              'seller': {
+                '@type': 'Organization',
+                'name': 'RINOS Bikes'
+              }
+            }
+          }
+        }))
+      },
+      'breadcrumb': {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Home',
+            'item': typeof window !== 'undefined' ? window.location.origin : ''
+          },
+          {
+            '@type': 'ListItem',
+            'position': 2,
+            'name': categoryName
+          }
+        ]
+      }
+    }
+
+    return structuredData
+  }
+
   return (
     <div className="min-h-screen bg-white">
+      {/* JSON-LD Structured Data for SEO */}
+      {category && allProducts.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateStructuredData())
+          }}
+        />
+      )}
+
       {/* Page Header */}
       {category && (
         <div className="bg-white border-b border-gray-200">
@@ -198,27 +344,65 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
         )}
       </div>
 
-      {/* Shopify-Style Sections */}
-      {!loading && !error && allProducts.length > 0 && (
-        <>
-          {category?.category?.toLowerCase().includes('gravel') ? (
-            <>
+      {/* Category-Specific Sections (matching rinosbike.eu sequences) */}
+      {!loading && !error && allProducts.length > 0 && (() => {
+        const categoryType = getCategoryType()
+
+        switch (categoryType) {
+          case 'gravel':
+            // Sequence from rinosbike.eu/collections/gravel-bikes
+            return (
+              <>
+                <FeaturesHighlight
+                  title="Was macht RINOS Sandman Gravel Bikes besonders?"
+                  description="Premium Carbon Gravel Bikes mit hochwertigen Komponenten zu fairen Preisen. Entwickelt für Abenteuer auf jedem Untergrund."
+                  columns={4}
+                />
+                <BikeComparisonSection comparisonType="sandman" />
+                <AssemblyGuideSection />
+                <SizingChartSection />
+                <FrameTestingSection />
+              </>
+            )
+
+          case 'road':
+            // Sequence from rinosbike.eu/collections/road-bikes
+            return (
+              <>
+                <FeaturesHighlight
+                  title="Was macht RINOS ODIN Road Bikes besonders?"
+                  description="Hochwertige Rennräder mit Carbon-Rahmen und Premium-Komponenten. Entwickelt für Performance und Komfort."
+                  columns={4}
+                />
+                <BikeComparisonSection comparisonType="sandman" />
+                <SizingChartSection />
+              </>
+            )
+
+          case 'mtb':
+            // Sequence from rinosbike.eu/collections/mtb
+            return (
+              <>
+                <BikeComparisonSection comparisonType="sandman" />
+                <FeaturesHighlight
+                  title="Was macht RINOS MTB Bikes besonders?"
+                  description="Robuste Mountain Bikes für anspruchsvolles Gelände. Entwickelt für Trail und Enduro."
+                  columns={4}
+                />
+              </>
+            )
+
+          default:
+            // Default sections for other categories
+            return (
               <FeaturesHighlight
-                title="Was macht RINOS Sandman Gravel Bikes besonders?"
-                description="Premium Carbon Gravel Bikes mit hochwertigen Komponenten zu fairen Preisen. Entwickelt für Abenteuer."
+                title="Was macht RINOS Bikes besonders?"
+                description="Premium Bikes mit hochwertigen Komponenten zu fairen Preisen"
                 columns={4}
               />
-              <BikeComparisonSection comparisonType="sandman" />
-            </>
-          ) : (
-            <FeaturesHighlight
-              title="Was macht RINOS Bikes besonders?"
-              description="Premium Bikes mit hochwertigen Komponenten zu fairen Preisen"
-              columns={4}
-            />
-          )}
-        </>
-      )}
+            )
+        }
+      })()}
     </div>
   )
 }
