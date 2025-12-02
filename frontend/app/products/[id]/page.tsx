@@ -34,6 +34,27 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [quantity, setQuantity] = useState(1)
   const [addingToCart, setAddingToCart] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
+  const [isImageZoomed, setIsImageZoomed] = useState(false)
+
+  // Translation map for colors (English -> German)
+  const colorTranslations: Record<string, string> = {
+    'Gold': 'Gold',
+    'Blue': 'Blau',
+    'Black/Green': 'Schwarz/Grün',
+    'Black/Yellow': 'Schwarz/Sand',
+    'Black/Sand': 'Schwarz/Sand',
+    'Black': 'Schwarz',
+    'White': 'Weiß',
+    'Red': 'Rot',
+    'Silver': 'Silber',
+    'Grey': 'Grau',
+    'Gray': 'Grau'
+  }
+
+  // Translate variation value to German
+  const translateValue = (value: string): string => {
+    return colorTranslations[value] || value
+  }
 
   useEffect(() => {
     loadProduct()
@@ -186,6 +207,15 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       if (matchingCombo) {
         setSelectedVariation(matchingCombo.articlenr)
         console.log('Matched variation:', matchingCombo.articlenr, newAttrs)
+
+        // Update images if color changed - find matching variation and use its image
+        if (attributeType === 'Farbe' && variationData.variations) {
+          const matchedVar = variationData.variations.find(v => v.articlenr === matchingCombo.articlenr)
+          if (matchedVar && matchedVar.primary_image) {
+            // Reset to first image when changing color
+            setSelectedImageIndex(0)
+          }
+        }
       }
     } else if (product && product.variations) {
       // Fallback: Use product.variations with colour and size fields
@@ -199,6 +229,11 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       if (matchingVariation) {
         setSelectedVariation(matchingVariation.articlenr)
         console.log('Matched fallback variation:', matchingVariation.articlenr, newAttrs)
+
+        // Update images if color changed
+        if (attributeType === 'Farbe' && matchingVariation.primary_image) {
+          setSelectedImageIndex(0)
+        }
       }
     }
   }
