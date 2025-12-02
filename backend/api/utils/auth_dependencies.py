@@ -15,6 +15,9 @@ from api.schemas.auth_schemas import TokenData
 # OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
+# OAuth2 scheme for optional authentication (doesn't raise error if no token)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
+
 
 # ============================================================================
 # DEPENDENCY: GET CURRENT USER
@@ -123,7 +126,7 @@ async def require_verified_email(
 # ============================================================================
 
 async def get_optional_user(
-    token: Optional[str] = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(oauth2_scheme_optional),
     db: Session = Depends(get_db)
 ) -> Optional[WebUser]:
     """
