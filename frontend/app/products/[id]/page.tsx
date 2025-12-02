@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { productsApi, cartApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
 import { useCartStore } from '@/store/cartStore'
-import { ShoppingCart, Check, AlertCircle, ArrowLeft } from 'lucide-react'
+import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 import Link from 'next/link'
 
 interface ProductDetailPageProps {
@@ -35,6 +35,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [addingToCart, setAddingToCart] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
   const [isImageZoomed, setIsImageZoomed] = useState(false)
+  const [zoomImageIndex, setZoomImageIndex] = useState(0)
 
   // No translation needed - values come directly from database in correct language
 
@@ -173,6 +174,47 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     router.push('/warenkorb')
   }
 
+  const openImageZoom = (index: number) => {
+    setZoomImageIndex(index)
+    setIsImageZoomed(true)
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden'
+  }
+
+  const closeImageZoom = () => {
+    setIsImageZoomed(false)
+    document.body.style.overflow = 'unset'
+  }
+
+  const nextZoomImage = () => {
+    if (product?.images && zoomImageIndex < product.images.length - 1) {
+      setZoomImageIndex(zoomImageIndex + 1)
+    }
+  }
+
+  const previousZoomImage = () => {
+    if (zoomImageIndex > 0) {
+      setZoomImageIndex(zoomImageIndex - 1)
+    }
+  }
+
+  // Handle keyboard navigation for zoom
+  useEffect(() => {
+    const handleKeyboard = (e: KeyboardEvent) => {
+      if (!isImageZoomed) return
+
+      if (e.key === 'Escape') {
+        closeImageZoom()
+      } else if (e.key === 'ArrowLeft') {
+        previousZoomImage()
+      } else if (e.key === 'ArrowRight') {
+        nextZoomImage()
+      }
+    }
+    window.addEventListener('keydown', handleKeyboard)
+    return () => window.removeEventListener('keydown', handleKeyboard)
+  }, [isImageZoomed, zoomImageIndex, product?.images])
+
   const handleAttributeChange = (attributeType: string, value: string) => {
     const newAttrs = { ...selectedAttributes, [attributeType]: value }
     setSelectedAttributes(newAttrs)
@@ -292,12 +334,19 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             {product.images && product.images.length > 0 ? (
               <div className="space-y-4">
                 {/* Main Image */}
-                <div className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
+                <div
+                  className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden relative group cursor-zoom-in"
+                  onClick={() => openImageZoom(selectedImageIndex)}
+                >
                   <img
                     src={product.images[selectedImageIndex]}
                     alt={`${product.articlename} - Image ${selectedImageIndex + 1}`}
                     className="w-full h-full object-contain"
                   />
+                  {/* Zoom indicator */}
+                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ZoomIn className="w-5 h-5" />
+                  </div>
                 </div>
 
                 {/* Image Counter */}
@@ -606,6 +655,73 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </div>
           )}
         </div>
+
+        {/* Image Zoom Modal */}
+        {isImageZoomed && product.images && product.images.length > 0 && (
+          <div
+            className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
+            onClick={closeImageZoom}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closeImageZoom}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-50"
+              aria-label="Close zoom"
+            >
+              <X className="w-8 h-8" />
+            </button>
+
+            {/* Image Counter */}
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 text-white text-sm bg-black bg-opacity-50 px-4 py-2 rounded-lg z-50">
+              {zoomImageIndex + 1} / {product.images.length}
+            </div>
+
+            {/* Previous Button */}
+            {zoomImageIndex > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  previousZoomImage()
+                }}
+                className="absolute left-4 text-white hover:text-gray-300 transition-colors z-50"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-12 h-12" />
+              </button>
+            )}
+
+            {/* Next Button */}
+            {zoomImageIndex < product.images.length - 1 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  nextZoomImage()
+                }}
+                className="absolute right-4 text-white hover:text-gray-300 transition-colors z-50"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-12 h-12" />
+              </button>
+            )}
+
+            {/* Zoomed Image */}
+            <div
+              className="max-w-[95vw] max-h-[95vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={product.images[zoomImageIndex]}
+                alt={`${product.articlename} - Image ${zoomImageIndex + 1}`}
+                className="max-w-full max-h-[95vh] object-contain"
+              />
+            </div>
+
+            {/* Keyboard hint */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-xs bg-black bg-opacity-50 px-4 py-2 rounded-lg z-50">
+              Drücke ESC zum Schließen {product.images.length > 1 && '• Nutze ← → zum Navigieren'}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
