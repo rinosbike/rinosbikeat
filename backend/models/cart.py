@@ -15,12 +15,15 @@ class WebCart(Base):
     Supports both guest carts (session-based) and user carts (authenticated)
     """
     __tablename__ = "web_cart"
-    
+
     cart_id = Column(Integer, primary_key=True, index=True)
-    
+
+    # Shop identification
+    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+
     # User reference (for authenticated users)
     user_id = Column(Integer, ForeignKey("web_users.user_id"), nullable=True)
-    
+
     # Session ID (for guest users)
     session_id = Column(String(255), nullable=True, index=True)
     

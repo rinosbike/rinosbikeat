@@ -10,7 +10,7 @@ from .product import Product, InventoryData, ProductAvailability, Category, Vari
 from .customer import Customer, EmailSubscriber
 
 # User models
-from .user import WebUser, EmailVerificationToken, PasswordResetToken, UserSession
+from .user import Shop, WebUser, EmailVerificationToken, PasswordResetToken, UserSession
 
 # Cart models
 from .cart import WebCart
@@ -32,6 +32,7 @@ __all__ = [
     'EmailSubscriber',
     
     # User models
+    'Shop',
     'WebUser',
     'EmailVerificationToken',
     'PasswordResetToken',
