@@ -405,7 +405,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                           >
-                            {value}
+                            {translateValue(value)}
                           </button>
                         ))}
                       </div>
@@ -456,7 +456,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}
                               >
-                                {color}
+                                {translateValue(color)}
                               </button>
                             ))}
                           </div>
