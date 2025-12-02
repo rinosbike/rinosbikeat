@@ -36,25 +36,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [addedToCart, setAddedToCart] = useState(false)
   const [isImageZoomed, setIsImageZoomed] = useState(false)
 
-  // Translation map for colors (English -> German)
-  const colorTranslations: Record<string, string> = {
-    'Gold': 'Gold',
-    'Blue': 'Blau',
-    'Black/Green': 'Schwarz/Grün',
-    'Black/Yellow': 'Schwarz/Sand',
-    'Black/Sand': 'Schwarz/Sand',
-    'Black': 'Schwarz',
-    'White': 'Weiß',
-    'Red': 'Rot',
-    'Silver': 'Silber',
-    'Grey': 'Grau',
-    'Gray': 'Grau'
-  }
-
-  // Translate variation value to German
-  const translateValue = (value: string): string => {
-    return colorTranslations[value] || value
-  }
+  // No translation needed - values come directly from database in correct language
 
   useEffect(() => {
     loadProduct()
@@ -405,7 +387,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                                 : 'border-gray-300 hover:border-gray-400'
                             }`}
                           >
-                            {translateValue(value)}
+                            {value}
                           </button>
                         ))}
                       </div>
@@ -456,7 +438,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                                     : 'border-gray-300 hover:border-gray-400'
                                 }`}
                               >
-                                {translateValue(color)}
+                                {color}
                               </button>
                             ))}
                           </div>
