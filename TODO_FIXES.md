@@ -4,37 +4,49 @@
 ✅ **DONE**: Variations are displaying correctly
 ✅ **DONE**: Backend returns color/size data correctly
 ✅ **DONE**: Added translation mappings
-🔄 **IN PROGRESS**: German translations
-❌ **NOT DONE**: Cart buttons causing errors
+✅ **DONE**: Cart backend infrastructure complete (needs migration)
+✅ **DONE**: Shop ID separation implemented
+🔄 **IN PROGRESS**: German translations (translation map exists, needs UI updates)
+🔄 **PENDING**: Cart migration (user must run SQL script)
 ❌ **NOT DONE**: Image zoom functionality
 ❌ **NOT DONE**: Images change when selecting colors
 
 ## Priority 1: Fix Cart Buttons (CRITICAL)
-**Status**: 🔄 **IN PROGRESS** - Root cause identified
+**Status**: ✅ **READY FOR TESTING** - Backend deployed, migration script ready
 
 **Issue**: "In den Warenkorb" and "Jetzt kaufen" buttons return errors
 
-**Root Cause Found**:
+**What Was Fixed**:
 1. ✅ **FIXED**: Authentication issue - `get_optional_user` was requiring auth token
    - Fixed by using `auto_error=False` in OAuth2 scheme
    - Deployed in commit 23014d30
-2. ❌ **TODO**: Database tables `shopping_carts` and `cart_items` don't exist yet
-   - Models defined in `backend/models/order.py` lines 137-178
-   - Need to run database migration to create tables
-3. ❌ **TODO**: Add `shop_id` column to separate rinosbikeat from other shops
+
+2. ✅ **FIXED**: Added `shop_id` column for shop separation
+   - Added `shop_id='rinosbikeat'` to: `shopping_carts`, `cart_items`, `web_orders`
    - User requirement: "separate the transactions from one shop from the other shop"
-   - Need to add `shop_id` to: `shopping_carts`, `cart_items`, `web_orders`
+   - Cart router updated to set shop_id automatically
+   - Deployed in commit 817cd5ae
 
-**Files investigated**:
-- ✅ `backend/api/routers/cart.py` - Cart router exists and is registered
-- ✅ `backend/api/utils/auth_dependencies.py` - Fixed authentication
-- ✅ `frontend/app/products/[id]/page.tsx` - handleAddToCart function (lines 137-166)
-- ✅ `frontend/lib/api.ts` - cart API methods (lines 253-325)
+3. ✅ **READY**: Database migration script created
+   - SQL script: `backend/migrations/001_create_cart_tables.sql`
+   - Python runner: `backend/migrations/run_migration.py`
+   - Documentation: `backend/migrations/README.md`
+   - **ACTION REQUIRED**: User must run migration (see MIGRATION_INSTRUCTIONS.md)
 
-**Next Steps**:
-1. Add `shop_id` field to cart/order models
-2. Create Alembic migration or SQL script to create tables
-3. Test cart functionality end-to-end
+**Files Fixed**:
+- ✅ `backend/api/utils/auth_dependencies.py` - Fixed authentication for guests (line 19, 129)
+- ✅ `backend/models/order.py` - Added shop_id to models (lines 147, 162, 193)
+- ✅ `backend/api/routers/cart.py` - Sets shop_id on cart creation (line 69, 232)
+- ✅ `backend/migrations/001_create_cart_tables.sql` - Creates all tables with indexes
+
+**Deployment**:
+- ✅ Backend deployed: https://rinosbikeat-j9e9v34t5-rinosbikes-projects.vercel.app
+- ✅ Main URL: https://rinosbikeat.vercel.app
+
+**Next Steps** (USER ACTION REQUIRED):
+1. **Run database migration** - See `MIGRATION_INSTRUCTIONS.md` for 3 different options
+2. Test cart functionality on product pages
+3. Verify shop_id is set correctly in database
 
 ## Priority 2: Apply German Translations
 **Status**: Translation map exists but not applied to UI
