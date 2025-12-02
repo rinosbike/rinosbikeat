@@ -15,7 +15,7 @@ class Shop(Base):
     """
     __tablename__ = "shops"
 
-    shop_id = Column(Text, primary_key=True)
+    shop_id = Column(Integer, primary_key=True)
     shop_name = Column(Text, nullable=False)
     shop_domain = Column(Text)
     shop_url = Column(Text)
@@ -42,7 +42,7 @@ class WebUser(Base):
     user_id = Column(Integer, primary_key=True, index=True)
 
     # Shop identification
-    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+    shop_id = Column(Integer, ForeignKey("shops.shop_id"), nullable=False, default=1, index=True)
 
     # Customer reference (links to ERP customer)
     customer_id = Column(Integer, ForeignKey("customers.customerid"), nullable=True)
@@ -82,7 +82,7 @@ class EmailVerificationToken(Base):
 
     token_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("web_users.user_id"), nullable=False)
-    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+    shop_id = Column(Integer, ForeignKey("shops.shop_id"), nullable=False, default=1, index=True)
     token = Column(String(255), unique=True, nullable=False, index=True)
     expires_at = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
@@ -97,7 +97,7 @@ class PasswordResetToken(Base):
 
     token_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("web_users.user_id"), nullable=False)
-    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+    shop_id = Column(Integer, ForeignKey("shops.shop_id"), nullable=False, default=1, index=True)
     token = Column(String(255), unique=True, nullable=False, index=True)
     expires_at = Column(DateTime, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
@@ -112,7 +112,7 @@ class UserSession(Base):
 
     session_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("web_users.user_id"), nullable=False)
-    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+    shop_id = Column(Integer, ForeignKey("shops.shop_id"), nullable=False, default=1, index=True)
     session_token = Column(String(255), unique=True, nullable=False, index=True)
     ip_address = Column(String(50), nullable=True)
     user_agent = Column(Text, nullable=True)

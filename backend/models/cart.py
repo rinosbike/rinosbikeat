@@ -19,7 +19,7 @@ class WebCart(Base):
     cart_id = Column(Integer, primary_key=True, index=True)
 
     # Shop identification
-    shop_id = Column(Text, ForeignKey("shops.shop_id"), nullable=False, default='rinosbikeat', index=True)
+    shop_id = Column(Integer, ForeignKey("shops.shop_id"), nullable=False, default=1, index=True)
 
     # User reference (for authenticated users)
     user_id = Column(Integer, ForeignKey("web_users.user_id"), nullable=True)

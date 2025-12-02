@@ -144,7 +144,7 @@ class ShoppingCart(Base):
     cart_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('web_users.user_id'))
     guest_session_id = Column(Text, index=True)  # For guest users
-    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+    shop_id = Column(Integer, default=1, index=True)  # Identifies which shop
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -159,7 +159,7 @@ class CartItem(Base):
     cart_item_id = Column(Integer, primary_key=True)
     cart_id = Column(Integer, ForeignKey('shopping_carts.cart_id'), index=True)
     product_id = Column(Integer, ForeignKey('productdata.productid'))
-    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+    shop_id = Column(Integer, default=1, index=True)  # Identifies which shop
 
     # Product details at time of adding
     articlenr = Column(Text, nullable=False)
@@ -190,7 +190,7 @@ class WebOrder(Base):
 
     web_order_id = Column(Integer, primary_key=True, index=True)
     ordernr = Column(Text, unique=True, index=True)  # Will be WEB-XXXXX format
-    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+    shop_id = Column(Integer, default=1, index=True)  # Identifies which shop
 
     # Link to ERP order once synced
     erp_orderdataid = Column(Integer, ForeignKey('orderdata.orderdataid'))
