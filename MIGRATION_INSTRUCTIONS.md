@@ -2,7 +2,14 @@
 
 ## Overview
 
-The shopping cart functionality is ready to deploy, but requires running a database migration to create the necessary tables.
+The shopping cart functionality and multi-shop support are ready to deploy, but require running database migrations to create/update the necessary tables.
+
+## Migration Files
+
+There are **2 migration files** to run in order:
+
+1. **001_create_cart_tables.sql** - Creates shopping cart infrastructure
+2. **002_add_shop_id_to_web_tables.sql** - Adds multi-shop support to all web tables
 
 ## What Was Implemented
 
@@ -16,9 +23,9 @@ The shopping cart functionality is ready to deploy, but requires running a datab
 - **Backend**: https://rinosbikeat-j9e9v34t5-rinosbikes-projects.vercel.app
 - **Backend (main)**: https://rinosbikeat.vercel.app
 
-## Required: Run Database Migration
+## Required: Run Database Migrations
 
-The cart tables need to be created in your PostgreSQL database. Choose one of these options:
+The cart tables need to be created and shop_id needs to be added to existing tables. Choose one of these options:
 
 ### Option 1: Run via Python Script (Recommended)
 
@@ -40,9 +47,22 @@ The cart tables need to be created in your PostgreSQL database. Choose one of th
    export DATABASE_URL="postgresql://neondb_owner:YOUR_PASSWORD@ep-still-band-agbaziyx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
    ```
 
-4. Run the migration:
+4. Run both migrations:
    ```bash
    python backend/migrations/run_migration.py
+   # This runs migration 001
+
+   # Then run migration 002:
+   python -c "import sys; sys.path.insert(0, 'backend'); from migrations.run_migration import run_migration; run_migration('002_add_shop_id_to_web_tables.sql')"
+   ```
+
+   Or run them manually:
+   ```bash
+   # Migration 001
+   python backend/migrations/run_migration.py
+
+   # Migration 002
+   python backend/migrations/run_migration.py --file 002_add_shop_id_to_web_tables.sql
    ```
 
 ### Option 2: Via Neon Console (Web Interface)
@@ -50,9 +70,16 @@ The cart tables need to be created in your PostgreSQL database. Choose one of th
 1. Go to [https://console.neon.tech](https://console.neon.tech)
 2. Select your project
 3. Open the SQL Editor
-4. Copy the entire contents of `backend/migrations/001_create_cart_tables.sql`
-5. Paste into the SQL Editor
-6. Click "Run" to execute
+
+4. **Run Migration 001**:
+   - Copy the entire contents of `backend/migrations/001_create_cart_tables.sql`
+   - Paste into the SQL Editor
+   - Click "Run" to execute
+
+5. **Run Migration 002**:
+   - Copy the entire contents of `backend/migrations/002_add_shop_id_to_web_tables.sql`
+   - Paste into the SQL Editor (clear previous query first)
+   - Click "Run" to execute
 
 ### Option 3: Via psql Command Line
 
@@ -62,14 +89,17 @@ The cart tables need to be created in your PostgreSQL database. Choose one of th
    psql "postgresql://neondb_owner:YOUR_PASSWORD@ep-still-band-agbaziyx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
    ```
 
-3. Run the migration file:
+3. Run both migration files:
    ```sql
    \i backend/migrations/001_create_cart_tables.sql
+   \i backend/migrations/002_add_shop_id_to_web_tables.sql
    ```
 
-## Tables Created
+## What the Migrations Do
 
-The migration creates 4 new tables:
+### Migration 001 - Cart Tables
+
+Creates 4 new tables:
 
 1. **shopping_carts** - Main cart table (guest + authenticated users)
    - Includes `shop_id` to identify rinosbikeat carts
@@ -89,19 +119,66 @@ The migration creates 4 new tables:
    - Stores Stripe payment details
    - Links to web_orders
 
+### Migration 002 - Multi-Shop Support
+
+Adds shop_id to existing tables and creates shop infrastructure:
+
+1. **shops** - Reference table for all shops
+   - Contains shop information (ID, name, domain, URL)
+   - rinosbikeat inserted as default shop
+
+2. **Adds shop_id column to**:
+   - web_users - Users belong to specific shop
+   - user_sessions - Sessions tied to shop
+   - password_reset_tokens - Reset tokens per shop
+   - email_verification_tokens - Verification per shop
+   - web_cart (if exists) - Old cart table updated
+
+3. **Creates composite indexes**:
+   - web_users(shop_id, email) - Fast login queries
+   - user_sessions(shop_id, user_id) - Active sessions
+   - shopping_carts(shop_id, guest_session_id) - Guest carts
+   - web_orders(shop_id, payment_status) - Order management
+
+4. **Creates analytics views**:
+   - shop_user_counts - User statistics per shop
+   - shop_cart_stats - Cart metrics per shop
+   - shop_order_stats - Revenue per shop
+
+**All existing records** are automatically set to `shop_id='rinosbikeat'`
+
 ## Verifying Migration Success
 
-After running the migration, verify tables were created:
+After running both migrations, verify everything was created:
 
 ```sql
--- Check if tables exist
+-- Check if cart tables exist (Migration 001)
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public'
 AND table_name IN ('shopping_carts', 'cart_items', 'web_orders', 'stripe_payment_intents');
+
+-- Check if shops table exists and has rinosbikeat (Migration 002)
+SELECT * FROM shops WHERE shop_id = 'rinosbikeat';
+
+-- Verify shop_id columns were added (Migration 002)
+SELECT column_name, table_name
+FROM information_schema.columns
+WHERE column_name = 'shop_id'
+AND table_schema = 'public'
+ORDER BY table_name;
+
+-- Check analytics views (Migration 002)
+SELECT * FROM shop_user_counts WHERE shop_id = 'rinosbikeat';
+SELECT * FROM shop_cart_stats WHERE shop_id = 'rinosbikeat';
+SELECT * FROM shop_order_stats WHERE shop_id = 'rinosbikeat';
 ```
 
-You should see all 4 tables listed.
+Expected results:
+- 4 cart tables exist
+- shops table has rinosbikeat entry
+- shop_id column in multiple tables
+- 3 analytics views return data
 
 ## Testing the Cart
 
