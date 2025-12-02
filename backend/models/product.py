@@ -277,7 +277,12 @@ class Product(Base):
             "manufacturer": self.manufacturer,
             "productgroup": self.productgroup,
             "is_father_article": self.isfatherarticle,
-            "primary_image": self.get_primary_image()
+            "primary_image": self.get_primary_image(),
+            # Variation attributes
+            "colour": self.colour,
+            "size": self.size,
+            "component": self.component,
+            "type": self.type
         }
 
         # Include categories if requested
