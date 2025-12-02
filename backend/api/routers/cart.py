@@ -66,6 +66,7 @@ def get_or_create_cart(
         cart = ShoppingCart(
             user_id=user_id,
             guest_session_id=guest_session_id if not user_id else None,
+            shop_id='rinosbikeat',  # Identifies this cart as belonging to rinosbikeat shop
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
@@ -228,6 +229,7 @@ async def add_to_cart(
             product_id=product.productid,
             articlenr=request.articlenr,
             quantity=request.quantity,
+            shop_id='rinosbikeat',  # Identifies this item as belonging to rinosbikeat shop
             price_at_addition=float(product.priceeur) if product.priceeur else 0.0,
             added_at=datetime.utcnow()
         )

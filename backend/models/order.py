@@ -140,11 +140,12 @@ class ShoppingCart(Base):
     Supports both logged-in users and guests
     """
     __tablename__ = "shopping_carts"
-    
+
     cart_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey('web_users.user_id'))
     guest_session_id = Column(Text, index=True)  # For guest users
-    
+    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -154,16 +155,17 @@ class CartItem(Base):
     Cart items - NEW table for items in shopping cart
     """
     __tablename__ = "cart_items"
-    
+
     cart_item_id = Column(Integer, primary_key=True)
     cart_id = Column(Integer, ForeignKey('shopping_carts.cart_id'), index=True)
     product_id = Column(Integer, ForeignKey('productdata.productid'))
-    
+    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+
     # Product details at time of adding
     articlenr = Column(Text, nullable=False)
     quantity = Column(Integer, nullable=False, default=1)
     price_at_addition = Column(Numeric(10, 2))
-    
+
     added_at = Column(DateTime, default=datetime.utcnow)
     
     def to_dict(self):
@@ -185,29 +187,30 @@ class WebOrder(Base):
     This is where paymentstatus lives (for web orders only)
     """
     __tablename__ = "web_orders"
-    
+
     web_order_id = Column(Integer, primary_key=True, index=True)
     ordernr = Column(Text, unique=True, index=True)  # Will be WEB-XXXXX format
-    
+    shop_id = Column(Text, default='rinosbikeat', index=True)  # Identifies which shop
+
     # Link to ERP order once synced
     erp_orderdataid = Column(Integer, ForeignKey('orderdata.orderdataid'))
-    
+
     # Customer
     user_id = Column(Integer, ForeignKey('web_users.user_id'))
     customer_id = Column(Integer, ForeignKey('customers.customerid'))
-    
+
     # Order details
     orderamount = Column(Numeric(10, 2))
     currency = Column(Text, default='EUR')
-    
+
     # Payment status (web-specific!)
     payment_status = Column(Text, default='pending')  # pending, paid, failed
     payment_intent_id = Column(Integer)
-    
+
     # Sync status
     synced_to_erp = Column(Boolean, default=False)
     synced_at = Column(DateTime)
-    
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
