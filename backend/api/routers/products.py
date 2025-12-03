@@ -144,18 +144,22 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
         if not product:
             raise HTTPException(status_code=404, detail="Product not found")
 
-        # Determine if we should work with father or child
+        # Determine if this is a father or child product
+        # IMPORTANT: Keep the actual product data (don't replace child with father)
+        # Frontend needs child-specific images and data
         father_article_nr = None
         requested_child_nr = None
+        is_child_product = False
 
         if product.fatherarticle:
-            # This is a child product - get the father
+            # This is a child product - keep it as-is for images
             father_article_nr = product.fatherarticle
             requested_child_nr = articlenr
+            is_child_product = True
+
+            # Just verify father exists, but DON'T replace the product
             father_product = db.query(Product).filter(Product.articlenr == father_article_nr).first()
-            if father_product:
-                product = father_product
-            else:
+            if not father_product:
                 # Father not found, return child product alone
                 product_dict = product.to_dict(include_categories=True, db_session=db)
                 return {"status": "success", "product": product_dict}
@@ -167,13 +171,14 @@ def get_product(articlenr: str, db: Session = Depends(get_db)):
             product_dict = product.to_dict(include_categories=True, db_session=db)
             return {"status": "success", "product": product_dict}
 
-        # Build product dict
+        # Build product dict - use the ORIGINAL product (child or father as requested)
         product_dict = product.to_dict(include_categories=True, db_session=db)
         if requested_child_nr:
             product_dict["requested_variation"] = requested_child_nr
 
-        # If this is a father article, get variations from all three tables
-        if father_article_nr:
+        # Only include variations if this is a father article
+        # Child products don't need variation data (frontend already has it from father)
+        if father_article_nr and not is_child_product:
             try:
                 # 1. Get child products from productdata table
                 child_products = db.query(Product).filter(
