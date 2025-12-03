@@ -28,7 +28,7 @@ interface ProductDetailPagePropsOld {
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { sessionId, itemCount, setItemCount, generateSessionId } = useCartStore()
+  const { addItem } = useCartStore()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [variationData, setVariationData] = useState<ProductVariationsResponse | null>(null)
@@ -158,30 +158,38 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     try {
       setAddingToCart(true)
 
-      // Ensure we have a session ID
-      let currentSessionId = sessionId
-      if (!currentSessionId) {
-        currentSessionId = generateSessionId()
-      }
-
-      // Use the selected variation's articlenr, or the product's articlenr if no variation
+      // Get the product to add (variant or main product)
+      let productToAdd = product
       const articlenrToAdd = selectedVariation || product.articlenr
 
-      console.log('Adding to cart:', {
+      // If variant selected, fetch its details to get current price and images
+      if (selectedVariation && selectedVariation !== product.articlenr) {
+        try {
+          const variantProduct = await productsApi.getById(selectedVariation)
+          if (variantProduct) {
+            productToAdd = variantProduct
+          }
+        } catch (err) {
+          console.error('Could not load variant details, using main product:', err)
+        }
+      }
+
+      // Add to client-side cart (localStorage only, no database)
+      addItem({
+        articlenr: articlenrToAdd,
+        articlename: productToAdd.articlename,
+        price: productToAdd.price,
+        primary_image: productToAdd.primary_image,
+        manufacturer: productToAdd.manufacturer,
+        colour: productToAdd.colour,
+        size: productToAdd.size,
+      }, quantity)
+
+      console.log('Added to cart (client-side):', {
         articlenr: articlenrToAdd,
         quantity,
-        sessionId: currentSessionId
+        name: productToAdd.articlename,
       })
-
-      // Add to cart via API using articlenr
-      const updatedCart = await cartApi.addItem(
-        currentSessionId,
-        articlenrToAdd,
-        quantity
-      )
-
-      // Update cart count from summary
-      setItemCount(updatedCart.summary.item_count)
 
       // Show success message
       setAddedToCart(true)

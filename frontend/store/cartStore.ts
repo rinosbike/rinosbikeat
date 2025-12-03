@@ -1,17 +1,43 @@
 /**
  * Cart Store - Zustand State Management
- * Manages shopping cart state and session
+ * Client-side cart with localStorage persistence
+ * No database required until checkout
  */
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export interface CartProduct {
+  articlenr: string
+  articlename: string
+  price: number
+  primary_image?: string
+  manufacturer?: string
+  colour?: string
+  size?: string
+}
+
+export interface CartItem {
+  articlenr: string
+  product: CartProduct
+  quantity: number
+  price_at_addition: number
+  added_at: string
+}
+
 interface CartStore {
   sessionId: string
-  itemCount: number
-  setItemCount: (count: number) => void
-  generateSessionId: () => string
+  items: CartItem[]
+
+  // Actions
+  addItem: (product: CartProduct, quantity?: number) => void
+  removeItem: (articlenr: string) => void
+  updateQuantity: (articlenr: string, quantity: number) => void
   clearCart: () => void
+  getItemCount: () => number
+  getSubtotal: () => number
+  getTotal: () => number
+  generateSessionId: () => string
 }
 
 export const useCartStore = create<CartStore>()(
@@ -19,32 +45,89 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       // State
       sessionId: '',
-      itemCount: 0,
-      
+      items: [],
+
       // Actions
-      setItemCount: (count: number) => {
-        set({ itemCount: count })
+      addItem: (product: CartProduct, quantity: number = 1) => {
+        const items = get().items
+        const existingItem = items.find(item => item.articlenr === product.articlenr)
+
+        if (existingItem) {
+          // Update quantity of existing item
+          set({
+            items: items.map(item =>
+              item.articlenr === product.articlenr
+                ? { ...item, quantity: Math.min(item.quantity + quantity, 100) }
+                : item
+            )
+          })
+        } else {
+          // Add new item
+          const newItem: CartItem = {
+            articlenr: product.articlenr,
+            product: product,
+            quantity: Math.min(quantity, 100),
+            price_at_addition: product.price,
+            added_at: new Date().toISOString()
+          }
+          set({ items: [...items, newItem] })
+        }
       },
-      
+
+      removeItem: (articlenr: string) => {
+        set({ items: get().items.filter(item => item.articlenr !== articlenr) })
+      },
+
+      updateQuantity: (articlenr: string, quantity: number) => {
+        if (quantity === 0) {
+          get().removeItem(articlenr)
+        } else {
+          set({
+            items: get().items.map(item =>
+              item.articlenr === articlenr
+                ? { ...item, quantity: Math.min(Math.max(quantity, 1), 100) }
+                : item
+            )
+          })
+        }
+      },
+
+      clearCart: () => {
+        set({ items: [] })
+      },
+
+      getItemCount: () => {
+        return get().items.reduce((total, item) => total + item.quantity, 0)
+      },
+
+      getSubtotal: () => {
+        return get().items.reduce((total, item) =>
+          total + (item.price_at_addition * item.quantity), 0
+        )
+      },
+
+      getTotal: () => {
+        const subtotal = get().getSubtotal()
+        const taxRate = 0.19 // 19% VAT
+        const tax = subtotal * taxRate
+        const shipping = subtotal >= 100 ? 0 : 9.99
+        return subtotal + tax + shipping
+      },
+
       generateSessionId: () => {
-        // Generate unique session ID
         const timestamp = Date.now()
         const random = Math.random().toString(36).substring(2, 15)
         const sessionId = `session_${timestamp}_${random}`
-        
+
         set({ sessionId })
         return sessionId
-      },
-      
-      clearCart: () => {
-        set({ itemCount: 0 })
       },
     }),
     {
       name: 'rinos-cart-storage', // LocalStorage key
       partialize: (state) => ({
         sessionId: state.sessionId,
-        itemCount: state.itemCount,
+        items: state.items,
       }),
     }
   )
