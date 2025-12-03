@@ -174,7 +174,7 @@ export default function ProduktePage() {
                 </h2>
                 {(selectedCategory !== 'all' || searchQuery) && (
                   <p className="text-sm text-gray-600 mt-1">
-                    Gefiltert aus {products.filter((p) => p.is_active).length} Produkten
+                    Gefiltert aus {products.length} Produkten
                   </p>
                 )}
               </div>
