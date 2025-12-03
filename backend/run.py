@@ -9,14 +9,14 @@ import uvicorn
 
 def clear_cache():
     """Clear all Python cache files before starting server"""
-    print("🧹 Clearing Python cache...")
-    
+    print("Clearing Python cache...")
+
     # Get backend directory
     backend_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     cache_cleared = 0
     files_deleted = 0
-    
+
     # Walk through all directories
     for root, dirs, files in os.walk(backend_dir):
         # Remove __pycache__ directories
@@ -25,10 +25,10 @@ def clear_cache():
             try:
                 shutil.rmtree(cache_dir)
                 cache_cleared += 1
-                print(f"  ✓ Removed: {cache_dir}")
+                print(f"  [OK] Removed: {cache_dir}")
             except Exception as e:
-                print(f"  ✗ Failed to remove {cache_dir}: {e}")
-        
+                print(f"  [ERR] Failed to remove {cache_dir}: {e}")
+
         # Remove .pyc and .pyo files
         for file in files:
             if file.endswith(('.pyc', '.pyo')):
@@ -37,15 +37,15 @@ def clear_cache():
                     os.remove(file_path)
                     files_deleted += 1
                 except Exception as e:
-                    print(f"  ✗ Failed to remove {file_path}: {e}")
-    
-    print(f"✅ Cache cleared: {cache_cleared} directories, {files_deleted} files")
+                    print(f"  [ERR] Failed to remove {file_path}: {e}")
+
+    print(f"[OK] Cache cleared: {cache_cleared} directories, {files_deleted} files")
     print()
 
 def main():
     """Main entry point"""
     print("=" * 60)
-    print("🚀 RINOS Bikes Backend Server")
+    print("RINOS Bikes Backend Server")
     print("=" * 60)
     print()
     
@@ -53,14 +53,14 @@ def main():
     clear_cache()
     
     # Start server
-    print("🌐 Starting server...")
-    print("📍 API will be available at: http://localhost:8000")
-    print("📖 API Documentation at: http://localhost:8000/docs")
+    print("Starting server...")
+    print("API will be available at: http://localhost:8000")
+    print("API Documentation at: http://localhost:8000/docs")
     print()
     print("Press CTRL+C to stop the server")
     print("=" * 60)
     print()
-    
+
     try:
         uvicorn.run(
             "api.main:app",
@@ -70,10 +70,10 @@ def main():
             log_level="info"
         )
     except KeyboardInterrupt:
-        print("\n\n👋 Server stopped by user")
+        print("\n\nServer stopped by user")
         sys.exit(0)
     except Exception as e:
-        print(f"\n❌ Server failed to start: {e}")
+        print(f"\n[ERROR] Server failed to start: {e}")
         print("\nTroubleshooting:")
         print("1. Check if port 8000 is already in use")
         print("2. Verify database connection in database/connection.py")
