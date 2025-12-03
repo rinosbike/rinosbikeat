@@ -230,7 +230,7 @@ async def add_to_cart(
             articlenr=request.articlenr,
             quantity=request.quantity,
             shop_id=1,  # Identifies this item as belonging to rinosbikeat shop
-            price_at_addition=float(product.priceeur) if product.priceeur else 0.0,
+            price_at_addition=float(product.priceEUR) if product.priceEUR else 0.0,
             added_at=datetime.utcnow()
         )
         db.add(new_item)
