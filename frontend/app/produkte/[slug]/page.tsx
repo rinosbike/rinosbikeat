@@ -7,7 +7,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { productsApi, cartApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
@@ -27,8 +27,9 @@ interface ProductDetailPagePropsOld {
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { sessionId, itemCount, setItemCount, generateSessionId } = useCartStore()
-  
+
   const [product, setProduct] = useState<Product | null>(null)
   const [variationData, setVariationData] = useState<ProductVariationsResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -48,7 +49,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
   useEffect(() => {
     loadProduct()
-  }, [params.slug])
+  }, [params.slug, searchParams])
 
   const loadProduct = async () => {
     try {
@@ -80,20 +81,63 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           console.log('Variation data loaded:', varData)
           setVariationData(varData)
 
-          // Pre-select first variation from variation_combinations
-          if (varData.variation_combinations && varData.variation_combinations.length > 0) {
-            const firstCombo = varData.variation_combinations[0]
-            setSelectedVariation(firstCombo.articlenr)
+          // Check if variant is specified in URL query parameter
+          const variantParam = searchParams?.get('variant')
+          let selectedCombo = null
 
-            // Initialize selected attributes from first combination
+          if (variantParam && varData.variation_combinations) {
+            // Find the combo matching the variant parameter
+            selectedCombo = varData.variation_combinations.find(
+              combo => combo.articlenr === variantParam
+            )
+            if (selectedCombo) {
+              console.log('URL variant parameter found, loading:', variantParam)
+            } else {
+              console.warn('URL variant parameter not found in combinations:', variantParam)
+            }
+          }
+
+          // If no valid variant in URL, use first combination as default
+          if (!selectedCombo && varData.variation_combinations && varData.variation_combinations.length > 0) {
+            selectedCombo = varData.variation_combinations[0]
+            console.log('No URL variant, using first combination:', selectedCombo.articlenr)
+          }
+
+          // Pre-select the chosen variation
+          if (selectedCombo) {
+            setSelectedVariation(selectedCombo.articlenr)
+
+            // Initialize selected attributes from combination
             const attrs: Record<string, string> = {}
-            firstCombo.variations.forEach(v => {
+            selectedCombo.variations.forEach(v => {
               if (v.type && v.value) {
                 attrs[v.type] = v.value
               }
             })
             setSelectedAttributes(attrs)
-            console.log('Pre-selected variation:', firstCombo.articlenr, attrs)
+            console.log('Pre-selected variation:', selectedCombo.articlenr, attrs)
+
+            // Load variant images if this is different from father product
+            if (selectedCombo.articlenr !== fatherArticleNr) {
+              try {
+                console.log('Loading images for variant:', selectedCombo.articlenr)
+                const variantProduct = await productsApi.getById(selectedCombo.articlenr)
+
+                if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
+                  // Update product to show variant images
+                  setProduct(prevProduct => prevProduct ? {
+                    ...prevProduct,
+                    images: variantProduct.images,
+                    primary_image: variantProduct.primary_image
+                  } : null)
+                  console.log('✅ Loaded', variantProduct.images.length, 'images for variant', selectedCombo.articlenr)
+                } else {
+                  console.warn('⚠️ No images found for variant:', selectedCombo.articlenr)
+                }
+              } catch (imgErr) {
+                console.error('❌ Failed to load variant images:', imgErr)
+              }
+            }
           }
         } catch (varErr) {
           console.error('Could not load variation data:', varErr)
@@ -230,23 +274,26 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           const variantProduct = await productsApi.getById(matchingCombo.articlenr)
           console.log('Variant product loaded:', variantProduct)
 
-          if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
-            // Update the product's images to show variant images
-            setProduct(prevProduct => prevProduct ? {
-              ...prevProduct,
-              images: variantProduct.images,
-              primary_image: variantProduct.primary_image
-            } : null)
-            setSelectedImageIndex(0) // Reset to first image
-            console.log('✅ Successfully loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
+          if (variantProduct) {
+            if (variantProduct.images && variantProduct.images.length > 0) {
+              // Update the product's images to show variant images
+              setProduct(prevProduct => prevProduct ? {
+                ...prevProduct,
+                images: variantProduct.images,
+                primary_image: variantProduct.primary_image
+              } : null)
+              setSelectedImageIndex(0) // Reset to first image
+              console.log('✅ Successfully loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
+            } else {
+              console.error('❌ Variant product has NO images in database:', matchingCombo.articlenr)
+              // This should never happen according to user - all products have images
+              setSelectedImageIndex(0)
+            }
           } else {
-            console.warn('⚠️ Variant product has no images, keeping father product images')
-            // Keep current (father) images, just reset to first
-            setSelectedImageIndex(0)
+            console.error('❌ Variant product not found:', matchingCombo.articlenr)
           }
         } catch (err) {
-          console.error('❌ Could not load variant product images:', err)
-          // Fallback: just reset to first image of current images
+          console.error('❌ Failed to load variant product:', matchingCombo.articlenr, err)
           setSelectedImageIndex(0)
         }
       } else {
