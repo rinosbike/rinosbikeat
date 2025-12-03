@@ -98,14 +98,14 @@ rinosbikeat/
 
 ### ⚠️ ALWAYS USE THESE URLS - UPDATED EVERY DEPLOYMENT
 
-**Last Deployment:** 2025-12-03 16:05 UTC
+**Last Deployment:** 2025-12-03 19:10 UTC
 
 #### Production URLs (CURRENT)
-- **Frontend:** https://rinosbikes-frontend-9vsfiqbyp-rinosbikes-projects.vercel.app
+- **Frontend:** https://rinosbikes-frontend-awjdbpddf-rinosbikes-projects.vercel.app
 - **Backend API:** https://backend-48o0djd1v-rinosbikes-projects.vercel.app
 - **GitHub Repo:** https://github.com/rinosbike/rinosbikeat.git
 - **Git Branch:** main
-- **Latest Commit:** 004726c1 (both frontend and backend)
+- **Latest Commit:** eb6e3be0 (frontend), 004726c1 (backend)
 
 #### Environment Variables (Frontend .env.local)
 ```bash
@@ -125,6 +125,7 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-48o0d
 4. ✅ Backend endpoint fixed to not replace child with father product data
 5. ✅ Fixed cart 500 error - corrected column name from `priceeur` to `priceEUR`
 6. ✅ Cart "In den Warenkorb" button now works correctly
+7. ✅ Fixed products page console error - removed is_active filter (19:10 UTC)
 
 ### Vercel Projects
 
@@ -202,6 +203,12 @@ Old projects may contain:
 
 ### Deployment History
 ```
+2025-12-03 19:10 UTC:
+  Frontend: rinosbikes-frontend-awjdbpddf-rinosbikes-projects.vercel.app
+  Backend:  backend-48o0djd1v-rinosbikes-projects.vercel.app (no change)
+  Commit:   eb6e3be0 (frontend)
+  Changes:  Fixed products page console error - removed is_active filter
+
 2025-12-03 16:05 UTC:
   Frontend: rinosbikes-frontend-9vsfiqbyp-rinosbikes-projects.vercel.app
   Backend:  backend-48o0djd1v-rinosbikes-projects.vercel.app
