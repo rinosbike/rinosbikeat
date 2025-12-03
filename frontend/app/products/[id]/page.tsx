@@ -215,7 +215,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     return () => window.removeEventListener('keydown', handleKeyboard)
   }, [isImageZoomed, zoomImageIndex, product?.images])
 
-  const handleAttributeChange = (attributeType: string, value: string) => {
+  const handleAttributeChange = async (attributeType: string, value: string) => {
     const newAttrs = { ...selectedAttributes, [attributeType]: value }
     setSelectedAttributes(newAttrs)
 
@@ -232,11 +232,28 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         setSelectedVariation(matchingCombo.articlenr)
         console.log('Matched variation:', matchingCombo.articlenr, newAttrs)
 
-        // Update images if color changed - find matching variation and use its image
-        if (attributeType === 'Farbe' && variationData.variations) {
-          const matchedVar = variationData.variations.find(v => v.articlenr === matchingCombo.articlenr)
-          if (matchedVar && matchedVar.primary_image) {
-            // Reset to first image when changing color
+        // Update URL with variant query parameter (like Shopify)
+        const url = new URL(window.location.href)
+        url.searchParams.set('variant', matchingCombo.articlenr)
+        window.history.replaceState({}, '', url.toString())
+
+        // Load variant product data to get its specific images
+        if (attributeType === 'Farbe') {
+          try {
+            const variantProduct = await productsApi.getById(matchingCombo.articlenr)
+            if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
+              // Update the product's images to show variant images
+              setProduct(prevProduct => prevProduct ? {
+                ...prevProduct,
+                images: variantProduct.images,
+                primary_image: variantProduct.primary_image
+              } : null)
+              setSelectedImageIndex(0) // Reset to first image
+              console.log('Loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
+            }
+          } catch (err) {
+            console.error('Could not load variant product images:', err)
+            // Fallback: just reset to first image of current images
             setSelectedImageIndex(0)
           }
         }
@@ -254,9 +271,30 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         setSelectedVariation(matchingVariation.articlenr)
         console.log('Matched fallback variation:', matchingVariation.articlenr, newAttrs)
 
-        // Update images if color changed
-        if (attributeType === 'Farbe' && matchingVariation.primary_image) {
-          setSelectedImageIndex(0)
+        // Update URL with variant query parameter (like Shopify)
+        const url = new URL(window.location.href)
+        url.searchParams.set('variant', matchingVariation.articlenr)
+        window.history.replaceState({}, '', url.toString())
+
+        // Load variant product data to get its specific images
+        if (attributeType === 'Farbe') {
+          try {
+            const variantProduct = await productsApi.getById(matchingVariation.articlenr)
+            if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
+              // Update the product's images to show variant images
+              setProduct(prevProduct => prevProduct ? {
+                ...prevProduct,
+                images: variantProduct.images,
+                primary_image: variantProduct.primary_image
+              } : null)
+              setSelectedImageIndex(0) // Reset to first image
+              console.log('Loaded fallback variant images:', variantProduct.images.length, 'images for', matchingVariation.articlenr)
+            }
+          } catch (err) {
+            console.error('Could not load fallback variant product images:', err)
+            // Fallback: just reset to first image of current images
+            setSelectedImageIndex(0)
+          }
         }
       }
     }
