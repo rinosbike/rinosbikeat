@@ -19,10 +19,9 @@ const stripePromise = loadStripe(
 
 export default function KassePage() {
   const router = useRouter()
-  const { sessionId, setItemCount } = useCartStore()
-  
-  const [cart, setCart] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { items, getSubtotal, getTotal, clearCart } = useCartStore()
+
+  const [loading, setLoading] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -42,26 +41,11 @@ export default function KassePage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
-    loadCart()
-  }, [])
-
-  const loadCart = async () => {
-    try {
-      setLoading(true)
-      const data = await cartApi.getCart(sessionId)
-      setCart(data)
-      
-      // Redirect if cart is empty
-      if (data.items.length === 0) {
-        router.push('/warenkorb')
-      }
-    } catch (err) {
-      console.error('Fehler beim Laden des Warenkorbs:', err)
-      setError('Warenkorb konnte nicht geladen werden.')
-    } finally {
-      setLoading(false)
+    // Redirect if cart is empty
+    if (items.length === 0) {
+      router.push('/cart')
     }
-  }
+  }, [items, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -117,9 +101,31 @@ export default function KassePage() {
     setError(null)
 
     try {
-      // Step 1: Create order
-      const order = await ordersApi.createOrder(sessionId, formData, 'stripe')
-      
+      // Calculate totals
+      const subtotal = getSubtotal()
+      const taxRate = 19
+      const tax = subtotal * (taxRate / 100)
+      const shipping = subtotal >= 100 ? 0 : 9.99
+      const total = subtotal + tax + shipping
+
+      // Step 1: Create order with cart items from localStorage
+      const orderPayload = {
+        customer_info: formData,
+        cart_items: items.map(item => ({
+          articlenr: item.articlenr,
+          articlename: item.product.articlename,
+          quantity: item.quantity,
+          price_at_addition: item.price_at_addition,
+        })),
+        subtotal,
+        tax_amount: tax,
+        shipping,
+        total_amount: total,
+        payment_method: 'stripe'
+      }
+
+      const order = await ordersApi.createOrderFromCart(orderPayload)
+
       // Step 2: Create payment intent
       const payment = await paymentsApi.createPaymentIntent(
         order.web_order_id,
@@ -135,8 +141,8 @@ export default function KassePage() {
       // Redirect to Stripe
       window.location.href = `https://checkout.stripe.com/pay/${payment.client_secret}`
 
-      // Clear cart
-      setItemCount(0)
+      // Clear cart after successful order creation
+      clearCart()
     } catch (err: any) {
       console.error('Fehler beim Checkout:', err)
       setError(
@@ -147,20 +153,16 @@ export default function KassePage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="max-w-container mx-auto px-6 md:px-20 py-16">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Lädt Kasse...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!cart || cart.items.length === 0) {
+  if (items.length === 0) {
     return null // Will redirect
   }
+
+  // Calculate totals
+  const subtotal = getSubtotal()
+  const taxRate = 19
+  const tax = subtotal * (taxRate / 100)
+  const shipping = subtotal >= 100 ? 0 : 9.99
+  const total = subtotal + tax + shipping
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -343,20 +345,23 @@ export default function KassePage() {
 
               {/* Cart Items */}
               <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                {cart.items.map((item: any) => (
+                {items.map((item) => (
                   <div
-                    key={`${item.product_id}-${item.variation_id || 'none'}`}
+                    key={item.articlenr}
                     className="flex justify-between text-sm"
                   >
                     <div className="flex-grow">
-                      <p className="font-medium">{item.articlename}</p>
-                      {item.variation_name && (
-                        <p className="text-gray-600 text-xs">{item.variation_name}</p>
+                      <p className="font-medium">{item.product.articlename}</p>
+                      {item.product.colour && (
+                        <p className="text-gray-600 text-xs">Farbe: {item.product.colour}</p>
+                      )}
+                      {item.product.size && (
+                        <p className="text-gray-600 text-xs">Größe: {item.product.size}</p>
                       )}
                       <p className="text-gray-600">Anzahl: {item.quantity}</p>
                     </div>
                     <p className="font-medium">
-                      {(item.price * item.quantity).toFixed(2)} {cart.currency}
+                      {(item.price_at_addition * item.quantity).toFixed(2)} €
                     </p>
                   </div>
                 ))}
@@ -365,20 +370,20 @@ export default function KassePage() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Zwischensumme</span>
-                  <span>{cart.subtotal.toFixed(2)} {cart.currency}</span>
+                  <span>{subtotal.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">MwSt. (19%)</span>
-                  <span>{cart.vat_amount.toFixed(2)} {cart.currency}</span>
+                  <span className="text-gray-600">MwSt. ({taxRate}%)</span>
+                  <span>{tax.toFixed(2)} €</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Versand</span>
-                  <span>Kostenlos</span>
+                  <span>{shipping === 0 ? 'Kostenlos' : `${shipping.toFixed(2)} €`}</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between items-baseline">
                   <span className="font-bold">Gesamt</span>
                   <span className="text-2xl font-bold text-blue-600">
-                    {cart.total_amount.toFixed(2)} {cart.currency}
+                    {total.toFixed(2)} €
                   </span>
                 </div>
               </div>

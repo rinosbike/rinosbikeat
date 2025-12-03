@@ -334,7 +334,35 @@ export const cartApi = {
 // ============================================================================
 
 export const ordersApi = {
-  // Create order
+  // Create order from localStorage cart
+  createOrderFromCart: async (orderPayload: {
+    customer_info: {
+      customer_frontname: string;
+      customer_surname: string;
+      customer_email: string;
+      customer_adress: string;
+      customer_postalcode: string;
+      customer_city: string;
+      customer_country: string;
+      customer_telephone?: string;
+    };
+    cart_items: Array<{
+      articlenr: string;
+      articlename: string;
+      quantity: number;
+      price_at_addition: number;
+    }>;
+    subtotal: number;
+    tax_amount: number;
+    shipping: number;
+    total_amount: number;
+    payment_method: string;
+  }): Promise<Order> => {
+    const response = await apiClient.post('/web-orders/', orderPayload);
+    return response.data;
+  },
+
+  // Create order (legacy method using session cart)
   createOrder: async (
     sessionId: string,
     customerInfo: {
