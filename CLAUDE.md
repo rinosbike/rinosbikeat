@@ -747,6 +747,36 @@ Only deploy when ALL of these are true:
 3. ✅ Changes are committed and pushed to GitHub
 4. ✅ You've verified the latest commit contains your changes
 
+### ⚠️ CRITICAL: Vercel Deployment Cleanup Policy
+
+**ALWAYS keep Vercel deployments in sync with GitHub:**
+
+1. **After every deployment session:**
+   - Keep only the latest 2-3 deployments for each project
+   - Delete all older deployments using `vercel rm <deployment-url> --yes`
+   - This keeps Vercel dashboard clean and organized
+
+2. **Why this matters:**
+   - Prevents confusion about which deployment is current
+   - Reduces clutter in Vercel dashboard
+   - Ensures all deployments trace back to GitHub commits
+   - Makes debugging easier by having clear deployment history
+
+3. **How to clean up:**
+   ```bash
+   # List deployments
+   cd frontend && vercel ls
+   cd backend && vercel ls
+
+   # Remove old deployments (keep latest 2-3)
+   vercel rm <old-deployment-url> --yes
+   ```
+
+4. **After cleanup:**
+   - Update CLAUDE.md with latest deployment URLs
+   - Update deployment history section
+   - Commit and push CLAUDE.md changes to GitHub
+
 ### How to Verify Latest Deployment
 
 After deploying, verify the deployment is using the latest code:
