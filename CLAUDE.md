@@ -116,16 +116,53 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-48o0d
 
 - **Organization:** `team_HvkCopTlPYU9oDIy73BBm0Rm`
 
-#### ❌ OLD PROJECTS (DELETE THESE!)
-These old projects exist and may cause confusion. They should be deleted:
-- **rinosbikeat** (rinosbikeat.vercel.app) - OLD, DO NOT USE
-- **frontend** (frontend-taupe-nine-30.vercel.app) - OLD, DO NOT USE
+#### ❌ OLD PROJECTS (DO NOT DELETE YET!)
+These old projects exist and may cause confusion:
+- **rinosbikeat** (rinosbikeat.vercel.app) - OLD project, connected to GitHub
+- **frontend** (frontend-taupe-nine-30.vercel.app) - OLD project, connected to GitHub
 
-**How to delete old projects:**
-1. Go to https://vercel.com/rinosbikes-projects
-2. Click on old project (rinosbikeat or frontend)
-3. Settings → Scroll to bottom → Delete Project
-4. Confirm deletion
+**⚠️ CRITICAL: DO NOT DELETE until you complete migration checklist below!**
+
+Old projects may contain:
+- Environment variables that haven't been copied to new projects
+- Git integration that new projects don't have
+- Domain configurations
+- Build settings
+
+**Migration Checklist (Complete BEFORE deleting old projects):**
+
+1. **Verify Environment Variables:**
+   ```bash
+   # Check old project env vars (via dashboard or CLI)
+   # For each env var in old project, add to new project:
+
+   cd frontend
+   vercel env add <VAR_NAME> production
+   vercel env add <VAR_NAME> preview
+   vercel env add <VAR_NAME> development
+
+   cd backend
+   vercel env add <VAR_NAME> production
+   vercel env add <VAR_NAME> preview
+   vercel env add <VAR_NAME> development
+   ```
+
+2. **Connect New Projects to GitHub:**
+   - Go to https://vercel.com/rinosbikes-projects/rinosbikes-frontend-new
+   - Click "Connect Git Repository"
+   - Select `rinosbike/rinosbikeat`
+   - Set root directory: `frontend`
+   - Repeat for backend project with root directory: `backend`
+
+3. **Verify New Projects Work:**
+   - Test latest deployment URLs
+   - Check all features work
+   - Verify database connections
+   - Check cart, products, images
+
+4. **Only Then Delete Old Projects:**
+   - Go to old project → Settings → Delete Project
+   - Confirm you've completed migration checklist
 
 #### 🔗 Git Integration Status
 **CRITICAL:** Ensure projects are connected to GitHub for automatic deployments:
@@ -738,6 +775,122 @@ Located in project root:
 - `DEPLOYMENT_CHECKLIST.md` - Pre-deployment testing checklist
 - `DEPLOYMENT_ISSUES_FIXED.md` - Known issues and fixes
 - `FINAL_FIXES_SUMMARY.md` - Summary of major fixes applied
+
+---
+
+## 👥 Multi-Person Team Coordination
+
+### ⚠️ CRITICAL: Rules for Teams Working on Same Project
+
+When multiple people/sessions work on the same Vercel project:
+
+#### 1. **NEVER Delete Vercel Projects Without Checking:**
+   - Old projects may have environment variables new projects don't have
+   - Old projects may be connected to GitHub while new ones aren't
+   - Deleting can break production if new project isn't fully configured
+   - **Always complete migration checklist first!**
+
+   **⚠️ MANDATORY PRE-DELETION CHECKLIST:**
+
+   Before deleting ANY Vercel project, verify:
+
+   ```
+   □ New project has ALL environment variables from old project
+     - Compare: Old project Settings → Env Vars vs `vercel env ls` in new project
+     - Missing ANY variable? Add it before deletion!
+
+   □ New project is connected to GitHub
+     - Dashboard should show repo name, not "Connect Git Repository" button
+     - If not connected: Connect it NOW, test auto-deployment
+
+   □ New project has been tested and works
+     - Visit latest deployment URL
+     - Test critical features (products, cart, images, checkout)
+     - Check browser console for errors
+     - Verify database connections work
+
+   □ CLAUDE.md has been updated with new project info
+     - Latest deployment URLs documented
+     - Environment variables documented
+     - Git integration status documented
+
+   □ All team members notified and approved deletion
+     - In team chat/communication channel
+     - Wait for confirmation before proceeding
+   ```
+
+   **If ANY checkbox is unchecked, DO NOT DELETE the old project!**
+
+#### 2. **Environment Variable Sync:**
+   ```bash
+   # Before making any changes, list current env vars:
+   vercel env ls
+
+   # Pull env vars to local:
+   vercel env pull .env.production
+
+   # After adding env vars, document in CLAUDE.md:
+   # - Variable name
+   # - Which environments (prod/preview/dev)
+   # - Purpose
+   ```
+
+#### 3. **Project Identification:**
+   - Always verify which project you're deploying to:
+     ```bash
+     vercel project ls  # Shows linked project
+     ```
+   - If wrong project, unlink and relink:
+     ```bash
+     vercel unlink
+     vercel link  # Select correct project
+     ```
+
+#### 4. **Communication Protocol:**
+   - **Before deploying**: Check CLAUDE.md for latest deployment info
+   - **After deploying**: Update CLAUDE.md with new URLs
+   - **Before deleting**: Verify all team members know and approve
+   - **After changes**: Commit CLAUDE.md updates to Git
+
+#### 5. **Git Integration Status:**
+   - New projects should ALWAYS be connected to GitHub
+   - Check dashboard: if "Connect Git Repository" shows, do it immediately
+   - Auto-deployments only work when connected to Git
+
+#### 6. **Environment Variable Migration Process:**
+   When creating new Vercel projects:
+
+   **Step 1: Export from old project**
+   ```bash
+   # Via dashboard: Old Project → Settings → Environment Variables → Copy all
+   ```
+
+   **Step 2: Import to new project**
+   ```bash
+   cd new-project-directory
+   vercel env add VAR_NAME production  # Paste value
+   vercel env add VAR_NAME preview
+   vercel env add VAR_NAME development
+   ```
+
+   **Step 3: Verify**
+   ```bash
+   vercel env ls  # Should match old project
+   ```
+
+   **Step 4: Test deployment**
+   ```bash
+   vercel --prod  # Deploy and test
+   ```
+
+   **Step 5: Only then mark old project for deletion**
+
+#### 7. **Preventing Conflicts:**
+   - One person = one session = one set of changes
+   - Always pull latest from Git before starting work
+   - Always push to Git after completing work
+   - Update CLAUDE.md as single source of truth
+   - Test deployments before marking work complete
 
 ---
 
