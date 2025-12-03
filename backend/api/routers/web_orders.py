@@ -23,17 +23,17 @@ router = APIRouter(prefix="/web-orders", tags=["Web Orders"])
 
 def generate_web_order_number(db: Session) -> str:
     """
-    Generate unique web order number in format: WEB-YYYYMMDD-NNNN
+    Generate unique web order number in format: WEB-YYYYMMDD-RANDOM
+    Using random suffix to avoid database encoding issues
     """
+    import random
+
     today = datetime.utcnow().strftime('%Y%m%d')
 
-    # Get count of orders created today
-    count = db.query(WebOrder).filter(
-        WebOrder.ordernr.like(f'WEB-{today}-%')
-    ).count()
-
-    # Increment and format with leading zeros
-    order_num = f'WEB-{today}-{(count + 1):04d}'
+    # Use random 4-digit number to avoid querying existing orders
+    # This prevents UTF-8 encoding errors from database
+    random_suffix = random.randint(1000, 9999)
+    order_num = f'WEB-{today}-{random_suffix}'
 
     return order_num
 
@@ -80,6 +80,7 @@ async def create_web_order(
     """
     try:
         # Validate required fields
+        print("[DEBUG] Step 1: Validating order data")
         if 'customer_info' not in order_data:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -96,12 +97,15 @@ async def create_web_order(
         cart_items = order_data['cart_items']
 
         # Generate order number
+        print("[DEBUG] Step 2: Generating order number")
         ordernr = generate_web_order_number(db)
+        print(f"[DEBUG] Generated order number: {ordernr}")
 
         # Get user_id if authenticated
         user_id = current_user.user_id if current_user else None
 
         # Create web order
+        print("[DEBUG] Step 3: Creating WebOrder object")
         web_order = WebOrder(
             ordernr=ordernr,
             shop_id=1,  # rinosbikeat shop
@@ -115,8 +119,12 @@ async def create_web_order(
             updated_at=datetime.utcnow()
         )
 
+        print("[DEBUG] Step 4: Adding to database session")
         db.add(web_order)
+
+        print("[DEBUG] Step 5: Flushing to get ID")
         db.flush()  # Get web_order_id without committing
+        print(f"[DEBUG] Order flushed, ID: {web_order.web_order_id}")
 
         # Store customer info (we'll need to create a web_order_customers table or similar)
         # For now, we'll store it in a JSON field or separate table
@@ -126,10 +134,14 @@ async def create_web_order(
         # TODO: Create web_order_items table to store cart items
         # For now, we'll return success and the order can be completed
 
+        print("[DEBUG] Step 6: Committing transaction")
         db.commit()
+
+        print("[DEBUG] Step 7: Refreshing order object")
         db.refresh(web_order)
 
         # Return order details
+        print("[DEBUG] Step 8: Returning success response")
         return {
             "status": "success",
             "web_order_id": web_order.web_order_id,
@@ -145,7 +157,9 @@ async def create_web_order(
         raise
     except Exception as e:
         db.rollback()
+        import traceback
         print(f"Error creating web order: {str(e)}")
+        print(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create order: {str(e)}"
