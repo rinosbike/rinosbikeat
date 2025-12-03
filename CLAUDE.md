@@ -54,9 +54,41 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-nqd6h
 4. ✅ Backend endpoint fixed to not replace child with father product data
 
 ### Vercel Projects
+
+#### ✅ ACTIVE PROJECTS (USE THESE!)
 - **Frontend Project:** `rinosbikes-frontend-new` (Project ID: `prj_Mik2kCF2VY5gKBzaG6JmaszqcPiZ`)
+  - Domain: rinosbikes-frontend-new.vercel.app
+  - Root Directory: `frontend/`
+  - **ALWAYS deploy from:** `C:\Users\savae\Downloads\rinosbikeat\frontend`
+
 - **Backend Project:** `backend` (Project ID: `prj_HpA828jaF5v9RXOFFpOWBXdbnACW`)
+  - Domain: backend-red-eight-34.vercel.app (changes with each deployment)
+  - Root Directory: `backend/`
+  - **ALWAYS deploy from:** `C:\Users\savae\Downloads\rinosbikeat\backend`
+
 - **Organization:** `team_HvkCopTlPYU9oDIy73BBm0Rm`
+
+#### ❌ OLD PROJECTS (DELETE THESE!)
+These old projects exist and may cause confusion. They should be deleted:
+- **rinosbikeat** (rinosbikeat.vercel.app) - OLD, DO NOT USE
+- **frontend** (frontend-taupe-nine-30.vercel.app) - OLD, DO NOT USE
+
+**How to delete old projects:**
+1. Go to https://vercel.com/rinosbikes-projects
+2. Click on old project (rinosbikeat or frontend)
+3. Settings → Scroll to bottom → Delete Project
+4. Confirm deletion
+
+#### 🔗 Git Integration Status
+**CRITICAL:** Ensure projects are connected to GitHub for automatic deployments:
+- **rinosbikes-frontend-new**: Should be connected to `rinosbike/rinosbikeat` repo
+- **backend**: Should be connected to `rinosbike/rinosbikeat` repo
+
+**If "Connect Git Repository" button shows:**
+1. Click "Connect Git Repository"
+2. Select `rinosbike/rinosbikeat`
+3. Configure root directory (frontend/ or backend/)
+4. This enables automatic deployments on git push
 
 ### Deployment History
 ```
@@ -263,10 +295,31 @@ http://localhost:8000/redoc       # ReDoc
 ```
 
 ### Deploy to Vercel
+
+**⚠️ CRITICAL: Verify Correct Project Before Deploying!**
+
+Before running `vercel --prod`, ALWAYS verify you're deploying to the correct project:
+
 ```bash
-cd C:\Users\savae\Downloads\rinosbikeat\backend
+# 1. Check current directory
+pwd  # Should be in frontend/ or backend/
+
+# 2. Check linked project
+vercel project ls
+# Should show: rinosbikes-frontend-new (for frontend)
+# Should show: backend (for backend)
+
+# 3. If wrong project is linked, unlink and relink:
+vercel unlink
+vercel link
+# Select: rinosbikes-projects (organization)
+# Select: rinosbikes-frontend-new (for frontend) or backend (for backend)
+
+# 4. Now deploy safely
 vercel --prod --yes
 ```
+
+**Common Mistake:** Deploying from wrong directory or to old project (rinosbikeat, frontend)
 
 ---
 
