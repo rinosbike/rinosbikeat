@@ -323,45 +323,37 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             Product.fatherarticle == father_articlenr
         ).all() if v is not None]
 
-        # Extract variation definitions from variationcombinationdata instead of variationdata
-        # This avoids the NULL primary key issue in variationdata table
-        variation_definitions = []
-        variation_types = set()
+        # Extract variation options from variationcombinationdata
+        # Build variation_options dict: { "Farbe": ["Schwarz/Grün", "Blau"], "Größe": ["XS", "S"] }
+        variation_options = {}
         try:
-            # Get unique variation types and values from variationcombinationdata - filter None
-            var_combos = [vc for vc in db.query(VariationCombinationData).filter(
+            # Get unique variation types and values from variationcombinationdata
+            var_combos = db.query(VariationCombinationData).filter(
                 VariationCombinationData.fatherarticle == father_articlenr
-            ).all() if vc is not None]
+            ).all()
 
             for vc in var_combos:
                 try:
+                    # Process variation1
                     if hasattr(vc, 'variation1') and vc.variation1 and hasattr(vc, 'variationvalue1') and vc.variationvalue1:
-                        var_key = f"{vc.variation1}|{vc.variationvalue1}"
-                        if var_key not in variation_types:
-                            variation_types.add(var_key)
-                            variation_definitions.append({
-                                "type": vc.variation1,
-                                "value": vc.variationvalue1,
-                                "sort_order": 0
-                            })
+                        if vc.variation1 not in variation_options:
+                            variation_options[vc.variation1] = []
+                        if vc.variationvalue1 not in variation_options[vc.variation1]:
+                            variation_options[vc.variation1].append(vc.variationvalue1)
+
+                    # Process variation2
                     if hasattr(vc, 'variation2') and vc.variation2 and hasattr(vc, 'variationvalue2') and vc.variationvalue2:
-                        var_key = f"{vc.variation2}|{vc.variationvalue2}"
-                        if var_key not in variation_types:
-                            variation_types.add(var_key)
-                            variation_definitions.append({
-                                "type": vc.variation2,
-                                "value": vc.variationvalue2,
-                                "sort_order": 1
-                            })
+                        if vc.variation2 not in variation_options:
+                            variation_options[vc.variation2] = []
+                        if vc.variationvalue2 not in variation_options[vc.variation2]:
+                            variation_options[vc.variation2].append(vc.variationvalue2)
+
+                    # Process variation3
                     if hasattr(vc, 'variation3') and vc.variation3 and hasattr(vc, 'variationvalue3') and vc.variationvalue3:
-                        var_key = f"{vc.variation3}|{vc.variationvalue3}"
-                        if var_key not in variation_types:
-                            variation_types.add(var_key)
-                            variation_definitions.append({
-                                "type": vc.variation3,
-                                "value": vc.variationvalue3,
-                                "sort_order": 2
-                            })
+                        if vc.variation3 not in variation_options:
+                            variation_options[vc.variation3] = []
+                        if vc.variationvalue3 not in variation_options[vc.variation3]:
+                            variation_options[vc.variation3].append(vc.variationvalue3)
                 except Exception as e:
                     print(f"Error processing variation from combination: {e}")
                     continue
@@ -418,7 +410,7 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             "father_article": father_articlenr,
             "variation_count": len(variations),
             "variations": [v.to_simple_dict(include_categories=False, db_session=db) for v in variations],
-            "variation_definitions": variation_definitions,
+            "variation_options": variation_options,  # Frontend expects this key!
             "variation_combinations": variation_combinations,
             "grouped_by_attribute": variations_by_attr
         }
