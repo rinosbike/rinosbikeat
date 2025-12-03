@@ -1,5 +1,5 @@
 # Claude AI Assistant Guide for RINOS Bikes Project
-**Last Updated:** 2025-12-03
+**Last Updated:** 2025-12-03 14:40 UTC
 
 This document contains essential information, file paths, and effective prompts to help Claude AI assist with the RINOS Bikes e-commerce project more efficiently.
 
@@ -23,17 +23,53 @@ rinosbikeat/
 
 ---
 
-## 🌐 Deployment URLs
+## 🌐 LATEST DEPLOYMENT INFORMATION
 
-### Production URLs
-- **Frontend:** https://rinosbikes-frontend-9k63txllu-rinosbikes-projects.vercel.app
-- **Backend API:** https://backend-58wypjy51-rinosbikes-projects.vercel.app
+### ⚠️ ALWAYS USE THESE URLS - UPDATED EVERY DEPLOYMENT
+
+**Last Deployment:** 2025-12-03 14:40 UTC
+
+#### Production URLs (CURRENT)
+- **Frontend:** https://rinosbikes-frontend-pjgzhwq3x-rinosbikes-projects.vercel.app
+- **Backend API:** https://backend-nqd6hfra9-rinosbikes-projects.vercel.app
 - **GitHub Repo:** https://github.com/rinosbike/rinosbikeat.git
+- **Git Branch:** main
+- **Latest Commit:** b7baa4a6 (frontend), 8a3ed058 (backend)
+
+#### Environment Variables (Frontend .env.local)
+```bash
+NEXT_PUBLIC_BACKEND_URL=https://backend-nqd6hfra9-rinosbikes-projects.vercel.app
+```
+
+#### API Proxy Fallback URLs (frontend/app/api/[...proxy]/route.ts)
+```typescript
+// All methods (GET, POST, PUT, DELETE) use:
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-nqd6hfra9-rinosbikes-projects.vercel.app';
+```
+
+### Recent Changes (Session 2025-12-03)
+1. ✅ Fixed variant image loading - child products now return their own images
+2. ✅ Added URL parameter support (`?variant=ARTICLENR`) for direct variant links
+3. ✅ Dynamic image loading when selecting color/size variants
+4. ✅ Backend endpoint fixed to not replace child with father product data
 
 ### Vercel Projects
 - **Frontend Project:** `rinosbikes-frontend-new` (Project ID: `prj_Mik2kCF2VY5gKBzaG6JmaszqcPiZ`)
 - **Backend Project:** `backend` (Project ID: `prj_HpA828jaF5v9RXOFFpOWBXdbnACW`)
 - **Organization:** `team_HvkCopTlPYU9oDIy73BBm0Rm`
+
+### Deployment History
+```
+2025-12-03 14:40 UTC:
+  Frontend: rinosbikes-frontend-pjgzhwq3x-rinosbikes-projects.vercel.app
+  Backend:  backend-nqd6hfra9-rinosbikes-projects.vercel.app
+  Changes:  Fixed variant image loading, added URL parameter support
+
+2025-12-03 14:15 UTC:
+  Frontend: rinosbikes-frontend-dveqkeswq-rinosbikes-projects.vercel.app
+  Backend:  backend-7pc84tih3-rinosbikes-projects.vercel.app
+  Changes:  Initial variant image loading attempt (replaced by current version)
+```
 
 ---
 
