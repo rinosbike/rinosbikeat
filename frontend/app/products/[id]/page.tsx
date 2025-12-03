@@ -136,24 +136,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         currentSessionId = generateSessionId()
       }
 
-      // Convert article number to product ID
-      let productIdToAdd = product.productid
-      if (selectedVariation && variationData && variationData.variations) {
-        const selectedVar = variationData.variations.find(v => v.articlenr === selectedVariation)
-        if (selectedVar) {
-          productIdToAdd = selectedVar.productid
-        }
-      }
+      // Use articlenr instead of product_id
+      const articlenrToAdd = selectedVariation || product.articlenr
 
-      // Add to cart via API
+      // Add to cart via API using articlenr
       const updatedCart = await cartApi.addItem(
         currentSessionId,
-        productIdToAdd,
+        articlenrToAdd,
         quantity
       )
 
-      // Update cart count
-      setItemCount(updatedCart.items.length)
+      // Update cart count from summary
+      setItemCount(updatedCart.summary.item_count)
 
       // Show success message
       setAddedToCart(true)
