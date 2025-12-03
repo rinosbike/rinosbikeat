@@ -7,7 +7,32 @@ This document contains essential information, file paths, and effective prompts 
 
 ## ⚠️ CRITICAL: End-of-Session Protocol
 
-### Before Token Limit is Reached (Save ~20,000 tokens):
+### Token Budget Management
+
+**ALWAYS monitor token usage during session:**
+
+- **Total Budget:** 200,000 tokens per session
+- **Reserve for Session End:** 20,000 tokens (10% of budget)
+- **Stop New Work At:** 180,000 tokens (90% of budget)
+- **Deployment Buffer:** Need ~10,000 tokens for deployment + documentation
+
+**At 90% Usage (180k tokens):**
+1. ⛔ STOP starting new features/fixes
+2. ✅ Complete current task if nearly done
+3. ✅ Begin end-of-session protocol immediately
+4. ✅ Deploy, document, commit everything
+
+**Why 90% Rule Matters:**
+- Prevents incomplete deployments
+- Ensures CLAUDE.md gets updated
+- Guarantees code is pushed to Git
+- Avoids orphaned work that's lost
+- Next session knows exactly where to continue
+
+**Token Check Command:**
+During session, periodically check: `<budget:token_budget>` appears in responses
+
+### Before Token Limit is Reached (At 90% / 180k tokens):
 
 **MANDATORY steps before ending session:**
 
@@ -1132,7 +1157,36 @@ Open browser DevTools → Network tab → XHR filter
 
 ---
 
-## 🎯 Session Startup Prompt
+## 🎯 Session Startup Protocol
+
+### At Start of Every Session:
+
+**Claude should immediately:**
+
+1. **Check current token budget:**
+   - Note starting token count
+   - Calculate 90% threshold (180k tokens)
+   - Monitor throughout session
+
+2. **Review CLAUDE.md for context:**
+   - Latest deployment URLs
+   - Recent changes
+   - Pending issues
+   - Current project state
+
+3. **Verify working directory:**
+   ```bash
+   pwd  # Should be in C:\Users\savae\Downloads\rinosbikeat
+   git status  # Check for uncommitted changes
+   git log -1 --oneline  # Verify latest commit
+   ```
+
+4. **Set session goals:**
+   - Understand user's request
+   - Estimate token cost
+   - Plan to finish before 90% threshold
+
+### Session Startup Prompt
 
 Use this comprehensive prompt at the start of each Claude session:
 
