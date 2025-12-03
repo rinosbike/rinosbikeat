@@ -23,18 +23,50 @@ router = APIRouter(prefix="/web-orders", tags=["Web Orders"])
 
 def generate_web_order_number(db: Session) -> str:
     """
-    Generate unique web order number in format: WEB-YYYYMMDD-RANDOM
-    Using random suffix to avoid database encoding issues
+    Generate unique web order number in format: AT-NNNN-YYYY
+    AT is prefix, NNNN starts from 1001 and increments, YYYY is year
     """
-    import random
+    from sqlalchemy import func
 
-    today = datetime.utcnow().strftime('%Y%m%d')
+    current_year = datetime.utcnow().year
 
-    # Use random 4-digit number to avoid querying existing orders
-    # This prevents UTF-8 encoding errors from database
-    random_suffix = random.randint(1000, 9999)
-    order_num = f'WEB-{today}-{random_suffix}'
+    # Get the highest order number for this year
+    # Query for orders with format AT-NNNN-YYYY
+    try:
+        # Get all orders for this year
+        year_orders = db.query(WebOrder).filter(
+            WebOrder.ordernr.like(f'AT-%-{current_year}')
+        ).all()
 
+        if year_orders:
+            # Extract numbers from order numbers
+            numbers = []
+            for order in year_orders:
+                try:
+                    # Parse AT-NNNN-YYYY format
+                    parts = order.ordernr.split('-')
+                    if len(parts) == 3 and parts[0] == 'AT':
+                        numbers.append(int(parts[1]))
+                except:
+                    continue
+
+            if numbers:
+                next_number = max(numbers) + 1
+            else:
+                next_number = 1001
+        else:
+            next_number = 1001
+
+    except Exception as e:
+        print(f"Error querying for order number: {e}")
+        # Fallback: use current count + 1001
+        try:
+            total_count = db.query(func.count(WebOrder.web_order_id)).scalar() or 0
+            next_number = total_count + 1001
+        except:
+            next_number = 1001
+
+    order_num = f'AT-{next_number}-{current_year}'
     return order_num
 
 
