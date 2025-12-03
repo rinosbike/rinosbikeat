@@ -550,6 +550,16 @@ Backend: https://backend-58wypjy51-rinosbikes-projects.vercel.app
 
 ## 🚨 Common Pitfalls & Solutions
 
+### 0. NEVER Assume Database Column Names!
+**CRITICAL RULE:** Always ask the user or check the database schema before assuming column names.
+**Problem:** Assuming column names leads to broken queries and API errors
+**Solution:**
+- When working with database queries, ALWAYS verify column names first
+- Use `\d tablename` in psql to see exact column structure
+- Ask user: "What are the exact column names in the [table_name] table?"
+- Check existing code that queries the same table
+- Never use common names like `id`, `name`, `created_at` without verification
+
 ### 1. Cart API Uses articlenr, NOT product_id!
 **Problem:** Frontend sending `product_id` to cart API
 **Solution:** Always use `articlenr` (string) for cart operations
