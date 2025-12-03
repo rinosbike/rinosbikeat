@@ -40,9 +40,9 @@ STRIPE_WEBHOOK_SECRET = settings.STRIPE_WEBHOOK_SECRET
 
 # Check if Stripe is configured
 if not stripe.api_key or stripe.api_key == "sk_test_YOUR_ACTUAL_KEY_HERE":
-    print("⚠️  WARNING: STRIPE_SECRET_KEY not set in config.py")
+    print("[WARNING] STRIPE_SECRET_KEY not set in config.py")
 else:
-    print(f"✅ Stripe configured with key: {stripe.api_key[:12]}...")  # Show first 12 chars only
+    print(f"[OK] Stripe configured with key: {stripe.api_key[:12]}...")  # Show first 12 chars only
 
 
 # ============================================================================

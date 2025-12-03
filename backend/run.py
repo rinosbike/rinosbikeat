@@ -25,9 +25,9 @@ def clear_cache():
             try:
                 shutil.rmtree(cache_dir)
                 cache_cleared += 1
-                print(f"  [OK] Removed: {cache_dir}")
+                print(f"  [OK] Removed: {cache_dir}".encode('utf-8', errors='ignore').decode('ascii', errors='ignore'))
             except Exception as e:
-                print(f"  [ERR] Failed to remove {cache_dir}: {e}")
+                print(f"  [ERR] Failed to remove {cache_dir}: {e}".encode('utf-8', errors='ignore').decode('ascii', errors='ignore'))
 
         # Remove .pyc and .pyo files
         for file in files:
