@@ -142,7 +142,7 @@ def build_cart_response(cart: ShoppingCart, db: Session) -> CartResponse:
             product_info = CartItemProduct(
                 articlenr=product.articlenr,
                 articlename=product.articlename,
-                price=float(product.priceeur) if product.priceeur else 0.0,
+                price=float(product.priceEUR) if product.priceEUR else 0.0,
                 primary_image=product.get_primary_image(),
                 manufacturer=product.manufacturer,
                 colour=product.colour,
