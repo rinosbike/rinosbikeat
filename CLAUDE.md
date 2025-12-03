@@ -625,6 +625,171 @@ SELECT * FROM web_carts WHERE guest_session_id = 'xxx';             # Cart data
 
 ---
 
+## ⚠️ DEPLOYMENT POLICY - READ THIS FIRST!
+
+### Vercel Deployment Limits
+- **100 free deployments per day** - conserve deployments!
+- **Deploy only every 5 commits** or when absolutely necessary
+- **ALWAYS test locally first** before deploying to Vercel
+
+### Pre-Deployment Testing Checklist
+
+Before deploying to Vercel, **ALWAYS** complete these local tests:
+
+#### 1. Frontend Build Test
+```bash
+cd C:\Users\savae\Downloads\rinosbikeat\frontend
+npm run build
+# Must complete with NO errors
+# Check for TypeScript errors, missing dependencies, etc.
+```
+
+#### 2. Backend Import Test
+```bash
+cd C:\Users\savae\Downloads\rinosbikeat\backend
+python -c "from api.main import app; print('✓ Backend OK')"
+# Must print "✓ Backend OK" without errors
+```
+
+#### 3. Product Page Test (Local)
+```bash
+# Start frontend dev server
+cd frontend
+npm run dev
+# Visit: http://localhost:3000/produkte/RINOS24GRX400
+```
+
+**Check:**
+- [ ] Product loads without 404
+- [ ] **Variations display** (Farbe, Größe buttons appear)
+- [ ] Can select variations
+- [ ] Images change when selecting variations
+- [ ] Article number updates below variations
+- [ ] No console errors in browser
+
+#### 4. Cart Functionality Test (Local)
+```bash
+# With frontend dev server running
+# Visit product page and test cart
+```
+
+**Check:**
+- [ ] Can add product to cart
+- [ ] No errors in console
+- [ ] Cart count updates in header
+- [ ] Visit `/cart` - items display correctly
+- [ ] Can update quantities
+- [ ] Can remove items
+- [ ] Totals calculate correctly
+
+#### 5. Browser Console Check
+**CRITICAL:** Open browser DevTools (F12) and check:
+- [ ] **Console tab** - NO red errors
+- [ ] **Network tab** - All API calls return 200 (not 404 or 500)
+- [ ] Check `/api/{articlenr}/variations` returns data with `variation_options`
+
+### When to Deploy
+
+Only deploy when ALL of these are true:
+1. ✅ All local tests pass (see checklist above)
+2. ✅ At least 5 commits since last deployment (unless critical bug)
+3. ✅ Changes are committed and pushed to GitHub
+4. ✅ You've verified the latest commit contains your changes
+
+### How to Verify Latest Deployment
+
+After deploying, verify the deployment is using the latest code:
+
+```bash
+# Check latest frontend deployment
+cd frontend
+vercel ls
+# The first URL should be most recent (shows age like "2m" for 2 minutes)
+
+# Check what commit was deployed
+git log -1 --oneline
+# Make sure this matches your expected changes
+```
+
+### Production Deployment Verification
+
+After deploying to Vercel, **IMMEDIATELY** test these on production:
+
+#### 1. Verify Latest Deployment URL
+```bash
+cd C:\Users\savae\Downloads\rinosbikeat\frontend
+vercel ls
+# Copy the most recent URL (top of list, shows age like "5m")
+```
+
+**Latest Frontend URL:** https://rinosbikes-frontend-5806ckq5e-rinosbikes-projects.vercel.app
+
+#### 2. Test Product Variations (Production)
+Visit: `https://[your-latest-frontend-url]/produkte/RINOS24GRX400`
+
+**MUST CHECK:**
+- [ ] Page loads (not 404)
+- [ ] **Variations section appears** with Farbe and Größe buttons
+- [ ] Variation values display in German (Schwarz/Grün, Blau, etc.)
+- [ ] Can click and select variations
+- [ ] Images change when selecting color
+- [ ] Article number updates when selecting variations
+- [ ] Open browser console (F12) - **NO red errors**
+
+#### 3. Test Cart (Production)
+On the same product page:
+
+**MUST CHECK:**
+- [ ] Click "In den Warenkorb" button
+- [ ] **Button shows "In den Warenkorb gelegt!"** (success state)
+- [ ] Cart count in header updates
+- [ ] Navigate to `/cart` - item appears in cart
+- [ ] Item shows correct product name, price, variations
+- [ ] Can update quantity - totals recalculate
+- [ ] Can remove item - cart updates
+- [ ] Open browser console - **NO red errors during any cart operation**
+
+#### 4. Check API Responses (Production)
+Open browser DevTools → Network tab → XHR filter
+
+**During product page load, verify:**
+- [ ] `GET /api/RINOS24GRX400` → Status 200
+- [ ] `GET /api/RINOS24GRX400/variations` → Status 200
+  - Response contains `variation_options` object
+  - `variation_options` has keys like "Farbe", "Größe"
+  - Values are in German
+- [ ] `GET /api/cart/` → Status 200
+
+**During add to cart, verify:**
+- [ ] `POST /api/cart/add` → Status 200
+  - Request body contains `articlenr` (string)
+  - Request body contains `guest_session_id`
+  - Response contains `summary` object with `item_count`
+
+### Deployment Troubleshooting
+
+#### If variations don't appear:
+1. Check browser console for errors
+2. Check Network tab - does `/api/{articlenr}/variations` return 200?
+3. Does the response have `variation_options`?
+4. Is the response structure correct? (See API docs)
+
+#### If add to cart fails:
+1. Check browser console error message
+2. Check Network tab - what's the actual error from `/api/cart/add`?
+3. Verify request body has `articlenr` (not `product_id`)
+4. Check if `guest_session_id` is being sent
+5. Check backend logs in Vercel dashboard
+
+#### If page shows old version:
+1. Check deployment timestamp in `vercel ls`
+2. Clear browser cache (Ctrl+Shift+R on product page)
+3. Try incognito/private window
+4. Check if latest Git commit was actually deployed
+5. Redeploy with `--force` flag: `vercel --prod --force`
+
+---
+
 ## 🎯 Session Startup Prompt
 
 Use this comprehensive prompt at the start of each Claude session:
