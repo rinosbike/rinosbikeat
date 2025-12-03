@@ -240,7 +240,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             setSelectedImageIndex(0) // Reset to first image
             console.log('✅ Successfully loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
           } else {
-            console.warn('⚠️ Variant product has no images:', variantProduct)
+            console.warn('⚠️ Variant product has no images, keeping father product images')
+            // Keep current (father) images, just reset to first
+            setSelectedImageIndex(0)
           }
         } catch (err) {
           console.error('❌ Could not load variant product images:', err)

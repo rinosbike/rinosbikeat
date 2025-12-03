@@ -580,6 +580,11 @@ Backend: https://backend-58wypjy51-rinosbikes-projects.vercel.app
 **Problem:** Missing DATABASE_URL on Vercel
 **Solution:** Set in Vercel project settings, not in code
 
+### 6. Variant Products Missing Images
+**Problem:** Some product variants don't have images in productimages table
+**Solution:** Frontend falls back to father product images when variant has no images
+**Note:** To fix properly, add images to productimages table for all variant articlenr values
+
 ---
 
 ## 📚 Additional Documentation
