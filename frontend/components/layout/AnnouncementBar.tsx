@@ -23,7 +23,7 @@ export default function AnnouncementBar() {
       {/* Second Announcement */}
       <div>
         <Link
-          href="/products"
+          href="/produkte"
           className="block text-center py-2 px-4 text-sm hover:opacity-80 transition-opacity"
         >
           <span>2025 NEUE MODELLE | Sparen Sie bis zu 300€</span>

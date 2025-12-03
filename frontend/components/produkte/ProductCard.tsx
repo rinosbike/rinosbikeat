@@ -5,14 +5,18 @@
 
 import Link from 'next/link'
 import { type Product } from '@/lib/api'
+import { generateProductSlug } from '@/lib/slugs'
 
 interface ProductCardProps {
   product: Product
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  // Generate SEO-friendly slug for the product
+  const slug = generateProductSlug(product.articlename, product.articlenr)
+
   return (
-    <Link href={`/products/${product.articlenr}`} className="group block">
+    <Link href={`/produkte/${slug}`} className="group block">
       <div className="bg-white h-full flex flex-col">
         {/* Product Image - Sharp corners, no border */}
         <div className="relative aspect-square bg-rinos-bg-secondary mb-3 overflow-hidden max-w-full">
