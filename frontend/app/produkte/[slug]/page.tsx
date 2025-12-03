@@ -1,6 +1,7 @@
 /**
  * Product Detail Page - /produkte/[slug]
  * Individual product page with add to cart functionality
+ * slug = article number (e.g., RINOS24GRX400)
  */
 
 'use client'
@@ -11,7 +12,6 @@ import { productsApi, cartApi, variationsApi, type Product, type ProductVariatio
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 import Link from 'next/link'
-import { extractArticleNrFromSlug } from '@/lib/slugs'
 
 interface ProductDetailPageProps {
   params: {
@@ -54,7 +54,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     try {
       setLoading(true)
       setError(null)
-      // params.slug can be either a numeric product ID or an article number string
+      // params.slug is the article number (e.g., RINOS24GRX400)
       const data = await productsApi.getById(params.slug)
       setProduct(data)
 
