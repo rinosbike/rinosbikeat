@@ -1,8 +1,8 @@
 export async function GET(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-58wypjy51-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-fqjkmpwpi-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
 
-  try {
+  try{
     // Get query string from request
     const url = new URL(request.url);
     const queryString = url.search;
@@ -58,7 +58,7 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
 }
 
 export async function POST(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-58wypjy51-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-fqjkmpwpi-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
 
   try {
@@ -111,7 +111,7 @@ export async function POST(request: Request, { params }: { params: { proxy: stri
 }
 
 export async function PUT(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-58wypjy51-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-fqjkmpwpi-rinosbikes-projects.vercel.app';
   const path = params.proxy.join('/');
 
   try {
