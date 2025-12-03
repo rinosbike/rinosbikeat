@@ -1,7 +1,53 @@
 # Claude AI Assistant Guide for RINOS Bikes Project
-**Last Updated:** 2025-12-03 14:40 UTC
+**Last Updated:** 2025-12-03 16:05 UTC
 
 This document contains essential information, file paths, and effective prompts to help Claude AI assist with the RINOS Bikes e-commerce project more efficiently.
+
+---
+
+## ⚠️ CRITICAL: End-of-Session Protocol
+
+### Before Token Limit is Reached (Save ~20,000 tokens):
+
+**MANDATORY steps before ending session:**
+
+1. **Commit all changes to Git:**
+   ```bash
+   cd C:\Users\savae\Downloads\rinosbikeat
+   git add .
+   git status  # Verify what's being committed
+   git commit -m "Session end: <brief summary of changes>"
+   git push origin main
+   ```
+
+2. **Deploy latest code to Vercel:**
+   ```bash
+   # Deploy backend if changed
+   cd backend && vercel --prod --yes
+
+   # Deploy frontend if changed
+   cd frontend && vercel --prod
+   ```
+
+3. **Update CLAUDE.md with latest deployment URLs:**
+   - Update "Last Deployment" timestamp
+   - Update "Production URLs (CURRENT)" section
+   - Update "Latest Commit" hashes
+   - Update "Environment Variables" section
+   - Add entry to "Deployment History"
+   - Commit and push CLAUDE.md
+
+4. **Provide session summary to user:**
+   - What was accomplished
+   - What's deployed and working
+   - What's pending (if anything)
+   - Latest deployment URLs
+
+**Why this matters:**
+- Ensures no work is lost
+- Next session starts with latest deployed code
+- CLAUDE.md serves as source of truth for deployment state
+- Prevents confusion about which version is current
 
 ---
 
@@ -27,24 +73,24 @@ rinosbikeat/
 
 ### ⚠️ ALWAYS USE THESE URLS - UPDATED EVERY DEPLOYMENT
 
-**Last Deployment:** 2025-12-03 14:40 UTC
+**Last Deployment:** 2025-12-03 16:05 UTC
 
 #### Production URLs (CURRENT)
-- **Frontend:** https://rinosbikes-frontend-pjgzhwq3x-rinosbikes-projects.vercel.app
-- **Backend API:** https://backend-nqd6hfra9-rinosbikes-projects.vercel.app
+- **Frontend:** https://rinosbikes-frontend-9vsfiqbyp-rinosbikes-projects.vercel.app
+- **Backend API:** https://backend-48o0djd1v-rinosbikes-projects.vercel.app
 - **GitHub Repo:** https://github.com/rinosbike/rinosbikeat.git
 - **Git Branch:** main
-- **Latest Commit:** b7baa4a6 (frontend), 8a3ed058 (backend)
+- **Latest Commit:** 004726c1 (both frontend and backend)
 
 #### Environment Variables (Frontend .env.local)
 ```bash
-NEXT_PUBLIC_BACKEND_URL=https://backend-nqd6hfra9-rinosbikes-projects.vercel.app
+NEXT_PUBLIC_BACKEND_URL=https://backend-48o0djd1v-rinosbikes-projects.vercel.app
 ```
 
 #### API Proxy Fallback URLs (frontend/app/api/[...proxy]/route.ts)
 ```typescript
 // All methods (GET, POST, PUT, DELETE) use:
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-nqd6hfra9-rinosbikes-projects.vercel.app';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-48o0djd1v-rinosbikes-projects.vercel.app';
 ```
 
 ### Recent Changes (Session 2025-12-03)
@@ -52,6 +98,8 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-nqd6h
 2. ✅ Added URL parameter support (`?variant=ARTICLENR`) for direct variant links
 3. ✅ Dynamic image loading when selecting color/size variants
 4. ✅ Backend endpoint fixed to not replace child with father product data
+5. ✅ Fixed cart 500 error - corrected column name from `priceeur` to `priceEUR`
+6. ✅ Cart "In den Warenkorb" button now works correctly
 
 ### Vercel Projects
 
@@ -92,9 +140,16 @@ These old projects exist and may cause confusion. They should be deleted:
 
 ### Deployment History
 ```
+2025-12-03 16:05 UTC:
+  Frontend: rinosbikes-frontend-9vsfiqbyp-rinosbikes-projects.vercel.app
+  Backend:  backend-48o0djd1v-rinosbikes-projects.vercel.app
+  Commit:   004726c1
+  Changes:  Fixed cart 500 error (priceeur -> priceEUR), cart now works
+
 2025-12-03 14:40 UTC:
   Frontend: rinosbikes-frontend-pjgzhwq3x-rinosbikes-projects.vercel.app
   Backend:  backend-nqd6hfra9-rinosbikes-projects.vercel.app
+  Commit:   b7baa4a6 / 8a3ed058
   Changes:  Fixed variant image loading, added URL parameter support
 
 2025-12-03 14:15 UTC:
