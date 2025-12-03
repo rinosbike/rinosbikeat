@@ -98,24 +98,24 @@ rinosbikeat/
 
 ### ⚠️ ALWAYS USE THESE URLS - UPDATED EVERY DEPLOYMENT
 
-**Last Deployment:** 2025-12-03 19:10 UTC
+**Last Deployment:** 2025-12-03 19:25 UTC
 
 #### Production URLs (CURRENT)
-- **Frontend:** https://rinosbikes-frontend-awjdbpddf-rinosbikes-projects.vercel.app
-- **Backend API:** https://backend-48o0djd1v-rinosbikes-projects.vercel.app
+- **Frontend:** https://rinosbikes-frontend-cb1voy2mr-rinosbikes-projects.vercel.app
+- **Backend API:** https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app
 - **GitHub Repo:** https://github.com/rinosbike/rinosbikeat.git
 - **Git Branch:** main
-- **Latest Commit:** eb6e3be0 (frontend), 004726c1 (backend)
+- **Latest Commit:** d46173a7 (frontend and backend URLs updated)
 
 #### Environment Variables (Frontend .env.local)
 ```bash
-NEXT_PUBLIC_BACKEND_URL=https://backend-48o0djd1v-rinosbikes-projects.vercel.app
+NEXT_PUBLIC_BACKEND_URL=https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app
 ```
 
 #### API Proxy Fallback URLs (frontend/app/api/[...proxy]/route.ts)
 ```typescript
 // All methods (GET, POST, PUT, DELETE) use:
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-48o0djd1v-rinosbikes-projects.vercel.app';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
 ```
 
 ### Recent Changes (Session 2025-12-03)
@@ -126,6 +126,8 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-48o0d
 5. ✅ Fixed cart 500 error - corrected column name from `priceeur` to `priceEUR`
 6. ✅ Cart "In den Warenkorb" button now works correctly
 7. ✅ Fixed products page console error - removed is_active filter (19:10 UTC)
+8. ✅ Disabled Vercel Deployment Protection on backend (19:25 UTC)
+9. ✅ Backend and frontend redeployed with updated URLs
 
 ### Vercel Projects
 
@@ -203,6 +205,13 @@ Old projects may contain:
 
 ### Deployment History
 ```
+2025-12-03 19:25 UTC:
+  Frontend: rinosbikes-frontend-cb1voy2mr-rinosbikes-projects.vercel.app
+  Backend:  backend-2u4rbqi8g-rinosbikes-projects.vercel.app
+  Commit:   d46173a7
+  Changes:  Disabled backend Deployment Protection, updated all URLs
+            Products page now loads correctly with API access
+
 2025-12-03 19:10 UTC:
   Frontend: rinosbikes-frontend-awjdbpddf-rinosbikes-projects.vercel.app
   Backend:  backend-48o0djd1v-rinosbikes-projects.vercel.app (no change)
