@@ -378,13 +378,18 @@ def get_product_variations(articlenr: str, db: Session = Depends(get_db)):
             for vc in var_combos:
                 try:
                     if vc is not None:
+                        # Build variations list, filtering out None values
+                        variations_list = []
+                        if hasattr(vc, 'variation1') and vc.variation1:
+                            variations_list.append({"type": vc.variation1, "value": vc.variationvalue1})
+                        if hasattr(vc, 'variation2') and vc.variation2:
+                            variations_list.append({"type": vc.variation2, "value": vc.variationvalue2})
+                        if hasattr(vc, 'variation3') and vc.variation3:
+                            variations_list.append({"type": vc.variation3, "value": vc.variationvalue3})
+
                         variation_combinations.append({
                             "articlenr": vc.articlenr if hasattr(vc, 'articlenr') and vc.articlenr else "",
-                            "variations": [
-                                {"type": vc.variation1, "value": vc.variationvalue1} if hasattr(vc, 'variation1') and vc.variation1 else None,
-                                {"type": vc.variation2, "value": vc.variationvalue2} if hasattr(vc, 'variation2') and vc.variation2 else None,
-                                {"type": vc.variation3, "value": vc.variationvalue3} if hasattr(vc, 'variation3') and vc.variation3 else None
-                            ]
+                            "variations": variations_list
                         })
                 except Exception as e:
                     print(f"Error processing variation combo: {e}")
