@@ -98,30 +98,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         } catch (varErr) {
           console.error('Could not load variation data:', varErr)
           console.log('Error details:', varErr)
-          // Fallback to basic variation handling
-          if (data.variations && data.variations.length > 0) {
-            const firstVar = data.variations[0]
-            setSelectedVariation(firstVar.articlenr)
-
-            // Initialize selected attributes from first variation
-            const attrs: Record<string, string> = {}
-            if (firstVar.colour) attrs['Farbe'] = firstVar.colour
-            if (firstVar.size) attrs['Größe'] = firstVar.size
-            setSelectedAttributes(attrs)
-            console.log('Pre-selected fallback variation:', firstVar.articlenr, attrs)
-          }
         }
-      } else if (data.variations && data.variations.length > 0) {
-        // Simple variation handling for non-father articles
-        const firstVar = data.variations[0]
-        setSelectedVariation(firstVar.articlenr)
-
-        // Initialize selected attributes
-        const attrs: Record<string, string> = {}
-        if (firstVar.colour) attrs['Farbe'] = firstVar.colour
-        if (firstVar.size) attrs['Größe'] = firstVar.size
-        setSelectedAttributes(attrs)
-        console.log('Pre-selected simple variation:', firstVar.articlenr, attrs)
       }
     } catch (err) {
       console.error('Fehler beim Laden des Produkts:', err)
@@ -143,24 +120,24 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         currentSessionId = generateSessionId()
       }
 
-      // Convert article number to product ID
-      let productIdToAdd = product.productid
-      if (selectedVariation && variationData && variationData.variations) {
-        const selectedVar = variationData.variations.find(v => v.articlenr === selectedVariation)
-        if (selectedVar) {
-          productIdToAdd = selectedVar.productid
-        }
-      }
+      // Use the selected variation's articlenr, or the product's articlenr if no variation
+      const articlenrToAdd = selectedVariation || product.articlenr
 
-      // Add to cart via API
+      console.log('Adding to cart:', {
+        articlenr: articlenrToAdd,
+        quantity,
+        sessionId: currentSessionId
+      })
+
+      // Add to cart via API using articlenr
       const updatedCart = await cartApi.addItem(
         currentSessionId,
-        productIdToAdd,
+        articlenrToAdd,
         quantity
       )
 
-      // Update cart count
-      setItemCount(updatedCart.items.length)
+      // Update cart count from summary
+      setItemCount(updatedCart.summary.item_count)
 
       // Show success message
       setAddedToCart(true)
@@ -226,6 +203,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     const newAttrs = { ...selectedAttributes, [attributeType]: value }
     setSelectedAttributes(newAttrs)
 
+    console.log('Attribute changed:', { attributeType, value, newAttrs })
+
     // Find matching variation from variation_combinations (if available)
     if (variationData && variationData.variation_combinations) {
       const matchingCombo = variationData.variation_combinations.find(combo => {
@@ -245,64 +224,31 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         window.history.replaceState({}, '', url.toString())
 
         // Load variant product data to get its specific images
-        if (attributeType === 'Farbe') {
-          try {
-            const variantProduct = await productsApi.getById(matchingCombo.articlenr)
-            if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
-              // Update the product's images to show variant images
-              setProduct(prevProduct => prevProduct ? {
-                ...prevProduct,
-                images: variantProduct.images,
-                primary_image: variantProduct.primary_image
-              } : null)
-              setSelectedImageIndex(0) // Reset to first image
-              console.log('Loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
-            }
-          } catch (err) {
-            console.error('Could not load variant product images:', err)
-            // Fallback: just reset to first image of current images
-            setSelectedImageIndex(0)
+        // Always load images for any variation change (not just color)
+        console.log('Variation changed, loading variant images for:', matchingCombo.articlenr)
+        try {
+          const variantProduct = await productsApi.getById(matchingCombo.articlenr)
+          console.log('Variant product loaded:', variantProduct)
+
+          if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
+            // Update the product's images to show variant images
+            setProduct(prevProduct => prevProduct ? {
+              ...prevProduct,
+              images: variantProduct.images,
+              primary_image: variantProduct.primary_image
+            } : null)
+            setSelectedImageIndex(0) // Reset to first image
+            console.log('✅ Successfully loaded variant images:', variantProduct.images.length, 'images for', matchingCombo.articlenr)
+          } else {
+            console.warn('⚠️ Variant product has no images:', variantProduct)
           }
+        } catch (err) {
+          console.error('❌ Could not load variant product images:', err)
+          // Fallback: just reset to first image of current images
+          setSelectedImageIndex(0)
         }
-      }
-    } else if (product && product.variations) {
-      // Fallback: Use product.variations with colour and size fields
-      const matchingVariation = product.variations.find(v => {
-        let matches = true
-        if (newAttrs['Farbe'] && v.colour !== newAttrs['Farbe']) matches = false
-        if (newAttrs['Größe'] && v.size !== newAttrs['Größe']) matches = false
-        return matches
-      })
-
-      if (matchingVariation) {
-        setSelectedVariation(matchingVariation.articlenr)
-        console.log('Matched fallback variation:', matchingVariation.articlenr, newAttrs)
-
-        // Update URL with variant query parameter (like Shopify)
-        const url = new URL(window.location.href)
-        url.searchParams.set('variant', matchingVariation.articlenr)
-        window.history.replaceState({}, '', url.toString())
-
-        // Load variant product data to get its specific images
-        if (attributeType === 'Farbe') {
-          try {
-            const variantProduct = await productsApi.getById(matchingVariation.articlenr)
-            if (variantProduct && variantProduct.images && variantProduct.images.length > 0) {
-              // Update the product's images to show variant images
-              setProduct(prevProduct => prevProduct ? {
-                ...prevProduct,
-                images: variantProduct.images,
-                primary_image: variantProduct.primary_image
-              } : null)
-              setSelectedImageIndex(0) // Reset to first image
-              console.log('Loaded fallback variant images:', variantProduct.images.length, 'images for', matchingVariation.articlenr)
-            }
-          } catch (err) {
-            console.error('Could not load fallback variant product images:', err)
-            // Fallback: just reset to first image of current images
-            setSelectedImageIndex(0)
-          }
-        }
+      } else {
+        console.warn('No matching variation combo found for:', newAttrs)
       }
     }
   }
@@ -495,82 +441,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     </div>
                   )}
                 </div>
-              ) : (
-                /* Fallback: Show variations with their attributes (Farbe, Größe) */
-                product.variations && product.variations.length > 0 && (() => {
-                  // Group variations by attribute type
-                  const attributeTypes = new Set<string>();
-                  const attributeValuesByType: Record<string, Set<string>> = {};
-
-                  product.variations.forEach(v => {
-                    if (v.colour) {
-                      attributeTypes.add('Farbe');
-                      if (!attributeValuesByType['Farbe']) attributeValuesByType['Farbe'] = new Set();
-                      attributeValuesByType['Farbe'].add(v.colour);
-                    }
-                    if (v.size) {
-                      attributeTypes.add('Größe');
-                      if (!attributeValuesByType['Größe']) attributeValuesByType['Größe'] = new Set();
-                      attributeValuesByType['Größe'].add(v.size);
-                    }
-                  });
-
-                  return (
-                    <div className="mb-6 space-y-4">
-                      {/* Farbe selector */}
-                      {attributeValuesByType['Farbe'] && (
-                        <div>
-                          <label className="label">Farbe</label>
-                          <div className="flex flex-wrap gap-2">
-                            {Array.from(attributeValuesByType['Farbe']).map((color) => (
-                              <button
-                                key={color}
-                                onClick={() => handleAttributeChange('Farbe', color)}
-                                className={`px-4 py-2 border-2 transition-all ${
-                                  selectedAttributes['Farbe'] === color
-                                    ? 'border-blue-600 bg-blue-50 font-medium'
-                                    : 'border-gray-300 hover:border-gray-400'
-                                }`}
-                              >
-                                {color}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Größe selector */}
-                      {attributeValuesByType['Größe'] && (
-                        <div>
-                          <label className="label">Größe</label>
-                          <div className="flex flex-wrap gap-2">
-                            {Array.from(attributeValuesByType['Größe']).map((size) => (
-                              <button
-                                key={size}
-                                onClick={() => handleAttributeChange('Größe', size)}
-                                className={`px-4 py-2 border-2 transition-all ${
-                                  selectedAttributes['Größe'] === size
-                                    ? 'border-blue-600 bg-blue-50 font-medium'
-                                    : 'border-gray-300 hover:border-gray-400'
-                                }`}
-                              >
-                                {size}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Selected Variation Info */}
-                      {selectedVariation && (
-                        <div className="text-sm text-gray-600 pt-2 border-t">
-                          Art.-Nr.: {selectedVariation}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()
-              )}
+              ) : null}
 
               {/* Quantity */}
               <div className="mb-6">

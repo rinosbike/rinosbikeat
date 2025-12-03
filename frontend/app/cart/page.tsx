@@ -27,7 +27,7 @@ export default function WarenkorbPage() {
   const loadCart = async () => {
     try {
       setLoading(true)
-      
+
       // Ensure we have a session ID
       let currentSessionId = sessionId
       if (!currentSessionId) {
@@ -36,17 +36,25 @@ export default function WarenkorbPage() {
 
       const data = await cartApi.getCart(currentSessionId)
       setCart(data)
-      setItemCount(data.items.length)
+      setItemCount(data.summary.item_count)
     } catch (err) {
       console.error('Fehler beim Laden des Warenkorbs:', err)
       // Empty cart on error
       setCart({
-        session_id: sessionId,
+        cart_id: 0,
+        guest_session_id: sessionId,
         items: [],
-        subtotal: 0,
-        vat_amount: 0,
-        total_amount: 0,
-        currency: 'EUR',
+        summary: {
+          subtotal: 0,
+          tax_rate: 19,
+          tax_amount: 0,
+          shipping: 0,
+          total: 0,
+          item_count: 0,
+          unique_items: 0,
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
     } finally {
       setLoading(false)
@@ -57,17 +65,15 @@ export default function WarenkorbPage() {
     if (newQuantity < 1) return
 
     try {
-      setUpdatingItem(item.product_id)
-      
+      setUpdatingItem(item.cart_item_id)
+
       const updatedCart = await cartApi.updateItem(
-        sessionId,
-        item.product_id,
-        newQuantity,
-        item.variation_id || undefined
+        item.cart_item_id,
+        newQuantity
       )
-      
+
       setCart(updatedCart)
-      setItemCount(updatedCart.items.length)
+      setItemCount(updatedCart.summary.item_count)
     } catch (err) {
       console.error('Fehler beim Aktualisieren der Menge:', err)
       alert('Fehler beim Aktualisieren der Menge.')
@@ -80,16 +86,12 @@ export default function WarenkorbPage() {
     if (!confirm('Möchten Sie diesen Artikel wirklich entfernen?')) return
 
     try {
-      setUpdatingItem(item.product_id)
-      
-      const updatedCart = await cartApi.removeItem(
-        sessionId,
-        item.product_id,
-        item.variation_id || undefined
-      )
-      
+      setUpdatingItem(item.cart_item_id)
+
+      const updatedCart = await cartApi.removeItem(item.cart_item_id)
+
       setCart(updatedCart)
-      setItemCount(updatedCart.items.length)
+      setItemCount(updatedCart.summary.item_count)
     } catch (err) {
       console.error('Fehler beim Entfernen des Artikels:', err)
       alert('Fehler beim Entfernen des Artikels.')
@@ -150,30 +152,43 @@ export default function WarenkorbPage() {
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
               {cart.items.map((item) => (
-                <div key={`${item.product_id}-${item.variation_id || 'none'}`} className="card">
+                <div key={item.cart_item_id} className="card">
                   <div className="flex flex-col md:flex-row gap-4">
-                    {/* Product Image Placeholder */}
-                    <div className="w-full md:w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-4xl font-bold text-gray-300">
-                        {item.articlename.charAt(0)}
-                      </span>
+                    {/* Product Image */}
+                    <div className="w-full md:w-32 h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      {item.product.primary_image ? (
+                        <img
+                          src={item.product.primary_image}
+                          alt={item.product.articlename}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-4xl font-bold text-gray-300">
+                          {item.product.articlename.charAt(0)}
+                        </span>
+                      )}
                     </div>
 
                     {/* Product Info */}
                     <div className="flex-grow">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="font-bold text-lg">{item.articlename}</h3>
-                          <p className="text-sm text-gray-600">Art.-Nr.: {item.articlenr}</p>
-                          {item.variation_name && (
+                          <h3 className="font-bold text-lg">{item.product.articlename}</h3>
+                          <p className="text-sm text-gray-600">Art.-Nr.: {item.product.articlenr}</p>
+                          {item.product.colour && (
                             <p className="text-sm text-gray-600">
-                              Variante: {item.variation_name}
+                              Farbe: {item.product.colour}
+                            </p>
+                          )}
+                          {item.product.size && (
+                            <p className="text-sm text-gray-600">
+                              Größe: {item.product.size}
                             </p>
                           )}
                         </div>
                         <button
                           onClick={() => removeItem(item)}
-                          disabled={updatingItem === item.product_id}
+                          disabled={updatingItem === item.cart_item_id}
                           className="text-red-600 hover:text-red-700 p-2"
                           title="Entfernen"
                         >
@@ -188,7 +203,7 @@ export default function WarenkorbPage() {
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => updateQuantity(item, item.quantity - 1)}
-                              disabled={item.quantity <= 1 || updatingItem === item.product_id}
+                              disabled={item.quantity <= 1 || updatingItem === item.cart_item_id}
                               className="w-8 h-8 rounded border-2 border-gray-300 hover:border-blue-600 transition-colors disabled:opacity-50"
                             >
                               <Minus className="w-4 h-4 mx-auto" />
@@ -196,7 +211,7 @@ export default function WarenkorbPage() {
                             <span className="w-12 text-center font-bold">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item, item.quantity + 1)}
-                              disabled={updatingItem === item.product_id}
+                              disabled={updatingItem === item.cart_item_id}
                               className="w-8 h-8 rounded border-2 border-gray-300 hover:border-blue-600 transition-colors disabled:opacity-50"
                             >
                               <Plus className="w-4 h-4 mx-auto" />
@@ -207,10 +222,10 @@ export default function WarenkorbPage() {
                         {/* Price */}
                         <div className="text-right">
                           <p className="text-sm text-gray-600">
-                            {item.price.toFixed(2)} {cart.currency} × {item.quantity}
+                            {item.price_at_addition.toFixed(2)} € × {item.quantity}
                           </p>
                           <p className="text-xl font-bold text-blue-600">
-                            {(item.price * item.quantity).toFixed(2)} {cart.currency}
+                            {item.subtotal.toFixed(2)} €
                           </p>
                         </div>
                       </div>
@@ -237,24 +252,24 @@ export default function WarenkorbPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Zwischensumme</span>
                     <span className="font-medium">
-                      {cart.subtotal.toFixed(2)} {cart.currency}
+                      {cart.summary.subtotal.toFixed(2)} €
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">MwSt. (19%)</span>
+                    <span className="text-gray-600">MwSt. ({cart.summary.tax_rate}%)</span>
                     <span className="font-medium">
-                      {cart.vat_amount.toFixed(2)} {cart.currency}
+                      {cart.summary.tax_amount.toFixed(2)} €
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Versand</span>
-                    <span>Kostenlos</span>
+                    <span>{cart.summary.shipping > 0 ? `${cart.summary.shipping.toFixed(2)} €` : 'Kostenlos'}</span>
                   </div>
                   <div className="border-t pt-3">
                     <div className="flex justify-between items-baseline">
                       <span className="text-lg font-bold">Gesamt</span>
                       <span className="text-2xl font-bold text-blue-600">
-                        {cart.total_amount.toFixed(2)} {cart.currency}
+                        {cart.summary.total.toFixed(2)} €
                       </span>
                     </div>
                   </div>

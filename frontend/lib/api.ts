@@ -89,23 +89,45 @@ export interface ProductVariation {
   stock_quantity?: number;
 }
 
-export interface CartItem {
-  product_id: number;
+export interface CartItemProduct {
   articlenr: string;
   articlename: string;
-  quantity: number;
   price: number;
-  variation_id?: number;
-  variation_name?: string;
+  primary_image?: string;
+  manufacturer?: string;
+  colour?: string;
+  size?: string;
+  in_stock: boolean;
+}
+
+export interface CartItem {
+  cart_item_id: number;
+  cart_id: number;
+  product: CartItemProduct;
+  quantity: number;
+  price_at_addition: number;
+  subtotal: number;
+  added_at: string;
+}
+
+export interface CartSummary {
+  subtotal: number;
+  tax_rate: number;
+  tax_amount: number;
+  shipping: number;
+  total: number;
+  item_count: number;
+  unique_items: number;
 }
 
 export interface Cart {
-  session_id: string;
+  cart_id: number;
+  user_id?: number;
+  guest_session_id?: string;
   items: CartItem[];
-  subtotal: number;
-  vat_amount: number;
-  total_amount: number;
-  currency: string;
+  summary: CartSummary;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Order {
@@ -241,7 +263,7 @@ export interface ProductVariationsResponse {
 export const variationsApi = {
   // Get variations for a product
   getVariations: async (articlenr: string): Promise<ProductVariationsResponse> => {
-    const response = await apiClient.get(`/father/${articlenr}/variations`);
+    const response = await apiClient.get(`/${articlenr}/variations`);
     return response.data;
   },
 };
@@ -252,75 +274,58 @@ export const variationsApi = {
 
 export const cartApi = {
   // Get cart
-  getCart: async (sessionId: string): Promise<Cart> => {
+  getCart: async (sessionId?: string): Promise<Cart> => {
     const response = await apiClient.get(`/cart/`, {
-      params: { session_id: sessionId },
+      params: sessionId ? { guest_session_id: sessionId } : {},
     });
     return response.data;
   },
 
-  // Add item to cart
+  // Add item to cart - Now uses articlenr instead of product_id
   addItem: async (
     sessionId: string,
-    productId: number,
-    quantity: number = 1,
-    variationId?: number
+    articlenr: string,
+    quantity: number = 1
   ): Promise<Cart> => {
-    const response = await apiClient.post(
-      `/cart/add`,
-      {
-        product_id: productId,
-        quantity,
-        variation_id: variationId,
-      },
-      {
-        params: { session_id: sessionId },
-      }
-    );
+    const response = await apiClient.post(`/cart/add`, {
+      articlenr,
+      quantity,
+      guest_session_id: sessionId,
+    });
     return response.data;
   },
 
-  // Update item quantity
+  // Update item quantity - Uses cart_item_id from cart response
   updateItem: async (
-    sessionId: string,
-    productId: number,
-    quantity: number,
-    variationId?: number
+    cartItemId: number,
+    quantity: number
   ): Promise<Cart> => {
     const response = await apiClient.put(
-      `/cart/items/${productId}`,
-      {
-        quantity,
-        variation_id: variationId,
-      },
-      {
-        params: { session_id: sessionId },
-      }
+      `/cart/items/${cartItemId}`,
+      { quantity }
     );
     return response.data;
   },
 
-  // Remove item from cart
-  removeItem: async (
-    sessionId: string,
-    productId: number,
-    variationId?: number
-  ): Promise<Cart> => {
-    const response = await apiClient.delete(
-      `/cart/items/${productId}`,
-      {
-        params: { session_id: sessionId },
-        data: { variation_id: variationId },
-      }
-    );
+  // Remove item from cart - Uses cart_item_id
+  removeItem: async (cartItemId: number): Promise<Cart> => {
+    const response = await apiClient.delete(`/cart/items/${cartItemId}`);
     return response.data;
   },
 
   // Clear cart
-  clearCart: async (sessionId: string): Promise<void> => {
+  clearCart: async (sessionId?: string): Promise<void> => {
     await apiClient.delete(`/cart/`, {
-      params: { session_id: sessionId },
+      params: sessionId ? { guest_session_id: sessionId } : {},
     });
+  },
+
+  // Get cart item count
+  getCartCount: async (sessionId?: string): Promise<{ count: number; unique_items: number }> => {
+    const response = await apiClient.get(`/cart/count`, {
+      params: sessionId ? { guest_session_id: sessionId } : {},
+    });
+    return response.data;
   },
 };
 
