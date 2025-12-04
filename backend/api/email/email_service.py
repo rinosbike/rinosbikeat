@@ -58,12 +58,12 @@ def send_email(
     
     # Check if emails are enabled
     if not EmailConfig.SEND_EMAILS:
-        print(f"📧 [EMAIL DISABLED] Would send to {to_email}: {subject}")
+        print(f"[EMAIL DISABLED] Would send to {to_email}: {subject}")
         return True
     
     # Check if SMTP is configured
     if not EmailConfig.SMTP_USERNAME or not EmailConfig.SMTP_PASSWORD:
-        print(f"⚠️  Email not configured. Cannot send to {to_email}: {subject}")
+        print(f"[WARNING] Email not configured. Cannot send to {to_email}: {subject}")
         print(f"   Configure SMTP_USERNAME and SMTP_PASSWORD in config.py")
         return False
     

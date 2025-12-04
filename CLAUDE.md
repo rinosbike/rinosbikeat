@@ -1,5 +1,5 @@
 # Claude AI Assistant Guide for RINOS Bikes Project
-**Last Updated:** 2025-12-04 06:17 UTC
+**Last Updated:** 2025-12-04 10:35 UTC
 
 This document contains essential information, file paths, and effective prompts to help Claude AI assist with the RINOS Bikes e-commerce project more efficiently.
 
@@ -118,7 +118,21 @@ NEXT_PUBLIC_BACKEND_URL=https://backend-f6r7hyj4n-rinosbikes-projects.vercel.app
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-f6r7hyj4n-rinosbikes-projects.vercel.app';
 ```
 
-### Recent Changes (Session 2025-12-04)
+### Recent Changes (Session 2025-12-04 - Authentication Testing & Fixes)
+1. ✅ Tested authentication system locally - registration and login working perfectly
+2. ✅ Fixed DATABASE_URL in backend/.env with correct `.c-2.` subdomain for Neon pooler
+3. ✅ Replaced passlib with direct bcrypt implementation to fix Python 3.14 compatibility
+4. ✅ Added password truncation for bcrypt's 72-byte limit (backend/api/utils/security.py)
+5. ✅ Removed emoji Unicode characters from logging to fix Windows console encoding errors
+   - Updated backend/api/routers/auth.py (replaced ✅ and ⚠️  with [OK] and [WARNING])
+   - Updated backend/api/email/email_service.py (replaced 📧 with plain text)
+6. ✅ Successfully tested user registration - zero errors in console output
+7. ✅ Successfully tested user login - JWT tokens generated correctly
+8. ✅ Password hashing with bcrypt working correctly (uses gensalt + hashpw)
+9. ✅ Email notification system verified (disabled in dev mode, no errors)
+10. ✅ All authentication endpoints tested and working: /auth/register, /auth/login
+
+### Previous Session (2025-12-04 - Web Orders & Cart)
 1. ✅ Implemented web orders endpoint (POST /api/web-orders/) for localStorage cart checkout
 2. ✅ Order numbers now use AT-NNNN-YYYY format (starts at 1001, increments per year)
 3. ✅ Fixed database connection - correct DATABASE_URL with `.c-2.` pooler subdomain
