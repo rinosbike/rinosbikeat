@@ -157,10 +157,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         articlenr: productToAdd.articlenr,
         articlename: productToAdd.articlename,
         price: getSelectedVariationPrice(),
-        primary_image: productToAdd.primary_image,
-        manufacturer: productToAdd.manufacturer,
-        colour: productToAdd.colour,
-        size: productToAdd.size
+        primary_image: productToAdd.primary_image || undefined,
+        manufacturer: productToAdd.manufacturer || undefined,
+        colour: productToAdd.colour || undefined,
+        size: productToAdd.size || undefined
       }, quantity)
 
       // Show success message
