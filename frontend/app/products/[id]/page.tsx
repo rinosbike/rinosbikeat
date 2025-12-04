@@ -137,11 +137,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       let productToAdd = product
       if (selectedVariation && selectedVariation !== product.articlenr) {
         // Find the variation product data
-        const variation = variationData?.child_products?.find(
+        const variation = variationData?.variations?.find(
           p => p.articlenr === selectedVariation
         )
         if (variation) {
-          productToAdd = variation
+          // Use variation data if found
+          productToAdd = {
+            ...product,
+            articlenr: variation.articlenr,
+            price: variation.price,
+            colour: variation.colour || product.colour,
+            size: variation.size || product.size
+          }
         }
       }
 
