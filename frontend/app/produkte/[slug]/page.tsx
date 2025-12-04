@@ -179,10 +179,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         articlenr: articlenrToAdd,
         articlename: productToAdd.articlename,
         price: productToAdd.price,
-        primary_image: productToAdd.primary_image,
-        manufacturer: productToAdd.manufacturer,
-        colour: productToAdd.colour,
-        size: productToAdd.size,
+        primary_image: productToAdd.primary_image || undefined,
+        manufacturer: productToAdd.manufacturer || undefined,
+        colour: productToAdd.colour || undefined,
+        size: productToAdd.size || undefined,
       }, quantity)
 
       console.log('Added to cart (client-side):', {
