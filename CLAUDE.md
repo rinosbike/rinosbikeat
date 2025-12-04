@@ -1,5 +1,5 @@
 # Claude AI Assistant Guide for RINOS Bikes Project
-**Last Updated:** 2025-12-03 16:05 UTC
+**Last Updated:** 2025-12-04 06:17 UTC
 
 This document contains essential information, file paths, and effective prompts to help Claude AI assist with the RINOS Bikes e-commerce project more efficiently.
 
@@ -98,36 +98,37 @@ rinosbikeat/
 
 ### ⚠️ ALWAYS USE THESE URLS - UPDATED EVERY DEPLOYMENT
 
-**Last Deployment:** 2025-12-03 19:25 UTC
+**Last Deployment:** 2025-12-04 06:17 UTC
 
 #### Production URLs (CURRENT)
-- **Frontend:** https://rinosbikes-frontend-cb1voy2mr-rinosbikes-projects.vercel.app
-- **Backend API:** https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app
+- **Frontend:** https://rinosbikes-frontend-qo0z8hjc7-rinosbikes-projects.vercel.app
+- **Backend API:** https://backend-f6r7hyj4n-rinosbikes-projects.vercel.app
 - **GitHub Repo:** https://github.com/rinosbike/rinosbikeat.git
 - **Git Branch:** main
-- **Latest Commit:** d46173a7 (frontend and backend URLs updated)
+- **Latest Commit:** e8235ccc (Fixed localStorage cart integration)
 
 #### Environment Variables (Frontend .env.local)
 ```bash
-NEXT_PUBLIC_BACKEND_URL=https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app
+NEXT_PUBLIC_BACKEND_URL=https://backend-f6r7hyj4n-rinosbikes-projects.vercel.app
 ```
 
 #### API Proxy Fallback URLs (frontend/app/api/[...proxy]/route.ts)
 ```typescript
 // All methods (GET, POST, PUT, DELETE) use:
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-f6r7hyj4n-rinosbikes-projects.vercel.app';
 ```
 
-### Recent Changes (Session 2025-12-03)
-1. ✅ Fixed variant image loading - child products now return their own images
-2. ✅ Added URL parameter support (`?variant=ARTICLENR`) for direct variant links
-3. ✅ Dynamic image loading when selecting color/size variants
-4. ✅ Backend endpoint fixed to not replace child with father product data
-5. ✅ Fixed cart 500 error - corrected column name from `priceeur` to `priceEUR`
-6. ✅ Cart "In den Warenkorb" button now works correctly
-7. ✅ Fixed products page console error - removed is_active filter (19:10 UTC)
-8. ✅ Disabled Vercel Deployment Protection on backend (19:25 UTC)
-9. ✅ Backend and frontend redeployed with updated URLs
+### Recent Changes (Session 2025-12-04)
+1. ✅ Implemented web orders endpoint (POST /api/web-orders/) for localStorage cart checkout
+2. ✅ Order numbers now use AT-NNNN-YYYY format (starts at 1001, increments per year)
+3. ✅ Fixed database connection - correct DATABASE_URL with `.c-2.` pooler subdomain
+4. ✅ Configured Stripe live keys and webhook secret in backend environment
+5. ✅ Cart refactored to use localStorage only (no database until checkout)
+6. ✅ Fixed TypeScript errors in product pages (null to undefined conversion)
+7. ✅ Updated Header component to use getItemCount() method from cart store
+8. ✅ Backend deployed with new order format: backend-f6r7hyj4n-rinosbikes-projects.vercel.app
+9. ✅ Frontend deployed with localStorage cart: rinosbikes-frontend-qo0z8hjc7-rinosbikes-projects.vercel.app
+10. ✅ Tested order creation - AT-1001-2025 successfully created in database
 
 ### Vercel Projects
 
