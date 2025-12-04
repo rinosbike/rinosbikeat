@@ -36,7 +36,8 @@ export default function Header() {
   const countryCurrencyRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
 
-  const { itemCount } = useCartStore()
+  const { getItemCount } = useCartStore()
+  const itemCount = getItemCount()
   const { user, isAuthenticated } = useAuthStore()
 
   // Fetch categories on mount
