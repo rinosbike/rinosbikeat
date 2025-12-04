@@ -15,6 +15,12 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
       'Content-Type': 'application/json',
     };
 
+    // Forward Authorization header if present
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+
     // Add Vercel bypass token if available
     const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
     if (bypassSecret) {
@@ -71,6 +77,13 @@ export async function POST(request: Request, { params }: { params: { proxy: stri
     console.log('[PROXY POST]', fullUrl);
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    
+    // Forward Authorization header if present
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+    
     const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
     if (bypassSecret) {
       headers['x-vercel-protection-bypass'] = bypassSecret;
@@ -124,6 +137,13 @@ export async function PUT(request: Request, { params }: { params: { proxy: strin
     console.log('[PROXY PUT]', fullUrl);
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    
+    // Forward Authorization header if present
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+    
     const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
     if (bypassSecret) {
       headers['x-vercel-protection-bypass'] = bypassSecret;
@@ -175,6 +195,13 @@ export async function DELETE(request: Request, { params }: { params: { proxy: st
     console.log('[PROXY DELETE]', fullUrl);
 
     const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    
+    // Forward Authorization header if present
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      headers['Authorization'] = authHeader;
+    }
+    
     const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
     if (bypassSecret) {
       headers['x-vercel-protection-bypass'] = bypassSecret;

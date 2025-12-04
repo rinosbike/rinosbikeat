@@ -86,7 +86,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
               : 'Ihre Bestellung wurde erfolgreich aufgenommen.'}
           </p>
           <p className="text-sm text-gray-600">
-            Bestellnummer: <span className="font-bold">{order.order_number}</span>
+            Bestellnummer: <span className="font-bold">{order.ordernr}</span>
           </p>
         </div>
 
@@ -100,34 +100,18 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-gray-600">Bestellnummer</p>
-                  <p className="font-bold">{order.order_number}</p>
+                  <p className="font-bold">{order.ordernr}</p>
                 </div>
                 <div>
                   <p className="text-gray-600">Bestelldatum</p>
                   <p className="font-bold">
-                    {new Date(order.order_date).toLocaleDateString('de-DE', {
+                    {new Date(order.created_at).toLocaleDateString('de-DE', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-600">Bestellstatus</p>
-                  <p className="font-bold">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs ${
-                        order.order_status === 'completed'
-                          ? 'bg-green-100 text-green-600'
-                          : order.order_status === 'processing'
-                          ? 'bg-blue-100 text-blue-600'
-                          : 'bg-yellow-100 text-yellow-600'
-                      }`}
-                    >
-                      {getOrderStatusText(order.order_status)}
-                    </span>
                   </p>
                 </div>
                 <div>
@@ -144,15 +128,20 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
                     </span>
                   </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Customer Information */}
-            <div className="card print:shadow-none">
-              <h2 className="text-xl font-bold mb-4">Kundendaten</h2>
-              <div className="space-y-2 text-sm">
-                <p className="font-bold">{order.customer_name}</p>
-                <p className="text-gray-600">{order.customer_email}</p>
+                <div>
+                  <p className="text-gray-600">ERP-Synchronisierung</p>
+                  <p className="font-bold">
+                    <span
+                      className={`inline-block px-2 py-1 rounded text-xs ${
+                        order.synced_to_erp
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-gray-100 text-gray-600'
+                      }`}
+                    >
+                      {order.synced_to_erp ? 'Synchronisiert' : 'Ausstehend'}
+                    </span>
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -165,7 +154,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
                   <div>
                     <p className="font-medium">Bestätigungs-E-Mail</p>
                     <p className="text-sm text-gray-600">
-                      Sie erhalten eine Bestätigungs-E-Mail an {order.customer_email} mit allen Details.
+                      Sie erhalten eine Bestätigungs-E-Mail mit allen Details.
                     </p>
                   </div>
                 </div>
@@ -191,13 +180,13 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Zwischensumme</span>
                   <span className="font-medium">
-                    {(order.total_amount / 1.19).toFixed(2)} {order.currency}
+                    {(order.orderamount / 1.19).toFixed(2)} {order.currency}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">MwSt. (19%)</span>
                   <span className="font-medium">
-                    {(order.total_amount - order.total_amount / 1.19).toFixed(2)} {order.currency}
+                    {(order.orderamount - order.orderamount / 1.19).toFixed(2)} {order.currency}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -209,7 +198,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
               <div className="pt-4 flex justify-between items-baseline">
                 <span className="font-bold">Gesamt</span>
                 <span className="text-2xl font-bold text-blue-600">
-                  {order.total_amount.toFixed(2)} {order.currency}
+                  {order.orderamount.toFixed(2)} {order.currency}
                 </span>
               </div>
 
@@ -242,19 +231,7 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
   )
 }
 
-// Helper functions
-function getOrderStatusText(status: string): string {
-  const statusMap: { [key: string]: string } = {
-    pending: 'Ausstehend',
-    processing: 'In Bearbeitung',
-    shipped: 'Versandt',
-    delivered: 'Zugestellt',
-    completed: 'Abgeschlossen',
-    cancelled: 'Storniert',
-  }
-  return statusMap[status] || status
-}
-
+// Helper function
 function getPaymentStatusText(status: string): string {
   const statusMap: { [key: string]: string } = {
     pending: 'Ausstehend',

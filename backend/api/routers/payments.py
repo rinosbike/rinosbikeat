@@ -56,12 +56,12 @@ async def create_payment_intent(
     current_user: Optional[WebUser] = Depends(get_current_user_optional)
 ):
     """
-    Create a Stripe payment intent for an order
+    Create a Stripe Checkout Session for an order
     
     - Gets order details
-    - Creates Stripe payment intent
+    - Creates Stripe Checkout Session
     - Stores payment intent in database
-    - Returns client secret for frontend
+    - Returns session ID for frontend redirect
     """
     
     # Get order
@@ -87,70 +87,76 @@ async def create_payment_intent(
         )
     
     # Convert amount to cents (Stripe uses smallest currency unit)
-    amount_cents = int(float(order.total_amount) * 100)
+    amount_cents = int(float(order.orderamount) * 100)
     
     try:
-        # Create Stripe payment intent
-        payment_intent = stripe.PaymentIntent.create(
-            amount=amount_cents,
-            currency=order.currency.lower(),
+        # Create Stripe Checkout Session (not just PaymentIntent)
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": order.currency.lower(),
+                        "product_data": {
+                            "name": f"Order {order.ordernr}",
+                            "description": f"Order {order.ordernr} - RINOS Bikes",
+                        },
+                        "unit_amount": amount_cents,
+                    },
+                    "quantity": 1,
+                }
+            ],
+            mode="payment",
+            success_url=f"{payment_data.return_url}?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url="http://localhost:3000/checkout",
             metadata={
                 "order_id": order.web_order_id,
-                "order_number": order.order_number,
-                "customer_email": order.customer_email
+                "order_number": order.ordernr,
             },
-            receipt_email=order.customer_email,
-            description=f"Order {order.order_number} - RINOS Bikes",
-            # Enable payment methods popular in Europe
-            payment_method_types=[
-                "card",
-                "sepa_debit",
-                "ideal",
-                "giropay",
-                "sofort"
-            ]
         )
         
         # Store in database
         if existing_payment:
             # Update existing
-            existing_payment.stripe_payment_intent_id = payment_intent.id
-            existing_payment.amount = order.total_amount
+            existing_payment.stripe_payment_intent_id = checkout_session.id
+            existing_payment.amount = order.orderamount
             existing_payment.currency = order.currency
-            existing_payment.status = payment_intent.status
+            existing_payment.status = checkout_session.status
             existing_payment.updated_at = datetime.now()
             db_payment = existing_payment
         else:
             # Create new
             db_payment = StripePaymentIntent(
                 web_order_id=order.web_order_id,
-                stripe_payment_intent_id=payment_intent.id,
-                amount=order.total_amount,
+                stripe_payment_intent_id=checkout_session.id,
+                amount=order.orderamount,
                 currency=order.currency,
-                status=payment_intent.status,
+                status=checkout_session.status,
                 created_at=datetime.now(),
                 updated_at=datetime.now()
             )
             db.add(db_payment)
         
-        # Update order payment status
-        order.payment_status = "awaiting_payment"
-        order.payment_intent_id = db_payment.payment_intent_id if existing_payment else None
+        # Update order payment status and store payment_intent_id for webhook matching
+        order.payment_status = "pending"
+        # Store the payment_intent_id from the checkout session (will be available after payment)
+        order.payment_intent_id = checkout_session.get('payment_intent')
         
         db.commit()
         db.refresh(db_payment)
         
-        # Update order with payment_intent_id
-        if not existing_payment:
-            order.payment_intent_id = db_payment.payment_intent_id
-            db.commit()
+        # Log the session URL for debugging
+        checkout_url = checkout_session.url or f"https://checkout.stripe.com/c/pay/{checkout_session.id}"
+        print(f"[DEBUG] Checkout Session ID: {checkout_session.id}")
+        print(f"[DEBUG] Checkout Session URL: {checkout_session.url}")
+        print(f"[DEBUG] Final Checkout URL: {checkout_url}")
         
         return PaymentIntentResponse(
-            payment_intent_id=payment_intent.id,
-            client_secret=payment_intent.client_secret,
-            amount=order.total_amount,
+            payment_intent_id=checkout_session.id,
+            client_secret=checkout_url,
+            amount=order.orderamount,
             currency=order.currency,
-            status=payment_intent.status,
+            status=checkout_session.status,
             order_id=order.web_order_id
         )
         
@@ -311,6 +317,43 @@ async def stripe_webhook(
             db.commit()
             
             print(f"❌ Payment failed for order {order.order_number if order else payment.web_order_id}")
+    
+    elif event['type'] == 'checkout.session.completed':
+        # Handle Stripe Checkout Session completion
+        session = event['data']['object']
+        
+        # Get the order by looking up the payment_intent_id or metadata
+        payment_intent_id = session.get('payment_intent')
+        
+        if payment_intent_id:
+            # Find order by payment_intent_id
+            order = db.query(WebOrder).filter(
+                WebOrder.payment_intent_id == payment_intent_id
+            ).first()
+            
+            if order:
+                order.payment_status = 'paid'
+                order.updated_at = datetime.now()
+                db.commit()
+                print(f"✅ Checkout session completed for order {order.ordernr}")
+            else:
+                print(f"⚠️  Order not found for payment_intent {payment_intent_id}")
+        else:
+            # Try to find by metadata if you stored order_id there
+            metadata = session.get('metadata', {})
+            order_id = metadata.get('order_id')
+            
+            if order_id:
+                order = db.query(WebOrder).filter(
+                    WebOrder.web_order_id == int(order_id)
+                ).first()
+                
+                if order:
+                    order.payment_status = 'paid'
+                    order.payment_intent_id = payment_intent_id
+                    order.updated_at = datetime.now()
+                    db.commit()
+                    print(f"✅ Checkout session completed for order {order.ordernr}")
     
     return {"status": "success"}
 

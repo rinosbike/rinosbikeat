@@ -49,10 +49,11 @@ async def health_check():
 try:
     from api.routers import products, cart, orders, payments, auth, admin, web_orders
 
+    # Include web_orders BEFORE products to prevent products/{articlenr} from catching /web-orders
+    app.include_router(web_orders.router, prefix="/api", tags=["Web Orders"])
     app.include_router(products.router, prefix="/api", tags=["Products"])
     app.include_router(cart.router, prefix="/api", tags=["Cart"])
     app.include_router(orders.router, prefix="/api", tags=["Orders"])
-    app.include_router(web_orders.router, prefix="/api", tags=["Web Orders"])
     app.include_router(payments.router, prefix="/api", tags=["Payments"])
     app.include_router(auth.router, prefix="/api", tags=["Authentication"])
     app.include_router(admin.router, prefix="/api", tags=["Admin"])

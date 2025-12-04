@@ -16,13 +16,13 @@ DATABASE_URL = (
     settings.DATABASE_URL  # Fallback to config
 )
 
-# Create engine - optimized for serverless (Vercel)
+# Create engine - optimized for local development with persistent connections
 engine = create_engine(
     DATABASE_URL,
     echo=settings.DEBUG,
     pool_pre_ping=True,
-    pool_size=1,  # Minimal pool for serverless
-    max_overflow=0,  # No overflow connections
+    pool_size=10,  # Increased for local development (was 1 for serverless)
+    max_overflow=20,  # Allow burst connections (was 0 for serverless)
     pool_recycle=3600,  # Recycle connections after 1 hour
     connect_args={
         "connect_timeout": 10,

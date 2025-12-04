@@ -45,10 +45,13 @@ class Settings(BaseSettings):
     # CORS - Frontend URLs
     CORS_ORIGINS: list = [
         "http://localhost:3000",
+        "http://localhost:5173",
         "https://rinosbike.at",
         "https://www.rinosbike.at",
         "https://rinosbikes-frontend.vercel.app",
-        "https://*.vercel.app"
+        "https://rinosbikes-frontend-new.vercel.app",  # Your current Vercel app
+        "https://*.vercel.app",  # All Vercel deployments
+        "https://*.railway.app",  # All Railway deployments
     ]
     
     class Config:

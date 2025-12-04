@@ -99,11 +99,11 @@ async def register_user(
         email_sent = send_email_verification_from_user(new_user, verification_token)
         
         if email_sent:
-            print(f"[OK] Verification email sent to {new_user.email}")
+            print(f"✅ Verification email sent to {new_user.email}")
         else:
-            print(f"[WARNING] Verification email failed for {new_user.email}")
+            print(f"⚠️  Verification email failed for {new_user.email}")
     except Exception as e:
-        print(f"[WARNING] Error sending verification email: {str(e)}")
+        print(f"⚠️  Error sending verification email: {str(e)}")
     
     return {
         "access_token": access_token,
@@ -332,11 +332,11 @@ async def resend_verification_email(
         email_sent = send_email_verification_from_user(current_user, verification_token)
         
         if email_sent:
-            print(f"[OK] Verification email resent to {current_user.email}")
+            print(f"✅ Verification email resent to {current_user.email}")
         else:
-            print(f"[WARNING] Verification email failed for {current_user.email}")
+            print(f"⚠️  Verification email failed for {current_user.email}")
     except Exception as e:
-        print(f"[WARNING] Error sending verification email: {str(e)}")
+        print(f"⚠️  Error sending verification email: {str(e)}")
     
     return {
         "message": "Verification email sent",
@@ -373,11 +373,11 @@ async def request_password_reset(
             email_sent = send_password_reset_from_user(user, reset_token)
             
             if email_sent:
-                print(f"[OK] Password reset email sent to {user.email}")
+                print(f"✅ Password reset email sent to {user.email}")
             else:
-                print(f"[WARNING] Password reset email failed for {user.email}")
+                print(f"⚠️  Password reset email failed for {user.email}")
         except Exception as e:
-            print(f"[WARNING] Error sending password reset email: {str(e)}")
+            print(f"⚠️  Error sending password reset email: {str(e)}")
     
     # Always return success (don't reveal if email exists)
     return {

@@ -132,14 +132,12 @@ export interface Cart {
 
 export interface Order {
   web_order_id: number;
-  order_number: string;
-  customer_email: string;
-  customer_name: string;
-  order_date: string;
-  order_status: string;
-  payment_status: string;
-  total_amount: number;
+  ordernr: string;
+  orderamount: number;
   currency: string;
+  payment_status: string;
+  synced_to_erp: boolean;
+  created_at: string;
 }
 
 export interface User {
@@ -150,6 +148,10 @@ export interface User {
   phone?: string;
   email_verified: boolean;
   is_active: boolean;
+  is_admin?: boolean;
+  created_at: string;
+  updated_at?: string;
+  last_login?: string;
 }
 
 export interface ProductResponse {
@@ -358,7 +360,7 @@ export const ordersApi = {
     total_amount: number;
     payment_method: string;
   }): Promise<Order> => {
-    const response = await apiClient.post('/web-orders/', orderPayload);
+    const response = await apiClient.post('/web-orders/create', orderPayload);
     return response.data;
   },
 
@@ -392,14 +394,14 @@ export const ordersApi = {
 
   // Get order by ID
   getById: async (orderId: number): Promise<Order> => {
-    const response = await apiClient.get(`/orders/${orderId}`);
-    return response.data;
+    const response = await apiClient.get(`/web-orders/${orderId}`);
+    return response.data.order || response.data;
   },
 
   // Get user orders
   getUserOrders: async (): Promise<Order[]> => {
-    const response = await apiClient.get('/orders/');
-    return response.data;
+    const response = await apiClient.get('/web-orders/');
+    return response.data.orders || [];
   },
 };
 

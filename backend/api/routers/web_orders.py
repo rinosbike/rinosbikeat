@@ -74,7 +74,7 @@ def generate_web_order_number(db: Session) -> str:
 # CREATE WEB ORDER FROM CART
 # ============================================================================
 
-@router.post("/", response_model=dict)
+@router.post("/create", response_model=dict)
 async def create_web_order(
     order_data: dict,
     current_user: Optional[dict] = Depends(get_optional_user),
@@ -135,6 +135,8 @@ async def create_web_order(
 
         # Get user_id if authenticated
         user_id = current_user.user_id if current_user else None
+        print(f"[DEBUG] Current user: {current_user}")
+        print(f"[DEBUG] User ID: {user_id}")
 
         # Create web order
         print("[DEBUG] Step 3: Creating WebOrder object")
@@ -231,6 +233,7 @@ async def get_web_order(
 # ============================================================================
 
 @router.get("/", response_model=dict)
+@router.get("", response_model=dict)  # Handle both with and without trailing slash
 async def get_user_web_orders(
     current_user: dict = Depends(get_optional_user),
     db: Session = Depends(get_db)
