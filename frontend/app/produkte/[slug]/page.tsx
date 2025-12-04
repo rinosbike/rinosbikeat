@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { productsApi, cartApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
 import { useCartStore } from '@/store/cartStore'
-import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
+import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn, Truck, Shield, Award } from 'lucide-react'
 import Link from 'next/link'
 
 interface ProductDetailPageProps {
@@ -365,56 +365,50 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const finalPrice = getSelectedVariationPrice()
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-white via-white to-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <Link
           href="/produkte"
-          className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+          className="inline-flex items-center text-black hover:text-gray-700 mb-8 font-bold transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Zurück zu den Produkten
+          Zurück
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Image Gallery */}
-          <div className="bg-white rounded-lg p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          {/* Image Column - Full width image with horizontal thumbnails */}
+          <div className="lg:col-span-2">
             {product.images && product.images.length > 0 ? (
-              <div className="space-y-4">
-                {/* Main Image */}
+              <div>
+                {/* Main Image - Compact, no extra space */}
                 <div
-                  className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden relative group cursor-zoom-in"
+                  className="w-full bg-gray-50 flex items-center justify-center overflow-hidden relative group cursor-zoom-in -mx-4 sm:mx-0 rounded-2xl border border-gray-100"
+                  style={{ aspectRatio: '1 / 1' }}
                   onClick={() => openImageZoom(selectedImageIndex)}
                 >
                   <img
                     src={product.images[selectedImageIndex]}
                     alt={`${product.articlename} - Image ${selectedImageIndex + 1}`}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
                   />
                   {/* Zoom indicator */}
-                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute bottom-6 right-6 bg-black text-white p-3 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
                     <ZoomIn className="w-5 h-5" />
                   </div>
                 </div>
 
-                {/* Image Counter */}
+                {/* Horizontal Thumbnails Below */}
                 {product.images.length > 1 && (
-                  <div className="text-center text-sm text-gray-600">
-                    {selectedImageIndex + 1} / {product.images.length}
-                  </div>
-                )}
-
-                {/* Thumbnail Navigation */}
-                {product.images.length > 1 && (
-                  <div className="grid grid-cols-6 gap-2 max-h-32 overflow-y-auto">
-                    {product.images.map((image, index) => (
+                  <div className="grid grid-cols-6 gap-3 mt-4">
+                    {product.images.slice(0, 6).map((image, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedImageIndex(index)}
-                        className={`aspect-square rounded border-2 overflow-hidden transition-all ${
+                        className={`aspect-square overflow-hidden transition-all ${
                           selectedImageIndex === index
-                            ? 'border-blue-600 ring-2 ring-blue-200'
-                            : 'border-gray-200 hover:border-gray-400'
+                            ? 'ring-2 ring-black'
+                            : 'opacity-60 hover:opacity-100'
                         }`}
                       >
                         <img
@@ -424,11 +418,26 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                         />
                       </button>
                     ))}
+                    {product.images.length > 6 && (
+                      <button
+                        onClick={() => openImageZoom(6)}
+                        className="aspect-square bg-gray-900 text-white flex items-center justify-center text-sm font-medium hover:bg-gray-800 transition-colors"
+                      >
+                        +{product.images.length - 6}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Image Counter */}
+                {product.images.length > 1 && (
+                  <div className="text-center text-xs text-gray-500 font-medium mt-4">
+                    {selectedImageIndex + 1} / {product.images.length}
                   </div>
                 )}
               </div>
             ) : product.primary_image ? (
-              <div className="aspect-square w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">
+              <div className="w-full bg-gray-50 flex items-center justify-center -mx-4 sm:mx-0 rounded-2xl border border-gray-100" style={{ aspectRatio: '1 / 1' }}>
                 <img
                   src={product.primary_image}
                   alt={product.articlename}
@@ -436,128 +445,129 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 />
               </div>
             ) : (
-              <div className="aspect-square w-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-                <div className="text-9xl font-bold text-gray-300">
+              <div className="w-full bg-black flex items-center justify-center -mx-4 sm:mx-0 rounded-2xl" style={{ aspectRatio: '1 / 1' }}>
+                <div className="text-9xl font-black text-white">
                   {product.articlename.charAt(0)}
                 </div>
               </div>
             )}
           </div>
 
-          {/* Product Info */}
-          <div>
-            <div className="bg-white rounded-lg p-8">
-              {/* Category */}
+          {/* Right Column - Product Info (3:1 grid = narrow column) */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl border border-gray-100 p-8 space-y-6">
+              {/* Category Badge */}
               {product.categories && product.categories.length > 0 && (
-                <div className="mb-4">
-                  <span className="inline-block px-3 py-1 text-sm font-medium bg-blue-100 text-blue-600 rounded">
+                <div>
+                  <span className="inline-block px-4 py-2 text-xs font-black uppercase tracking-wider bg-black text-white rounded-lg">
                     {product.categories[0].category}
                   </span>
                 </div>
               )}
 
               {/* Product Name */}
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                {product.articlename}
-              </h1>
-
-              {/* Article Number */}
-              <p className="text-sm text-gray-500 mb-6">
-                Art.-Nr.: {product.articlenr}
-              </p>
-
-              {/* Variations - Dynamically render based on variation_options */}
-              {variationData && variationData.variation_options && Object.keys(variationData.variation_options).length > 0 ? (
-                <div className="mb-6 space-y-4">
-                  {/* Dynamically render each variation type */}
-                  {Object.entries(variationData.variation_options).map(([varType, values]) => (
-                    <div key={varType}>
-                      <label className="label">{varType}</label>
-                      <div className="flex flex-wrap gap-2">
-                        {values.map((value) => (
-                          <button
-                            key={value}
-                            onClick={() => handleAttributeChange(varType, value)}
-                            className={`px-4 py-2 border-2 transition-all ${
-                              selectedAttributes[varType] === value
-                                ? 'border-blue-600 bg-blue-50 font-medium'
-                                : 'border-gray-300 hover:border-gray-400'
-                            }`}
-                          >
-                            {value}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Selected Variation Info */}
-                  {selectedVariation && (
-                    <div className="text-sm text-gray-600 pt-2 border-t">
-                      Art.-Nr.: {selectedVariation}
-                    </div>
-                  )}
-                </div>
-              ) : null}
-
-              {/* Quantity */}
-              <div className="mb-6">
-                <label className="label">Anzahl</label>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-blue-600 transition-colors"
-                    disabled={quantity <= 1}
-                  >
-                    −
-                  </button>
-                  <span className="text-xl font-bold w-12 text-center">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-blue-600 transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight leading-tight text-black">
+                  {product.articlename}
+                </h1>
+                <p className="text-xs text-gray-500 font-medium mt-2">
+                  Art.-Nr.: {product.articlenr}
+                </p>
               </div>
 
-              {/* Price */}
-              <div className="mb-6 pb-6 border-b">
-                <div className="flex items-baseline space-x-2">
-                  <span className="text-4xl font-bold text-blue-600">
-                    {finalPrice.toFixed(2)} {product.currency || '€'}
+              {/* Price - Bold */}
+              <div className="py-6 border-b border-gray-200">
+                <div className="flex items-baseline gap-3 mb-2">
+                  <span className="text-4xl font-black text-black">
+                    €{finalPrice.toFixed(2)}
                   </span>
-                  {selectedVariation && (
-                    <span className="text-lg text-gray-500 line-through">
-                      {product.price.toFixed(2)} {product.currency || '€'}
+                  {selectedVariation && finalPrice !== product.price && (
+                    <span className="text-lg text-gray-400 line-through font-medium">
+                      €{product.price.toFixed(2)}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-xs text-gray-600">
                   inkl. MwSt. zzgl. Versandkosten
                 </p>
               </div>
 
-              {/* Add to Cart Buttons */}
-              <div className="space-y-3">
+              {/* Variations */}
+              {variationData && variationData.variation_options && Object.keys(variationData.variation_options).length > 0 && (
+                <div className="space-y-4">
+                  {Object.entries(variationData.variation_options).map(([varType, values]) => (
+                    <div key={varType}>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-700">{varType}</label>
+                      <div className="flex flex-wrap gap-2">
+                      {values.map((value) => (
+                        <button
+                          key={value}
+                          onClick={() => handleAttributeChange(varType, value)}
+                          className={`px-4 py-2 text-sm font-semibold transition-all ${
+                            selectedAttributes[varType] === value
+                              ? 'bg-black text-white'
+                              : 'bg-white text-black border border-gray-300 hover:border-black'
+                          }`}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Selected Variation */}
+                {selectedVariation && (
+                  <div className="text-xs text-gray-500 font-medium pt-2 border-t border-gray-100">
+                    Variante: {selectedVariation}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Quantity */}
+            <div className="border-b border-gray-200 pb-6">
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-700">Anzahl</label>
+              <div className="inline-flex items-center bg-gray-50 border border-gray-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors text-lg font-bold"
+                  disabled={quantity <= 1}
+                >
+                  −
+                </button>
+                <span className="w-12 h-10 flex items-center justify-center text-base font-bold">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 transition-colors text-lg font-bold"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+              {/* CTA Buttons - Sticky on Desktop */}
+              <div className="lg:sticky lg:top-24 space-y-3">
                 <button
                   onClick={handleAddToCart}
                   disabled={addingToCart}
-                  className="btn btn-primary w-full btn-lg flex items-center justify-center space-x-2"
+                  className="w-full bg-black text-white px-6 py-4 text-base font-bold rounded-xl hover:bg-gray-900 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {addingToCart ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                       <span>Wird hinzugefügt...</span>
                     </>
                   ) : addedToCart ? (
                     <>
-                      <Check className="w-5 h-5" />
+                      <Check className="w-4 h-4" />
                       <span>In den Warenkorb gelegt!</span>
                     </>
                   ) : (
                     <>
-                      <ShoppingCart className="w-5 h-5" />
+                      <ShoppingCart className="w-4 h-4" />
                       <span>In den Warenkorb</span>
                     </>
                   )}
@@ -566,52 +576,48 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <button
                   onClick={handleBuyNow}
                   disabled={addingToCart}
-                  className="btn btn-outline w-full btn-lg"
+                  className="w-full border-2 border-black text-black px-6 py-4 text-base font-bold rounded-xl hover:bg-black hover:text-white transition-all duration-300 disabled:opacity-50"
                 >
                   Jetzt kaufen
                 </button>
               </div>
 
-              {/* Success Message */}
-              {addedToCart && (
-                <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-green-600 font-medium flex items-center">
-                    <Check className="w-5 h-5 mr-2" />
-                    Produkt wurde zum Warenkorb hinzugefügt!
-                  </p>
+              {/* Trust Badges */}
+              <div className="mt-8 pt-8 border-t border-gray-200 space-y-4">
+                <div className="flex items-start gap-3">
+                  <Truck className="w-5 h-5 text-black flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-xs font-bold text-black">Kostenloser Versand</p>
+                    <p className="text-xs text-gray-500">ab 100€</p>
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {/* Additional Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-              <div className="bg-white rounded-lg p-4 text-center">
-                <div className="text-3xl mb-2">🚚</div>
-                <p className="font-medium">Kostenloser Versand</p>
-                <p className="text-sm text-gray-600">ab 100€</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 text-center">
-                <div className="text-3xl mb-2">🔒</div>
-                <p className="font-medium">Sichere Zahlung</p>
-                <p className="text-sm text-gray-600">via Stripe</p>
-              </div>
-              <div className="bg-white rounded-lg p-4 text-center">
-                <div className="text-3xl mb-2">✓</div>
-                <p className="font-medium">5 Jahre Garantie</p>
-                <p className="text-sm text-gray-600">auf Rahmen</p>
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-black flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-xs font-bold text-black">Sichere Zahlung</p>
+                    <p className="text-xs text-gray-500">via Stripe</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Award className="w-5 h-5 text-black flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="text-xs font-bold text-black">5 Jahre Garantie</p>
+                    <p className="text-xs text-gray-500">auf Rahmen</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Product Descriptions */}
-        <div className="max-w-4xl mx-auto mt-12 space-y-8">
+        {/* Product Descriptions - Premium Style */}
+        <div className="mt-20 space-y-16">
           {/* Short Description */}
           {product.shortdescription && (
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <h2 className="text-2xl font-bold mb-4">Produktinformationen</h2>
+            <div className="max-w-4xl bg-white rounded-2xl border border-gray-100 p-8 lg:p-12">
+              <h2 className="text-3xl md:text-4xl font-black mb-8 text-black">Produktinformationen</h2>
               <div
-                className="prose prose-sm max-w-none text-gray-700"
+                className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.shortdescription }}
               />
             </div>
@@ -619,10 +625,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
 
           {/* Long Description */}
           {product.longdescription && (
-            <div className="bg-white rounded-lg p-6 border border-gray-200">
-              <h2 className="text-2xl font-bold mb-4">Produktbeschreibung</h2>
+            <div className="max-w-4xl bg-white rounded-2xl border border-gray-100 p-8 lg:p-12">
+              <h2 className="text-3xl md:text-4xl font-black mb-8 text-black">Produktbeschreibung</h2>
               <div
-                className="prose prose-sm max-w-none text-gray-700"
+                className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: product.longdescription }}
               />
             </div>

@@ -1,5 +1,5 @@
 export async function GET(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
   const path = params.proxy.join('/');
 
   try{
@@ -59,6 +59,7 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
 
 export async function POST(request: Request, { params }: { params: { proxy: string[] } }) {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
   const path = params.proxy.join('/');
 
   try {
@@ -111,7 +112,7 @@ export async function POST(request: Request, { params }: { params: { proxy: stri
 }
 
 export async function PUT(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
   const path = params.proxy.join('/');
 
   try {
@@ -164,7 +165,7 @@ export async function PUT(request: Request, { params }: { params: { proxy: strin
 }
 
 export async function DELETE(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend-2u4rbqi8g-rinosbikes-projects.vercel.app';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
   const path = params.proxy.join('/');
 
   try {

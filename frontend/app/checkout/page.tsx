@@ -25,6 +25,15 @@ export default function KassePage() {
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Check if user is buying a bike
+  const hasBike = items.some(item => 
+    item.product.articlename?.toLowerCase().includes('bike') || 
+    item.product.articlename?.toLowerCase().includes('fahrrad') ||
+    item.product.articlename?.toLowerCase().includes('gravel') ||
+    item.product.articlename?.toLowerCase().includes('rennrad') ||
+    item.product.articlename?.toLowerCase().includes('mountain')
+  )
+
   // Form data
   const [formData, setFormData] = useState({
     customer_frontname: '',
@@ -309,6 +318,31 @@ export default function KassePage() {
                   <div className="flex items-start space-x-3">
                     <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
                     <p className="text-red-600">{error}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Product Recommendations for Bike Purchase */}
+              {hasBike && (
+                <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
+                  <div className="flex items-start gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        🎒 Perfekt für dein Bikepacking
+                      </h3>
+                      <p className="text-sm text-gray-700 mb-4">
+                        RockBros Taschen & Zubehör machen dein Abenteuer noch besser. Sichere Verstaung, Premium-Qualität.
+                      </p>
+                      <div className="flex gap-2">
+                        <a
+                          href="/categories/zubehör?search=rockbros"
+                          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                        >
+                          Entdecke RockBros Zubehör
+                          <span>→</span>
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

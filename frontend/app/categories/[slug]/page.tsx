@@ -260,7 +260,7 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-white to-gray-50">
       {/* JSON-LD Structured Data for SEO */}
       {category && allProducts.length > 0 && (
         <script
@@ -273,13 +273,13 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
 
       {/* Page Header */}
       {category && (
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h1 className="text-3xl md:text-4xl font-normal text-gray-900 mb-2">
+        <div className="bg-black text-white py-12 md:py-16">
+          <div className="max-w-7xl mx-auto px-6">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-3">
               {category.category}
             </h1>
             {category.categorypath && (
-              <p className="text-sm text-gray-600">
+              <p className="text-base md:text-lg text-gray-300 font-medium">
                 {category.categorypath}
               </p>
             )}
@@ -296,7 +296,7 @@ export default function CategoryProductsPage({ params }: { params: { slug: strin
         />
       )}
 
-      <div id="product-grid-container" className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div id="product-grid-container" className="max-w-7xl mx-auto px-6 py-12">
         {/* Loading State */}
         {loading && (
           <div className="text-center py-16">

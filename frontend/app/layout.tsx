@@ -1,20 +1,19 @@
 import type { Metadata } from 'next'
-import { Assistant } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/layout/Header'
+import HeaderMinimal from '@/components/layout/HeaderMinimal'
 import Footer from '@/components/layout/Footer'
-import PromoBar from '@/components/layout/PromoBar'
 
-const assistant = Assistant({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'RINOS Bikes - Premium Fahrräder aus Deutschland',
-  description: 'Hochwertige Gravel, Road, Mountain und Falträder von RINOS Bikes. Made in Frankfurt (Oder).',
-  keywords: 'Fahrräder, Bikes, Gravel, Rennrad, Mountainbike, Faltrad, Deutschland',
+  title: 'RINOS Bikes - Premium Bicycles Austria',
+  description: 'Minimal. Edgy. Built Right. Premium bikes crafted for performance. No compromise. No nonsense.',
+  keywords: 'Fahrräder, Bikes, Gravel, Rennrad, Mountainbike, Faltrad, Österreich',
 }
 
 export default function RootLayout({
@@ -23,13 +22,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de">
-      <body className={assistant.className}>
-        {/* Promotional Bar - Above Header */}
-        <PromoBar />
-
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
         {/* Sticky Header */}
-        <Header />
+        <HeaderMinimal />
 
         {/* Main Content */}
         <main className="min-h-screen">
