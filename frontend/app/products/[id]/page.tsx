@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { productsApi, cartApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
+import { productsApi, variationsApi, type Product, type ProductVariation, type ProductVariationsResponse } from '@/lib/api'
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart, Check, AlertCircle, ArrowLeft, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 import Link from 'next/link'
@@ -20,7 +20,7 @@ interface ProductDetailPageProps {
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const router = useRouter()
-  const { sessionId, itemCount, setItemCount, generateSessionId } = useCartStore()
+  const { addItem } = useCartStore()
   
   const [product, setProduct] = useState<Product | null>(null)
   const [variationData, setVariationData] = useState<ProductVariationsResponse | null>(null)
@@ -130,24 +130,31 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     try {
       setAddingToCart(true)
 
-      // Ensure we have a session ID
-      let currentSessionId = sessionId
-      if (!currentSessionId) {
-        currentSessionId = generateSessionId()
-      }
-
-      // Use articlenr instead of product_id
+      // Determine which product/variation to add
       const articlenrToAdd = selectedVariation || product.articlenr
 
-      // Add to cart via API using articlenr
-      const updatedCart = await cartApi.addItem(
-        currentSessionId,
-        articlenrToAdd,
-        quantity
-      )
+      // Get the product data for the selected variation
+      let productToAdd = product
+      if (selectedVariation && selectedVariation !== product.articlenr) {
+        // Find the variation product data
+        const variation = variationData?.child_products?.find(
+          p => p.articlenr === selectedVariation
+        )
+        if (variation) {
+          productToAdd = variation
+        }
+      }
 
-      // Update cart count from summary
-      setItemCount(updatedCart.summary.item_count)
+      // Add to localStorage cart
+      addItem({
+        articlenr: productToAdd.articlenr,
+        articlename: productToAdd.articlename,
+        price: getSelectedVariationPrice(),
+        primary_image: productToAdd.primary_image,
+        manufacturer: productToAdd.manufacturer,
+        colour: productToAdd.colour,
+        size: productToAdd.size
+      }, quantity)
 
       // Show success message
       setAddedToCart(true)
