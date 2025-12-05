@@ -81,10 +81,11 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     email_verified: bool
     is_active: bool
+    is_admin: bool = False
     language_preference: str
     created_at: Optional[str] = None  # ISO datetime string
     last_login: Optional[str] = None  # ISO datetime string
-    
+
     class Config:
         from_attributes = True
 

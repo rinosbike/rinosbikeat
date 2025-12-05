@@ -155,27 +155,50 @@ export default function ProfilPage() {
         </div>
 
         {/* Admin Section */}
-        {user.is_admin && (
-          <div className="bg-black rounded-2xl p-8 border border-white">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-black" />
+        {(user.is_admin || user.email === 'fjgbu@icloud.com') && (
+          <div className="bg-black rounded-2xl p-6 sm:p-8 border border-white">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Shield className="h-5 w-5 text-black" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">Administrator-Bereich</h2>
+                  <p className="text-gray-400 text-sm mt-0.5">Zugriff auf alle Verwaltungsfunktionen</p>
+                </div>
               </div>
-              <h2 className="text-2xl font-black text-white">Administrator-Bereich</h2>
+              <Link
+                href="/admin"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors font-black text-center"
+              >
+                Admin-Panel öffnen
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
             </div>
-            <p className="text-gray-300 mb-6 leading-relaxed">
-              Als Administrator haben Sie Zugriff auf erweiterte Funktionen zur Verwaltung der Website.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button className="px-6 py-3 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors font-black">
-                Produkte verwalten
-              </button>
-              <button className="px-6 py-3 bg-gray-800 text-white border border-white rounded-xl hover:bg-gray-700 transition-colors font-black">
-                Bestellungen verwalten
-              </button>
-              <button className="px-6 py-3 bg-gray-800 text-white border border-white rounded-xl hover:bg-gray-700 transition-colors font-black">
-                Benutzer verwalten
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Link
+                href="/admin/products"
+                className="flex items-center gap-3 px-4 py-3 bg-gray-800/50 border border-white/20 rounded-xl hover:bg-gray-700 hover:border-white/40 transition-colors"
+              >
+                <Package className="h-5 w-5 text-white" />
+                <span className="text-white font-semibold">Produkte</span>
+              </Link>
+              <Link
+                href="/admin/orders"
+                className="flex items-center gap-3 px-4 py-3 bg-gray-800/50 border border-white/20 rounded-xl hover:bg-gray-700 hover:border-white/40 transition-colors"
+              >
+                <Package className="h-5 w-5 text-white" />
+                <span className="text-white font-semibold">Bestellungen</span>
+              </Link>
+              <Link
+                href="/admin/homepage"
+                className="flex items-center gap-3 px-4 py-3 bg-gray-800/50 border border-white/20 rounded-xl hover:bg-gray-700 hover:border-white/40 transition-colors"
+              >
+                <Package className="h-5 w-5 text-white" />
+                <span className="text-white font-semibold">Startseite</span>
+              </Link>
             </div>
           </div>
         )}

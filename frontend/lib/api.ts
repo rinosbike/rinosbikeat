@@ -497,4 +497,195 @@ export const authApi = {
   },
 };
 
+// ============================================================================
+// ADMIN API TYPES
+// ============================================================================
+
+export interface AdminStats {
+  total_products: number;
+  total_orders: number;
+  pending_orders: number;
+  total_users: number;
+  revenue_today: number;
+  revenue_month: number;
+  recent_orders: Array<{
+    web_order_id: number;
+    ordernr: string;
+    orderamount: number;
+    currency: string;
+    payment_status: string;
+    created_at: string;
+  }>;
+}
+
+export interface AdminProduct {
+  productid: number;
+  articlenr: string;
+  articlename: string;
+  shortdescription?: string;
+  longdescription?: string;
+  priceEUR: number;
+  costprice?: number;
+  manufacturer?: string;
+  productgroup?: string;
+  type?: string;
+  colour?: string;
+  size?: string;
+  component?: string;
+  isfatherarticle: boolean;
+  fatherarticle?: string;
+  gtin?: string;
+  primary_image?: string;
+  [key: `Image${number}URL`]: string | null;
+}
+
+export interface AdminProductsResponse {
+  products: AdminProduct[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+  manufacturers?: string[];
+  product_types?: string[];
+}
+
+export interface AdminOrder {
+  web_order_id: number;
+  ordernr: string;
+  orderamount: number;
+  currency: string;
+  payment_status: string;
+  synced_to_erp: boolean;
+  created_at: string;
+  customer_email?: string;
+  customer_name?: string;
+}
+
+export interface AdminOrderDetail extends AdminOrder {
+  updated_at?: string;
+  payment_method?: string;
+  customer_phone?: string;
+  shipping_address?: {
+    name: string;
+    street: string;
+    postal_code: string;
+    city: string;
+    country: string;
+  };
+  tracking_number?: string;
+  tracking_carrier?: string;
+  notes?: string;
+  stripe_payment_intent_id?: string;
+  items?: Array<{
+    articlenr: string;
+    articlename: string;
+    quantity: number;
+    price_at_addition: number;
+    primary_image?: string;
+  }>;
+}
+
+export interface AdminOrdersResponse {
+  orders: AdminOrder[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface HomepageContent {
+  hero: {
+    image_url: string;
+    title: string;
+    subtitle: string;
+    button_text: string;
+    button_link: string;
+  };
+  categories: Array<{
+    id: string;
+    title: string;
+    description: string;
+    href: string;
+  }>;
+  values: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+}
+
+// ============================================================================
+// ADMIN API
+// ============================================================================
+
+export const adminApi = {
+  // Dashboard Stats
+  getStats: async (): Promise<AdminStats> => {
+    const response = await apiClient.get('/admin/stats');
+    return response.data;
+  },
+
+  // Products
+  getProducts: async (params: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+    manufacturer?: string;
+    type?: string;
+    father_only?: boolean;
+    sort_by?: string;
+    sort_order?: string;
+  }): Promise<AdminProductsResponse> => {
+    const response = await apiClient.get('/admin/products', { params });
+    return response.data;
+  },
+
+  getProduct: async (articlenr: string): Promise<AdminProduct> => {
+    const response = await apiClient.get(`/admin/products/${articlenr}`);
+    return response.data;
+  },
+
+  updateProduct: async (articlenr: string, data: Partial<AdminProduct>): Promise<void> => {
+    await apiClient.put(`/admin/products/${articlenr}`, data);
+  },
+
+  // Orders
+  getOrders: async (params: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+    status?: string;
+    date_from?: string;
+    date_to?: string;
+  }): Promise<AdminOrdersResponse> => {
+    const response = await apiClient.get('/admin/orders', { params });
+    return response.data;
+  },
+
+  getOrder: async (orderId: number): Promise<AdminOrderDetail> => {
+    const response = await apiClient.get(`/admin/orders/${orderId}`);
+    return response.data;
+  },
+
+  updateOrder: async (orderId: number, data: {
+    payment_status?: string;
+    tracking_number?: string;
+    tracking_carrier?: string;
+    notes?: string;
+  }): Promise<void> => {
+    await apiClient.put(`/admin/orders/${orderId}`, data);
+  },
+
+  // Homepage Content
+  getHomepageContent: async (): Promise<HomepageContent> => {
+    const response = await apiClient.get('/admin/homepage');
+    return response.data;
+  },
+
+  updateHomepageContent: async (data: HomepageContent): Promise<void> => {
+    await apiClient.put('/admin/homepage', data);
+  },
+};
+
 export default apiClient;

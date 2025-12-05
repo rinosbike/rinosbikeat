@@ -29,6 +29,11 @@ export default function HeaderMinimal() {
   const [activeSubSubmenu, setActiveSubSubmenu] = useState<number | null>(null)
   const [hydrated, setHydrated] = useState(false)
 
+  // Mobile menu state - tracks expanded accordion items
+  const [mobileExpandedCategory, setMobileExpandedCategory] = useState<string | null>(null)
+  const [mobileExpandedSub, setMobileExpandedSub] = useState<number | null>(null)
+  const [mobileExpandedSubSub, setMobileExpandedSubSub] = useState<number | null>(null)
+
   // Timeout refs for smooth hover
   const openTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -385,85 +390,207 @@ export default function HeaderMinimal() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Full Screen Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-gray-200 bg-white">
-          <nav className="px-4 py-4 space-y-3">
+        <div className="md:hidden fixed inset-0 top-24 z-40 bg-white overflow-y-auto">
+          <nav className="px-4 py-4">
+            {/* All Bikes Link */}
             <Link
-              href="/produktsuche"
+              href="/produkte"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-base font-medium text-gray-900 hover:text-gray-600 transition-colors"
+              className="flex items-center justify-between py-4 text-lg font-semibold text-gray-900 border-b border-gray-100"
             >
-              Shop
+              Alle Bikes
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </Link>
 
+            {/* Category Accordions */}
             {!loading && mainCategories.map((cat) => {
+              if (cat.key === 'Alle Bikes') return null
               const category = categoryTree.find(c => c.category === cat.key)
               if (!category) return null
 
+              const isExpanded = mobileExpandedCategory === cat.key
+
               return (
-                <div key={cat.key}>
+                <div key={cat.key} className="border-b border-gray-100">
+                  {/* Level 1: Main Category */}
                   <button
-                    onClick={() => setOpenDropdown(openDropdown === cat.key ? null : cat.key)}
-                    className="w-full text-left text-base font-medium text-gray-900 hover:text-gray-600 transition-colors flex items-center justify-between"
+                    onClick={() => {
+                      setMobileExpandedCategory(isExpanded ? null : cat.key)
+                      setMobileExpandedSub(null)
+                      setMobileExpandedSubSub(null)
+                    }}
+                    className="w-full flex items-center justify-between py-4 text-lg font-semibold text-gray-900"
                   >
                     {cat.label}
-                    <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === cat.key ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
-                  {openDropdown === cat.key && (
-                    <div className="ml-4 mt-2 space-y-2">
-                      {category.children.slice(0, 5).map((subcat) => (
-                        <Link
-                          key={subcat.categoryid}
-                          href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                        >
-                          {subcat.category}
-                        </Link>
-                      ))}
+
+                  {/* Level 1 Expanded Content */}
+                  {isExpanded && (
+                    <div className="pb-4">
+                      {/* View All Link */}
+                      <Link
+                        href={`/categories/${cat.key.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-black bg-gray-50 rounded-lg mb-2"
+                      >
+                        Alle {cat.label} ansehen
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+
+                      {/* Level 2: Subcategories */}
+                      {category.children.map((subcat) => {
+                        const isSubExpanded = mobileExpandedSub === subcat.categoryid
+                        const hasChildren = subcat.children && subcat.children.length > 0
+
+                        return (
+                          <div key={subcat.categoryid}>
+                            {hasChildren ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    setMobileExpandedSub(isSubExpanded ? null : subcat.categoryid)
+                                    setMobileExpandedSubSub(null)
+                                  }}
+                                  className={`w-full flex items-center justify-between px-4 py-3 text-sm ${
+                                    isSubExpanded ? 'text-black font-medium bg-gray-50' : 'text-gray-700'
+                                  }`}
+                                >
+                                  {subcat.category}
+                                  <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isSubExpanded ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {/* Level 2 Expanded Content */}
+                                {isSubExpanded && (
+                                  <div className="ml-4 border-l-2 border-gray-200">
+                                    {/* View All Subcat Link */}
+                                    <Link
+                                      href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
+                                      onClick={() => setMobileMenuOpen(false)}
+                                      className="flex items-center gap-2 px-4 py-2 text-xs font-medium text-gray-500 hover:text-black"
+                                    >
+                                      Alle {subcat.category} →
+                                    </Link>
+
+                                    {/* Level 3: Sub-subcategories */}
+                                    {subcat.children.map((nested) => {
+                                      const isNestedExpanded = mobileExpandedSubSub === nested.categoryid
+                                      const hasNestedChildren = nested.children && nested.children.length > 0
+
+                                      return (
+                                        <div key={nested.categoryid}>
+                                          {hasNestedChildren ? (
+                                            <>
+                                              <button
+                                                onClick={() => setMobileExpandedSubSub(isNestedExpanded ? null : nested.categoryid)}
+                                                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm ${
+                                                  isNestedExpanded ? 'text-black font-medium' : 'text-gray-600'
+                                                }`}
+                                              >
+                                                {nested.category}
+                                                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${isNestedExpanded ? 'rotate-180' : ''}`} />
+                                              </button>
+
+                                              {/* Level 3 Expanded Content */}
+                                              {isNestedExpanded && (
+                                                <div className="ml-4 border-l border-gray-100">
+                                                  <Link
+                                                    href={`/categories/${nested.category.toLowerCase().replace(/\s+/g, '-')}?id=${nested.categoryid}`}
+                                                    onClick={() => setMobileMenuOpen(false)}
+                                                    className="block px-4 py-2 text-xs font-medium text-gray-500 hover:text-black"
+                                                  >
+                                                    Alle {nested.category} →
+                                                  </Link>
+                                                  {nested.children.map((item) => (
+                                                    <Link
+                                                      key={item.categoryid}
+                                                      href={`/categories/${item.category.toLowerCase().replace(/\s+/g, '-')}?id=${item.categoryid}`}
+                                                      onClick={() => setMobileMenuOpen(false)}
+                                                      className="block px-4 py-2 text-sm text-gray-600 hover:text-black"
+                                                    >
+                                                      {item.category}
+                                                    </Link>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </>
+                                          ) : (
+                                            <Link
+                                              href={`/categories/${nested.category.toLowerCase().replace(/\s+/g, '-')}?id=${nested.categoryid}`}
+                                              onClick={() => setMobileMenuOpen(false)}
+                                              className="block px-4 py-2.5 text-sm text-gray-600 hover:text-black"
+                                            >
+                                              {nested.category}
+                                            </Link>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <Link
+                                href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block px-4 py-3 text-sm text-gray-700 hover:text-black"
+                              >
+                                {subcat.category}
+                              </Link>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>
               )
             })}
 
-            <hr className="my-3" />
-            <Link
-              href="/suche"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-base font-medium text-gray-900 hover:text-gray-600 transition-colors"
-            >
-              Search
-            </Link>
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/profil"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-base font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                >
-                  Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    useAuthStore.getState().logout()
-                    setMobileMenuOpen(false)
-                  }}
-                  className="block w-full text-left text-base font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
+            {/* Bottom Section: Search, Account */}
+            <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
               <Link
-                href="/anmelden"
+                href="/suche"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-base font-medium text-gray-900 hover:text-gray-600 transition-colors"
+                className="flex items-center gap-3 py-3 text-base font-medium text-gray-900"
               >
-                Sign In
+                <Search className="w-5 h-5" />
+                Suche
               </Link>
-            )}
+
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/profil"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 py-3 text-base font-medium text-gray-900"
+                  >
+                    <User className="w-5 h-5" />
+                    Mein Profil
+                  </Link>
+                  <button
+                    onClick={() => {
+                      useAuthStore.getState().logout()
+                      setMobileMenuOpen(false)
+                    }}
+                    className="flex items-center gap-3 py-3 text-base font-medium text-gray-500 w-full text-left"
+                  >
+                    Abmelden
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/anmelden"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 py-3 text-base font-medium text-gray-900"
+                >
+                  <User className="w-5 h-5" />
+                  Anmelden
+                </Link>
+              )}
+            </div>
           </nav>
         </div>
       )}
