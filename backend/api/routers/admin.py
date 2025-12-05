@@ -373,6 +373,24 @@ async def get_admin_order(
         if not order:
             raise HTTPException(status_code=404, detail="Order not found")
 
+        # Get customer info from web_users if order has user_id
+        customer_name = None
+        customer_email = None
+        customer_phone = None
+        
+        if order.user_id:
+            user = db.query(WebUser).filter(WebUser.user_id == order.user_id).first()
+            if user:
+                customer_email = user.email
+                customer_phone = user.phone
+                # Combine first and last name
+                if user.first_name and user.last_name:
+                    customer_name = f"{user.first_name} {user.last_name}"
+                elif user.first_name:
+                    customer_name = user.first_name
+                elif user.last_name:
+                    customer_name = user.last_name
+
         # Get order items from web_order_items if table exists
         items = []
         try:
@@ -395,6 +413,26 @@ async def get_admin_order(
         except Exception as e:
             print(f"Could not get order items: {e}")
 
+        # Try to get shipping address from customers table if customer_id exists
+        shipping_address = None
+        if order.customer_id:
+            try:
+                customer = db.query(db.Model).from_statement(text("""
+                    SELECT * FROM customers WHERE customerid = :customer_id
+                """)).params(customer_id=order.customer_id).first()
+                
+                if customer:
+                    # Assuming customers table has address fields - adjust based on actual schema
+                    shipping_address = {
+                        "name": customer_name or "Customer",
+                        "street": getattr(customer, 'street', '') or getattr(customer, 'address', ''),
+                        "postal_code": getattr(customer, 'postalcode', '') or getattr(customer, 'postal_code', ''),
+                        "city": getattr(customer, 'city', '') or getattr(customer, 'town', ''),
+                        "country": getattr(customer, 'country', 'AT')
+                    }
+            except Exception as e:
+                print(f"Could not get customer address: {e}")
+
         return {
             "web_order_id": order.web_order_id,
             "ordernr": order.ordernr,
@@ -405,10 +443,10 @@ async def get_admin_order(
             "synced_to_erp": order.synced_to_erp,
             "created_at": order.created_at.isoformat() if order.created_at else None,
             "updated_at": order.updated_at.isoformat() if order.updated_at else None,
-            "customer_email": None,
-            "customer_name": None,
-            "customer_phone": None,
-            "shipping_address": None,
+            "customer_email": customer_email,
+            "customer_name": customer_name,
+            "customer_phone": customer_phone,
+            "shipping_address": shipping_address,
             "tracking_number": None,
             "tracking_carrier": None,
             "notes": None,
@@ -526,6 +564,132 @@ async def update_homepage_content(
         return {"status": "success", "message": "Homepage content updated"}
     except Exception as e:
         print(f"Error saving homepage content: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# USERS MANAGEMENT
+# ============================================================================
+
+@router.get("/users")
+async def get_admin_users(
+    db: Session = Depends(get_db),
+    admin: WebUser = Depends(require_admin),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    search: str = Query('', min_length=0)
+):
+    """Get list of all users"""
+    try:
+        query = db.query(WebUser)
+        
+        # Search by email or name
+        if search:
+            query = query.filter(
+                or_(
+                    WebUser.email.ilike(f"%{search}%"),
+                    WebUser.first_name.ilike(f"%{search}%"),
+                    WebUser.last_name.ilike(f"%{search}%")
+                )
+            )
+        
+        # Count total
+        total = query.count()
+        
+        # Pagination
+        skip = (page - 1) * page_size
+        users = query.order_by(desc(WebUser.created_at)).offset(skip).limit(page_size).all()
+        
+        return {
+            "users": [
+                {
+                    "user_id": user.user_id,
+                    "email": user.email,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "phone": user.phone,
+                    "is_active": user.is_active,
+                    "is_admin": user.is_admin,
+                    "email_verified": user.email_verified,
+                    "newsletter_subscribed": user.newsletter_subscribed,
+                    "created_at": user.created_at.isoformat() if user.created_at else None,
+                    "last_login": user.last_login.isoformat() if user.last_login else None
+                }
+                for user in users
+            ],
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "total_pages": (total + page_size - 1) // page_size
+        }
+    except Exception as e:
+        print(f"Error getting users: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/users/{user_id}")
+async def get_admin_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    admin: WebUser = Depends(require_admin)
+):
+    """Get single user details"""
+    try:
+        user = db.query(WebUser).filter(WebUser.user_id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {
+            "user_id": user.user_id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": user.phone,
+            "is_active": user.is_active,
+            "is_admin": user.is_admin,
+            "email_verified": user.email_verified,
+            "newsletter_subscribed": user.newsletter_subscribed,
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+            "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+            "last_login": user.last_login.isoformat() if user.last_login else None
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting user: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/users/{user_id}")
+async def update_admin_user(
+    user_id: int,
+    data: Dict[str, Any],
+    db: Session = Depends(get_db),
+    admin: WebUser = Depends(require_admin)
+):
+    """Update user details"""
+    try:
+        user = db.query(WebUser).filter(WebUser.user_id == user_id).first()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Update allowed fields
+        allowed_fields = ['first_name', 'last_name', 'phone', 'is_active', 'is_admin', 'newsletter_subscribed']
+        for field in allowed_fields:
+            if field in data:
+                setattr(user, field, data[field])
+        
+        user.updated_at = datetime.utcnow()
+        db.commit()
+        db.refresh(user)
+        
+        return {"status": "success", "message": "User updated"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating user: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -334,38 +334,70 @@ async def stripe_webhook(
         # Handle Stripe Checkout Session completion
         session = event['data']['object']
         
-        # Get the order by looking up the payment_intent_id or metadata
-        payment_intent_id = session.get('payment_intent')
+        print(f"\n[CHECKOUT.SESSION.COMPLETED]")
+        print(f"  Session ID: {session.get('id')}")
+        print(f"  Payment Intent: {session.get('payment_intent')}")
+        print(f"  Metadata: {session.get('metadata')}")
+        print(f"  Status: {session.get('status')}")
         
-        if payment_intent_id:
-            # Find order by payment_intent_id
-            order = db.query(WebOrder).filter(
-                WebOrder.payment_intent_id == payment_intent_id
-            ).first()
-            
-            if order:
-                order.payment_status = 'paid'
-                order.updated_at = datetime.now()
-                db.commit()
-                print(f"✅ Checkout session completed for order {order.ordernr}")
-            else:
-                print(f"⚠️  Order not found for payment_intent {payment_intent_id}")
-        else:
-            # Try to find by metadata if you stored order_id there
+        try:
+            # Strategy 1: Try to find order by metadata order_id (most reliable)
             metadata = session.get('metadata', {})
             order_id = metadata.get('order_id')
             
+            order = None
             if order_id:
-                order = db.query(WebOrder).filter(
-                    WebOrder.web_order_id == int(order_id)
-                ).first()
+                try:
+                    order = db.query(WebOrder).filter(
+                        WebOrder.web_order_id == int(order_id)
+                    ).first()
+                    
+                    if order:
+                        print(f"  ✅ Found order by metadata: {order.ordernr}")
+                except Exception as e:
+                    print(f"  ❌ Error querying order by metadata: {str(e)}")
+            
+            # Strategy 2: If not found, try payment_intent_id
+            payment_intent_id = session.get('payment_intent')
+            if not order and payment_intent_id:
+                try:
+                    order = db.query(WebOrder).filter(
+                        WebOrder.payment_intent_id == payment_intent_id
+                    ).first()
+                    
+                    if order:
+                        print(f"  ✅ Found order by payment_intent: {order.ordernr}")
+                except Exception as e:
+                    print(f"  ❌ Error querying order by payment_intent: {str(e)}")
+            
+            # If order found, update it
+            if order:
+                # Update payment status
+                order.payment_status = 'paid'
+                order.payment_intent_id = payment_intent_id  # Store for future reference
+                order.updated_at = datetime.utcnow()
                 
-                if order:
-                    order.payment_status = 'paid'
-                    order.payment_intent_id = payment_intent_id
-                    order.updated_at = datetime.now()
-                    db.commit()
-                    print(f"✅ Checkout session completed for order {order.ordernr}")
+                db.commit()
+                db.refresh(order)
+                
+                print(f"  ✅ Order updated: {order.ordernr} -> payment_status=paid")
+                
+                # Try to send payment receipt email
+                try:
+                    email_sent = send_payment_receipt_from_payment(None, order)
+                    if email_sent:
+                        print(f"  ✅ Payment receipt email sent to {order.customer_email if hasattr(order, 'customer_email') else 'customer'}")
+                except Exception as e:
+                    print(f"  ⚠️  Error sending payment receipt email: {str(e)}")
+            else:
+                print(f"  ❌ Order not found - order_id={order_id}, payment_intent={payment_intent_id}")
+                # Don't raise error - just log it so webhook still returns 200
+        
+        except Exception as e:
+            print(f"  ❌ Error processing checkout.session.completed: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            # Don't raise error - just log it so webhook still returns 200
     
     return {"status": "success"}
 

@@ -1,1 +1,49 @@
-{}
+{
+  "hero": {
+    "image_url": "https://cdn.shopify.com/s/files/1/0720/5794/6377/files/dominika.pairofwheels_453056389_850498639917776_8492373170969487287_n.jpg?v=1759994817",
+    "title": "Entdecke den Geist des Bikepackings mit dem Sandman",
+    "subtitle": "Ausgestattet mit GRX 400, GRX 600, GRX 820 und mehr – finde deine perfekte Konfiguration.",
+    "button_text": "Jetzt kaufen",
+    "button_link": "/categories/gravel-bikes?id=103"
+  },
+  "categories": [
+    {
+      "id": "1",
+      "title": "Gravel",
+      "description": "Abenteuer wartet",
+      "href": "/categories/gravel-bikes?id=103"
+    },
+    {
+      "id": "2",
+      "title": "Mountain",
+      "description": "Abseits der Pfade",
+      "href": "/categories/mountainbike?id=59"
+    },
+    {
+      "id": "3",
+      "title": "Rennrad",
+      "description": "Geschwindigkeit neu definiert",
+      "href": "/categories/rennraeder?id=2"
+    }
+  ],
+  "values": [
+    {
+      "id": "1",
+      "title": "Premium Qualität",
+      "description": "Handverlesene Komponenten. Rigorose Tests.",
+      "icon": "Award"
+    },
+    {
+      "id": "2",
+      "title": "Schneller Versand",
+      "description": "Heute bestellen. Morgen fahren.",
+      "icon": "Zap"
+    },
+    {
+      "id": "3",
+      "title": "Experten Support",
+      "description": "Echte Menschen. Echte Antworten. Schnell.",
+      "icon": "MessageCircle"
+    }
+  ]
+}

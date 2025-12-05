@@ -593,6 +593,29 @@ export interface AdminOrdersResponse {
   total_pages: number;
 }
 
+export interface AdminUser {
+  user_id: number;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  is_active: boolean;
+  is_admin: boolean;
+  email_verified: boolean;
+  newsletter_subscribed: boolean;
+  created_at?: string;
+  updated_at?: string;
+  last_login?: string;
+}
+
+export interface AdminUsersResponse {
+  users: AdminUser[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
 export interface HomepageContent {
   hero: {
     image_url: string;
@@ -685,6 +708,32 @@ export const adminApi = {
 
   updateHomepageContent: async (data: HomepageContent): Promise<void> => {
     await apiClient.put('/admin/homepage', data);
+  },
+
+  // Users
+  getUsers: async (params: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+  }): Promise<AdminUsersResponse> => {
+    const response = await apiClient.get('/admin/users', { params });
+    return response.data;
+  },
+
+  getUser: async (userId: number): Promise<AdminUser> => {
+    const response = await apiClient.get(`/admin/users/${userId}`);
+    return response.data;
+  },
+
+  updateUser: async (userId: number, data: {
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    is_active?: boolean;
+    is_admin?: boolean;
+    newsletter_subscribed?: boolean;
+  }): Promise<void> => {
+    await apiClient.put(`/admin/users/${userId}`, data);
   },
 };
 
