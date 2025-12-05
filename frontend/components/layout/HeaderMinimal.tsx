@@ -1,17 +1,23 @@
 /**
  * Header Component - Minimal & Edgy Design
  * Modern 2025 aesthetic with bold typography
+ * Features: Smooth hover menus with proper delays
  */
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { ShoppingCart, User, Menu, X, Search, ChevronDown } from 'lucide-react'
+import { ShoppingCart, User, Menu, X, Search, ChevronDown, ChevronRight } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useAuthStore } from '@/store/authStore'
-import { categoriesApi, Category } from '@/lib/api'
+import { categoriesApi } from '@/lib/api'
 import { buildCategoryTree, CategoryNode } from '@/lib/categoryTree'
+
+// Delay constants for smooth UX
+const OPEN_DELAY = 50
+const CLOSE_DELAY = 200
+const SUBMENU_DELAY = 100
 
 export default function HeaderMinimal() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -19,11 +25,27 @@ export default function HeaderMinimal() {
   const [categoryTree, setCategoryTree] = useState<CategoryNode[]>([])
   const [loading, setLoading] = useState(true)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null)
+  const [activeSubSubmenu, setActiveSubSubmenu] = useState<number | null>(null)
   const [hydrated, setHydrated] = useState(false)
+
+  // Timeout refs for smooth hover
+  const openTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const submenuTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const { getItemCount } = useCartStore()
   const itemCount = getItemCount()
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
+
+  // Clear all timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (openTimeoutRef.current) clearTimeout(openTimeoutRef.current)
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+      if (submenuTimeoutRef.current) clearTimeout(submenuTimeoutRef.current)
+    }
+  }, [])
 
   // Fetch categories on mount
   useEffect(() => {
@@ -49,6 +71,48 @@ export default function HeaderMinimal() {
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Handle dropdown open with delay
+  const handleDropdownEnter = useCallback((key: string) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+    openTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown(key)
+      setActiveSubmenu(null)
+      setActiveSubSubmenu(null)
+    }, OPEN_DELAY)
+  }, [])
+
+  // Handle dropdown close with delay
+  const handleDropdownLeave = useCallback(() => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current)
+      openTimeoutRef.current = null
+    }
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpenDropdown(null)
+      setActiveSubmenu(null)
+      setActiveSubSubmenu(null)
+    }, CLOSE_DELAY)
+  }, [])
+
+  // Handle submenu hover
+  const handleSubmenuEnter = useCallback((categoryId: number) => {
+    if (submenuTimeoutRef.current) {
+      clearTimeout(submenuTimeoutRef.current)
+    }
+    submenuTimeoutRef.current = setTimeout(() => {
+      setActiveSubmenu(categoryId)
+      setActiveSubSubmenu(null)
+    }, SUBMENU_DELAY)
+  }, [])
+
+  // Handle sub-submenu hover
+  const handleSubSubmenuEnter = useCallback((categoryId: number) => {
+    setActiveSubSubmenu(categoryId)
   }, [])
 
   const mainCategories = [
@@ -90,63 +154,171 @@ export default function HeaderMinimal() {
                 const category = categoryTree.find(c => c.category === cat.key)
                 if (!category) return null
 
-                // Collect all subcategories recursively (including nested ones)
-                const getAllSubcategories = (node: CategoryNode): CategoryNode[] => {
-                  let allSubs: CategoryNode[] = []
-                  if (node.children && node.children.length > 0) {
-                    for (const child of node.children) {
-                      allSubs.push(child)
-                      // Recursively get children of children
-                      const nested = getAllSubcategories(child)
-                      allSubs = allSubs.concat(nested)
-                    }
-                  }
-                  return allSubs
-                }
-
-                const allSubcategories = getAllSubcategories(category)
+                const directChildren = category.children || []
+                const activeChild = directChildren.find(c => c.categoryid === activeSubmenu)
+                const activeGrandchild = activeChild?.children.find(c => c.categoryid === activeSubSubmenu)
 
                 return (
                   <div
                     key={cat.key}
-                    className="relative group"
-                    onMouseEnter={() => setOpenDropdown(cat.key)}
-                    onMouseLeave={() => setOpenDropdown(null)}
+                    className="relative"
+                    onMouseEnter={() => handleDropdownEnter(cat.key)}
+                    onMouseLeave={handleDropdownLeave}
                   >
-                    <Link
-                      href={`/categories/${cat.key.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
-                      className="px-3 py-2 text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors duration-200 flex items-center gap-1"
+                    {/* Category Button */}
+                    <button
+                      className={`px-3 py-2 text-sm font-medium transition-colors duration-200 flex items-center gap-1 ${
+                        openDropdown === cat.key
+                          ? 'text-black'
+                          : 'text-gray-900 hover:text-gray-600'
+                      }`}
                     >
                       {cat.label}
-                      <ChevronDown className="w-4 h-4" />
-                    </Link>
+                      <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${
+                        openDropdown === cat.key ? 'rotate-180' : ''
+                      }`} />
+                    </button>
 
-                    {/* Mega Dropdown Menu - Full Width */}
-                    <div className="absolute left-0 top-full mt-0 w-[700px] max-h-[70vh] overflow-y-auto bg-white border border-gray-200 shadow-xl invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50">
-                      <div className="grid grid-cols-3 gap-x-6 gap-y-1 p-6">
-                        {allSubcategories.map((subcat) => (
-                          <Link
-                            key={subcat.categoryid}
-                            href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
-                            className="group/item flex items-center justify-between px-3 py-2 text-sm text-gray-900 hover:bg-gray-50 rounded transition-colors duration-150"
-                          >
-                            <span className="font-medium group-hover/item:text-black truncate">{subcat.category}</span>
-                            {(subcat.product_count || 0) > 0 && (
-                              <span className="text-xs text-gray-500 font-normal ml-2 flex-shrink-0">({subcat.product_count})</span>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                      {allSubcategories.length > 0 && (
-                        <div className="border-t border-gray-200 p-4 bg-gray-50">
-                          <Link
-                            href={`/categories/${cat.key.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
-                            className="text-sm font-semibold text-black hover:text-gray-600 transition-colors flex items-center gap-2"
-                          >
-                            View All {cat.label} →
-                          </Link>
+                    {/* Invisible bridge to prevent gap issues */}
+                    {openDropdown === cat.key && (
+                      <div className="absolute left-0 w-full h-2 top-full" />
+                    )}
+
+                    {/* Mega Dropdown Menu - 3 Column Layout */}
+                    <div
+                      className={`absolute left-0 top-full bg-white border border-gray-200 shadow-xl z-50 transition-all duration-200 origin-top-left ${
+                        openDropdown === cat.key
+                          ? 'opacity-100 visible transform scale-100'
+                          : 'opacity-0 invisible transform scale-95 pointer-events-none'
+                      }`}
+                    >
+                      <div className="flex">
+                        {/* Column 1: Main Subcategories */}
+                        <div className="w-56 bg-gray-50 border-r border-gray-200 py-3">
+                          <div className="px-4 pb-2 mb-2 border-b border-gray-200">
+                            <Link
+                              href={`/categories/${cat.key.toLowerCase().replace(/\s+/g, '-')}?id=${category.categoryid}`}
+                              className="text-xs font-semibold text-gray-500 uppercase tracking-wide hover:text-black transition-colors"
+                              onClick={() => setOpenDropdown(null)}
+                            >
+                              Alle {cat.label} →
+                            </Link>
+                          </div>
+                          {directChildren.map((subcat) => (
+                            <div key={subcat.categoryid}>
+                              {subcat.children && subcat.children.length > 0 ? (
+                                <button
+                                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between ${
+                                    activeSubmenu === subcat.categoryid
+                                      ? 'bg-white text-black font-medium border-l-2 border-black'
+                                      : 'text-gray-700 hover:bg-gray-100'
+                                  }`}
+                                  onMouseEnter={() => handleSubmenuEnter(subcat.categoryid)}
+                                >
+                                  <span>{subcat.category}</span>
+                                  <ChevronRight className={`w-4 h-4 transition-opacity ${
+                                    activeSubmenu === subcat.categoryid ? 'opacity-100' : 'opacity-40'
+                                  }`} />
+                                </button>
+                              ) : (
+                                <Link
+                                  href={`/categories/${subcat.category.toLowerCase().replace(/\s+/g, '-')}?id=${subcat.categoryid}`}
+                                  className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                  onClick={() => setOpenDropdown(null)}
+                                  onMouseEnter={() => setActiveSubmenu(null)}
+                                >
+                                  {subcat.category}
+                                  {(subcat.product_count || 0) > 0 && (
+                                    <span className="text-xs text-gray-400 ml-2">({subcat.product_count})</span>
+                                  )}
+                                </Link>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                      )}
+
+                        {/* Column 2: Sub-subcategories */}
+                        <div className={`w-56 bg-white border-r border-gray-100 py-3 transition-opacity duration-150 ${
+                          activeSubmenu !== null ? 'opacity-100' : 'opacity-0'
+                        }`}>
+                          {activeChild && (
+                            <>
+                              <div className="px-4 pb-2 mb-2 border-b border-gray-100">
+                                <Link
+                                  href={`/categories/${activeChild.category.toLowerCase().replace(/\s+/g, '-')}?id=${activeChild.categoryid}`}
+                                  className="text-xs font-semibold text-black uppercase tracking-wide hover:underline"
+                                  onClick={() => setOpenDropdown(null)}
+                                >
+                                  Alle {activeChild.category} →
+                                </Link>
+                              </div>
+                              {activeChild.children.map((nested) => (
+                                <div key={nested.categoryid}>
+                                  {nested.children && nested.children.length > 0 ? (
+                                    <button
+                                      className={`w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between ${
+                                        activeSubSubmenu === nested.categoryid
+                                          ? 'bg-gray-50 text-black font-medium'
+                                          : 'text-gray-700 hover:bg-gray-50'
+                                      }`}
+                                      onMouseEnter={() => handleSubSubmenuEnter(nested.categoryid)}
+                                    >
+                                      <span>{nested.category}</span>
+                                      <ChevronRight className={`w-3 h-3 transition-opacity ${
+                                        activeSubSubmenu === nested.categoryid ? 'opacity-100' : 'opacity-30'
+                                      }`} />
+                                    </button>
+                                  ) : (
+                                    <Link
+                                      href={`/categories/${nested.category.toLowerCase().replace(/\s+/g, '-')}?id=${nested.categoryid}`}
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                                      onClick={() => setOpenDropdown(null)}
+                                      onMouseEnter={() => setActiveSubSubmenu(null)}
+                                    >
+                                      {nested.category}
+                                      {(nested.product_count || 0) > 0 && (
+                                        <span className="text-xs text-gray-400 ml-1">({nested.product_count})</span>
+                                      )}
+                                    </Link>
+                                  )}
+                                </div>
+                              ))}
+                            </>
+                          )}
+                        </div>
+
+                        {/* Column 3: Third level items */}
+                        <div className={`w-56 bg-white py-3 transition-opacity duration-150 ${
+                          activeSubSubmenu !== null ? 'opacity-100' : 'opacity-0'
+                        }`}>
+                          {activeGrandchild && (
+                            <>
+                              <div className="px-4 pb-2 mb-2 border-b border-gray-100">
+                                <Link
+                                  href={`/categories/${activeGrandchild.category.toLowerCase().replace(/\s+/g, '-')}?id=${activeGrandchild.categoryid}`}
+                                  className="text-xs font-semibold text-black uppercase tracking-wide hover:underline"
+                                  onClick={() => setOpenDropdown(null)}
+                                >
+                                  Alle {activeGrandchild.category} →
+                                </Link>
+                              </div>
+                              {activeGrandchild.children.map((item) => (
+                                <Link
+                                  key={item.categoryid}
+                                  href={`/categories/${item.category.toLowerCase().replace(/\s+/g, '-')}?id=${item.categoryid}`}
+                                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                                  onClick={() => setOpenDropdown(null)}
+                                >
+                                  {item.category}
+                                  {(item.product_count || 0) > 0 && (
+                                    <span className="text-xs text-gray-400 ml-1">({item.product_count})</span>
+                                  )}
+                                </Link>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )

@@ -36,7 +36,7 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 
 # Load Stripe API key from config file
 stripe.api_key = settings.STRIPE_SECRET_KEY
-STRIPE_WEBHOOK_SECRET = settings.STRIPE_WEBHOOK_SECRET
+STRIPE_WEBHOOK_SECRET = settings.STRIPE_WEBHOOK_SECRET.strip() if settings.STRIPE_WEBHOOK_SECRET else ""
 
 # Check if Stripe is configured
 if not stripe.api_key or stripe.api_key == "sk_test_YOUR_ACTUAL_KEY_HERE":
@@ -108,7 +108,7 @@ async def create_payment_intent(
             ],
             mode="payment",
             success_url=f"{payment_data.return_url}?session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url="http://localhost:3000/checkout",
+            cancel_url=f"{payment_data.return_url.split('/order')[0]}/checkout",
             metadata={
                 "order_id": order.web_order_id,
                 "order_number": order.ordernr,
@@ -241,14 +241,26 @@ async def stripe_webhook(
     
     payload = await request.body()
     
+    # DEBUG: Log webhook details
+    print(f"\n[WEBHOOK DEBUG]")
+    print(f"  Signature header: {stripe_signature[:20]}..." if stripe_signature else "  Signature: MISSING")
+    print(f"  Secret loaded: {STRIPE_WEBHOOK_SECRET[:20]}..." if STRIPE_WEBHOOK_SECRET else "  Secret: MISSING")
+    print(f"  Payload size: {len(payload)} bytes")
+    
     try:
         # Verify webhook signature
         event = stripe.Webhook.construct_event(
             payload, stripe_signature, STRIPE_WEBHOOK_SECRET
         )
-    except ValueError:
+        print(f"  ✅ Signature verified successfully")
+        print(f"  Event type: {event.get('type')}")
+    except ValueError as e:
+        print(f"  ❌ ValueError: {str(e)}")
         raise HTTPException(status_code=400, detail="Invalid payload")
-    except stripe.error.SignatureVerificationError:
+    except stripe.error.SignatureVerificationError as e:
+        print(f"  ❌ SignatureVerificationError: {str(e)}")
+        print(f"  Secret is empty: {not STRIPE_WEBHOOK_SECRET}")
+        print(f"  Signature is empty: {not stripe_signature}")
         raise HTTPException(status_code=400, detail="Invalid signature")
     
     # Handle the event

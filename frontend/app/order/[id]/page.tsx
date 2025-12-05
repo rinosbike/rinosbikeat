@@ -72,98 +72,110 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
   const isPaymentComplete = order.payment_status === 'paid' || order.payment_status === 'completed'
 
   return (
-    <div className="min-h-screen bg-gray-50 print:bg-white">
-      <div className="max-w-container mx-auto px-6 md:px-20 py-8">
-        {/* Success Header */}
-        <div className="card text-center mb-8 print:shadow-none">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">
-            {isPaymentComplete ? 'Vielen Dank für Ihre Bestellung!' : 'Bestellung erhalten'}
-          </h1>
-          <p className="text-lg text-gray-600 mb-4">
-            {isPaymentComplete
-              ? 'Ihre Zahlung wurde erfolgreich verarbeitet.'
-              : 'Ihre Bestellung wurde erfolgreich aufgenommen.'}
-          </p>
-          <p className="text-sm text-gray-600">
-            Bestellnummer: <span className="font-bold">{order.ordernr}</span>
-          </p>
+    <div className="min-h-screen bg-white print:bg-white">
+      <div className="max-w-6xl mx-auto px-6 md:px-12 py-12">
+        {/* Success Header - Premium Black/White Design */}
+        <div className="mb-12 print:shadow-none">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="flex-shrink-0">
+              <div className="flex items-center justify-center h-20 w-20 rounded-full bg-white border border-gray-200">
+                <CheckCircle className="h-12 w-12 text-black" />
+              </div>
+            </div>
+            <div className="flex-grow">
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
+                {isPaymentComplete ? 'Vielen Dank!' : 'Bestellung erhalten'}
+              </h1>
+              <p className="text-lg text-gray-600 mb-3">
+                {isPaymentComplete
+                  ? 'Ihre Zahlung wurde erfolgreich verarbeitet. Wir machen Ihre Bestellung bereit.'
+                  : 'Ihre Bestellung wurde erfolgreich aufgenommen.'}
+              </p>
+              <p className="text-base font-medium text-black">
+                Bestellnummer: <span className="font-black text-lg">{order.ordernr}</span>
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Order Information */}
-            <div className="card print:shadow-none">
-              <h2 className="text-xl font-bold mb-4">Bestelldetails</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Order Details - Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Order Information - Premium Card */}
+            <div className="border border-gray-200 rounded-2xl p-8 print:shadow-none bg-white">
+              <h2 className="text-2xl font-black mb-6 text-black">Bestelldetails</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-600">Bestellnummer</p>
-                  <p className="font-bold">{order.ordernr}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="pb-4 border-b border-gray-100 md:border-b-0">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Bestellnummer</p>
+                  <p className="text-xl font-black text-black">{order.ordernr}</p>
                 </div>
-                <div>
-                  <p className="text-gray-600">Bestelldatum</p>
-                  <p className="font-bold">
+                <div className="pb-4 border-b border-gray-100 md:border-b-0">
+                  <p className="text-sm font-medium text-gray-600 mb-1">Bestelldatum</p>
+                  <p className="text-lg font-semibold text-black">
                     {new Date(order.created_at).toLocaleDateString('de-DE', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {new Date(order.created_at).toLocaleTimeString('de-DE', {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
                   </p>
                 </div>
-                <div>
-                  <p className="text-gray-600">Zahlungsstatus</p>
-                  <p className="font-bold">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs ${
-                        isPaymentComplete
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-yellow-100 text-yellow-600'
-                      }`}
-                    >
-                      {getPaymentStatusText(order.payment_status)}
-                    </span>
-                  </p>
+                <div className="pt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">Zahlungsstatus</p>
+                  <span
+                    className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
+                      isPaymentComplete
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}
+                  >
+                    {getPaymentStatusText(order.payment_status)}
+                  </span>
                 </div>
-                <div>
-                  <p className="text-gray-600">ERP-Synchronisierung</p>
-                  <p className="font-bold">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs ${
-                        order.synced_to_erp
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
-                      {order.synced_to_erp ? 'Synchronisiert' : 'Ausstehend'}
-                    </span>
-                  </p>
+                <div className="pt-4">
+                  <p className="text-sm font-medium text-gray-600 mb-2">System-Status</p>
+                  <span
+                    className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
+                      order.synced_to_erp
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {order.synced_to_erp ? '✓ Verarbeitet' : 'Wird bearbeitet'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            {/* Next Steps */}
-            <div className="card bg-blue-50 border-blue-200 print:hidden">
-              <h2 className="text-xl font-bold mb-4">Nächste Schritte</h2>
+            {/* Next Steps - Premium Black Section */}
+            <div className="bg-black rounded-2xl p-8 print:hidden text-white">
+              <h2 className="text-2xl font-black mb-6">Was passiert jetzt?</h2>
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Mail className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-white/20">
+                    <Mail className="w-5 h-5 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium">Bestätigungs-E-Mail</p>
-                    <p className="text-sm text-gray-600">
-                      Sie erhalten eine Bestätigungs-E-Mail mit allen Details.
+                    <p className="font-bold mb-1">Bestätigungs-E-Mail</p>
+                    <p className="text-gray-300 text-sm">
+                      Sie erhalten sofort eine E-Mail mit allen Bestelldetails und Tracking-Informationen.
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start space-x-3">
-                  <Package className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="flex gap-4 items-start">
+                  <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-white/20">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium">Versandbenachrichtigung</p>
-                    <p className="text-sm text-gray-600">
-                      Sie werden per E-Mail benachrichtigt, sobald Ihre Bestellung versandt wurde.
+                    <p className="font-bold mb-1">Versand wird vorbereitet</p>
+                    <p className="text-gray-300 text-sm">
+                      Wir machen Ihre Bestellung bereit und versenden diese innerhalb von 24-48 Stunden.
                     </p>
                   </div>
                 </div>
@@ -171,57 +183,62 @@ export default function BestellungPage({ params }: OrderConfirmationPageProps) {
             </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Order Summary - Premium Sidebar */}
           <div className="lg:col-span-1">
-            <div className="card sticky top-24 print:shadow-none">
-              <h2 className="text-xl font-bold mb-4">Zusammenfassung</h2>
+            <div className="sticky top-32 border border-gray-200 rounded-2xl p-8 print:shadow-none bg-white">
+              <h2 className="text-2xl font-black mb-6 text-black">Gesamtübersicht</h2>
 
-              <div className="space-y-3 pb-4 border-b">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Zwischensumme</span>
-                  <span className="font-medium">
-                    {(order.orderamount / 1.19).toFixed(2)} {order.currency}
+              <div className="space-y-4 pb-6 border-b-2 border-gray-100">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 font-medium">Summe netto</span>
+                  <span className="text-lg font-bold text-black">
+                    {(order.orderamount / 1.19).toFixed(2)} €
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">MwSt. (19%)</span>
-                  <span className="font-medium">
-                    {(order.orderamount - order.orderamount / 1.19).toFixed(2)} {order.currency}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 font-medium">MwSt. (19%)</span>
+                  <span className="text-lg font-bold text-black">
+                    {(order.orderamount - order.orderamount / 1.19).toFixed(2)} €
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Versand</span>
-                  <span className="font-medium">Kostenlos</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 font-medium">Versand</span>
+                  <span className="text-lg font-bold text-green-600">Kostenlos</span>
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-between items-baseline">
-                <span className="font-bold">Gesamt</span>
-                <span className="text-2xl font-bold text-blue-600">
-                  {order.orderamount.toFixed(2)} {order.currency}
+              <div className="py-6 flex justify-between items-baseline">
+                <span className="text-gray-600 font-medium">Gesamt</span>
+                <span className="text-4xl font-black text-black">
+                  {order.orderamount.toFixed(2)}€
                 </span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-6 space-y-3 print:hidden">
+              {/* Action Buttons - Black/White Premium Style */}
+              <div className="space-y-3 print:hidden">
                 <button
                   onClick={handlePrint}
-                  className="btn btn-outline w-full flex items-center justify-center space-x-2"
+                  className="w-full bg-black text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-900 transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <Printer className="w-5 h-5" />
-                  <span>Bestellung drucken</span>
+                  Bestellung drucken
                 </button>
 
-                <Link href="/produkte" className="btn btn-primary w-full text-center">
+                <Link 
+                  href="/produkte" 
+                  className="block w-full border-2 border-black text-black px-6 py-3 rounded-xl font-bold text-center hover:bg-black hover:text-white transition-all duration-300"
+                >
                   Weiter einkaufen
                 </Link>
               </div>
 
               {/* Support */}
-              <div className="mt-6 pt-6 border-t text-sm text-gray-600">
-                <p className="font-medium mb-2">Fragen zu Ihrer Bestellung?</p>
-                <p>Kontaktieren Sie uns unter:</p>
-                <p className="text-blue-600 font-medium">info@rinosbike.eu</p>
+              <div className="mt-8 pt-6 border-t-2 border-gray-100">
+                <p className="text-sm font-black text-black mb-3">Du brauchst Hilfe?</p>
+                <p className="text-sm text-gray-600 mb-2">Kontaktiere uns unter:</p>
+                <a href="mailto:info@rinosbike.eu" className="text-lg font-black text-black hover:text-gray-600 transition">
+                  info@rinosbike.eu
+                </a>
               </div>
             </div>
           </div>
