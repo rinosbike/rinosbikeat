@@ -1,126 +1,180 @@
 /**
  * Footer Component - RINOS Bikes
- * Matches Shopify Dawn theme footer design
+ * Premium Apple/Framer-inspired design
  */
 
 import Link from 'next/link'
-import { Facebook, Instagram, Youtube, Mail } from 'lucide-react'
+import { Facebook, Instagram, Youtube, Mail, ArrowRight } from 'lucide-react'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-black text-white mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Newsletter Section - Above Footer Grid */}
-        <div className="mb-12 max-w-md">
-          <h3 className="font-black text-xl mb-4 text-white">Newsletter</h3>
-          <p className="text-gray-300 text-sm mb-4">Abonnieren Sie unsere E-Mails für exklusive Angebote und Updates.</p>
-          <div>
-            <input
-              type="email"
-              placeholder="E-Mail"
-              className="w-full px-4 py-3 bg-gray-900 text-white text-sm border border-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent mb-3 placeholder-gray-500"
-            />
-            <button className="w-full bg-white text-black px-6 py-3 text-sm font-bold rounded-lg hover:bg-gray-100 transition-all duration-300">
-              Abonnieren
-            </button>
+    <footer className="bg-rinos-dark text-white mt-24 lg:mt-32">
+      {/* Main Footer Content */}
+      <div className="max-w-container mx-auto px-6 md:px-12 lg:px-20">
+        {/* Top Section - Newsletter */}
+        <div className="py-16 lg:py-20 border-b border-white/10">
+          <div className="max-w-2xl">
+            <h3 className="text-headline font-semibold text-white mb-3">
+              Newsletter
+            </h3>
+            <p className="text-body text-white/60 mb-6">
+              Abonnieren Sie unsere E-Mails für exklusive Angebote, Neuheiten und Updates.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <input
+                  type="email"
+                  placeholder="Ihre E-Mail-Adresse"
+                  className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl
+                           text-white placeholder:text-white/40
+                           focus:bg-white/10 focus:border-white/20 focus:outline-none
+                           transition-all duration-300"
+                />
+              </div>
+              <button className="btn bg-white text-rinos-dark px-8 py-4 rounded-full
+                               font-medium hover:bg-white/90
+                               active:scale-[0.98] transition-all duration-300
+                               flex items-center justify-center gap-2 group">
+                Abonnieren
+                <ArrowRight className="w-4 h-4 transition-transform duration-300
+                                      group-hover:translate-x-1" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Footer Grid - 3 Column Layout with Menu Headings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 mb-12 border-b border-gray-800 pb-12">
-          {/* Column 1: Help & Services */}
+        {/* Middle Section - Navigation Grid */}
+        <div className="py-16 lg:py-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          {/* Column 1: Brand Info */}
+          <div className="lg:col-span-1">
+            <Link href="/" className="inline-block mb-6">
+              <img
+                src="/images/hero/logo.png"
+                alt="RINOS Bikes"
+                className="h-16 w-auto brightness-0 invert opacity-90"
+              />
+            </Link>
+            <p className="text-body-sm text-white/50 leading-relaxed">
+              Premium Fahrräder für anspruchsvolle Radfahrer.
+              Qualität und Design vereint.
+            </p>
+          </div>
+
+          {/* Column 2: Customer Service */}
           <div>
-            <h3 className="font-black text-lg mb-6 text-white">Kundenservice</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/rueckgabe" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Rückgabe & Erstattung
-                </Link>
-              </li>
-              <li>
-                <Link href="/montageservice" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Montageservice
-                </Link>
-              </li>
-              <li>
-                <Link href="/sponsoring" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Sponsoring
-                </Link>
-              </li>
+            <h4 className="text-overline font-medium uppercase tracking-widest
+                         text-white/40 mb-6">
+              Kundenservice
+            </h4>
+            <ul className="space-y-4">
+              <FooterLink href="/rueckgabe">Rückgabe & Erstattung</FooterLink>
+              <FooterLink href="/montageservice">Montageservice</FooterLink>
+              <FooterLink href="/sponsoring">Sponsoring</FooterLink>
+              <FooterLink href="/kontakt">Kontakt</FooterLink>
             </ul>
           </div>
 
-          {/* Column 2: Information */}
+          {/* Column 3: Information */}
           <div>
-            <h3 className="font-black text-lg mb-6 text-white">Informationen</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/ueber-uns" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Über uns
-                </Link>
-              </li>
-              <li>
-                <Link href="/versand" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Versandoptionen
-                </Link>
-              </li>
-              <li>
-                <Link href="/zahlungsoptionen" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Zahlungsoptionen
-                </Link>
-              </li>
+            <h4 className="text-overline font-medium uppercase tracking-widest
+                         text-white/40 mb-6">
+              Informationen
+            </h4>
+            <ul className="space-y-4">
+              <FooterLink href="/ueber-uns">Über uns</FooterLink>
+              <FooterLink href="/versand">Versandoptionen</FooterLink>
+              <FooterLink href="/zahlungsoptionen">Zahlungsoptionen</FooterLink>
+              <FooterLink href="/faq">FAQ</FooterLink>
             </ul>
           </div>
 
-          {/* Column 3: Legal Information */}
+          {/* Column 4: Legal */}
           <div>
-            <h3 className="font-black text-lg mb-6 text-white">Rechtliches</h3>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link href="/datenschutz" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Datenschutz
-                </Link>
-              </li>
-              <li>
-                <Link href="/agb" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Allgemeine Geschäftsbedingungen
-                </Link>
-              </li>
-              <li>
-                <Link href="/impressum" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Impressum
-                </Link>
-              </li>
-              <li>
-                <Link href="/widerrufsrecht" className="text-gray-400 hover:text-white transition-colors font-medium">
-                  Widerrufsrecht
-                </Link>
-              </li>
+            <h4 className="text-overline font-medium uppercase tracking-widest
+                         text-white/40 mb-6">
+              Rechtliches
+            </h4>
+            <ul className="space-y-4">
+              <FooterLink href="/datenschutz">Datenschutz</FooterLink>
+              <FooterLink href="/agb">AGB</FooterLink>
+              <FooterLink href="/impressum">Impressum</FooterLink>
+              <FooterLink href="/widerrufsrecht">Widerrufsrecht</FooterLink>
             </ul>
           </div>
         </div>
 
-        {/* Social Links & Copyright */}
-        <div className="flex flex-col sm:flex-row items-center justify-between pt-8">
-          <p className="text-sm text-gray-400">&copy; {currentYear} RINOS Bikes. Alle Rechte vorbehalten.</p>
-          <div className="flex items-center gap-4 mt-6 sm:mt-0">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Facebook className="w-5 h-5" />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Youtube className="w-5 h-5" />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Mail className="w-5 h-5" />
-            </a>
+        {/* Bottom Section - Copyright & Social */}
+        <div className="py-8 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            {/* Copyright */}
+            <p className="text-caption text-white/40 order-2 sm:order-1">
+              © {currentYear} RINOS Bikes. Alle Rechte vorbehalten.
+            </p>
+
+            {/* Social Icons */}
+            <div className="flex items-center gap-2 order-1 sm:order-2">
+              <SocialLink href="https://facebook.com" label="Facebook">
+                <Facebook className="w-4 h-4" />
+              </SocialLink>
+              <SocialLink href="https://instagram.com" label="Instagram">
+                <Instagram className="w-4 h-4" />
+              </SocialLink>
+              <SocialLink href="https://youtube.com" label="YouTube">
+                <Youtube className="w-4 h-4" />
+              </SocialLink>
+              <SocialLink href="mailto:info@rinosbikes.com" label="Email">
+                <Mail className="w-4 h-4" />
+              </SocialLink>
+            </div>
           </div>
         </div>
       </div>
     </footer>
+  )
+}
+
+// Footer Link Component
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="text-body-sm text-white/60 hover:text-white
+                 transition-colors duration-300 inline-flex items-center gap-1 group"
+      >
+        {children}
+        <ArrowRight className="w-3 h-3 opacity-0 -translate-x-2
+                             group-hover:opacity-100 group-hover:translate-x-0
+                             transition-all duration-300" />
+      </Link>
+    </li>
+  )
+}
+
+// Social Link Component
+function SocialLink({
+  href,
+  label,
+  children
+}: {
+  href: string
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="w-10 h-10 rounded-full flex items-center justify-center
+               text-white/50 hover:text-white hover:bg-white/10
+               transition-all duration-300"
+    >
+      {children}
+    </a>
   )
 }

@@ -13,6 +13,18 @@ from decimal import Decimal
 import os
 import json
 
+
+def _safe_iso(dt):
+    """Convert datetime to ISO string; pass through strings; otherwise None."""
+    if dt is None:
+        return None
+    if isinstance(dt, str):
+        return dt
+    try:
+        return dt.isoformat()
+    except Exception:
+        return None
+
 from database.connection import engine, get_db
 from models.product import Product
 from models.order import WebOrder, Order
@@ -335,21 +347,28 @@ async def get_admin_orders(
         offset = (page - 1) * page_size
         orders = query.offset(offset).limit(page_size).all()
 
+        # Build response with customer info
+        orders_list = []
+        for o in orders:
+            user = db.query(WebUser).filter(WebUser.user_id == o.user_id).first() if o.user_id else None
+            customer_name = None
+            if user and (user.first_name or user.last_name):
+                customer_name = f"{user.first_name or ''} {user.last_name or ''}".strip()
+            
+            orders_list.append({
+                "web_order_id": o.web_order_id,
+                "ordernr": o.ordernr,
+                "orderamount": float(o.orderamount) if o.orderamount else 0,
+                "currency": o.currency or 'EUR',
+                "payment_status": o.payment_status,
+                "synced_to_erp": o.synced_to_erp,
+                "created_at": _safe_iso(o.created_at),
+                "customer_email": user.email if user else None,
+                "customer_name": customer_name
+            })
+
         return {
-            "orders": [
-                {
-                    "web_order_id": o.web_order_id,
-                    "ordernr": o.ordernr,
-                    "orderamount": float(o.orderamount) if o.orderamount else 0,
-                    "currency": o.currency or 'EUR',
-                    "payment_status": o.payment_status,
-                    "synced_to_erp": o.synced_to_erp,
-                    "created_at": o.created_at.isoformat() if o.created_at else None,
-                    "customer_email": None,  # Would need to join with customer data
-                    "customer_name": None
-                }
-                for o in orders
-            ],
+            "orders": orders_list,
             "total": total,
             "page": page,
             "page_size": page_size,
@@ -612,8 +631,8 @@ async def get_admin_users(
                     "is_admin": user.is_admin,
                     "email_verified": user.email_verified,
                     "newsletter_subscribed": user.newsletter_subscribed,
-                    "created_at": user.created_at.isoformat() if user.created_at else None,
-                    "last_login": user.last_login.isoformat() if user.last_login else None
+                    "created_at": _safe_iso(user.created_at),
+                    "last_login": _safe_iso(user.last_login)
                 }
                 for user in users
             ],
@@ -650,9 +669,9 @@ async def get_admin_user(
             "is_admin": user.is_admin,
             "email_verified": user.email_verified,
             "newsletter_subscribed": user.newsletter_subscribed,
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-            "updated_at": user.updated_at.isoformat() if user.updated_at else None,
-            "last_login": user.last_login.isoformat() if user.last_login else None
+            "created_at": _safe_iso(user.created_at),
+            "updated_at": _safe_iso(user.updated_at),
+            "last_login": _safe_iso(user.last_login)
         }
     except HTTPException:
         raise

@@ -16,11 +16,11 @@ export default function CartPage() {
   const router = useRouter()
   const { items, removeItem, updateQuantity, clearCart, getItemCount, getSubtotal, getTotal } = useCartStore()
 
+  // Note: Tax will be calculated based on customer's country at checkout
+  // Cart shows subtotal only - prices already include German VAT (19%)
   const subtotal = getSubtotal()
-  const taxRate = 19 // 19% VAT
-  const tax = subtotal * (taxRate / 100)
   const shipping = subtotal >= 100 ? 0 : 9.99
-  const total = subtotal + tax + shipping
+  const total = subtotal + shipping
 
   const handleUpdateQuantity = (articlenr: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -204,17 +204,13 @@ export default function CartPage() {
           {/* Order Summary - Premium Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-black text-white rounded-2xl p-8 sticky top-24">
-              <h2 className="text-2xl font-black mb-8">Bestellübersicht</h2>
+              <h2 className="text-2xl font-black mb-2">Bestellübersicht</h2>
+              <p className="text-xs text-gray-400 mb-8">Steuern werden beim Checkout berechnet</p>
 
               <div className="space-y-4 mb-8">
                 <div className="flex justify-between text-gray-300 pb-4 border-b border-gray-800">
                   <span className="text-sm uppercase tracking-wider">Zwischensumme</span>
                   <span className="font-semibold">{subtotal.toFixed(2)} €</span>
-                </div>
-
-                <div className="flex justify-between text-gray-300 pb-4 border-b border-gray-800">
-                  <span className="text-sm uppercase tracking-wider">MwSt. ({taxRate}%)</span>
-                  <span className="font-semibold">{tax.toFixed(2)} €</span>
                 </div>
 
                 <div className="flex justify-between text-gray-300">

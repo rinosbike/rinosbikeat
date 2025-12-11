@@ -1,0 +1,11 @@
+INFO:     Started server process [60846]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 48] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+[WARNING] STRIPE_SECRET_KEY not set in config.py
+[OK] All routers loaded successfully
+RINOS Bikes API starting up...
+CORS Origins: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173']
+RINOS Bikes API shutting down...

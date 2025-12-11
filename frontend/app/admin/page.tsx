@@ -1,6 +1,6 @@
 /**
- * Admin Dashboard - Overview Page
- * Shows key metrics and quick actions
+ * Admin Dashboard - RINOS CMS
+ * Premium Apple/Framer-inspired overview page
  */
 
 'use client'
@@ -16,7 +16,10 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Euro
+  Euro,
+  FileText,
+  Home,
+  Sparkles
 } from 'lucide-react'
 import { adminApi, AdminStats } from '@/lib/api'
 
@@ -38,7 +41,6 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error('Failed to load stats:', err)
       setError('Statistiken konnten nicht geladen werden')
-      // Set default stats for display
       setStats({
         total_products: 0,
         total_orders: 0,
@@ -59,50 +61,69 @@ export default function AdminDashboard() {
       value: stats?.total_products ?? 0,
       icon: Package,
       href: '/admin/products',
-      color: 'bg-blue-500'
+      gradient: 'from-blue-500 to-blue-600'
     },
     {
       title: 'Bestellungen',
       value: stats?.total_orders ?? 0,
       icon: ShoppingCart,
       href: '/admin/orders',
-      color: 'bg-green-500'
+      gradient: 'from-emerald-500 to-emerald-600'
     },
     {
       title: 'Ausstehend',
       value: stats?.pending_orders ?? 0,
       icon: Clock,
       href: '/admin/orders?status=pending',
-      color: 'bg-yellow-500'
+      gradient: 'from-amber-500 to-amber-600'
     },
     {
       title: 'Benutzer',
       value: stats?.total_users ?? 0,
       icon: Users,
       href: '/admin/users',
-      color: 'bg-purple-500'
+      gradient: 'from-violet-500 to-violet-600'
     }
   ]
 
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-black text-black">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Willkommen im Admin-Bereich</p>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p className="text-overline uppercase tracking-widest text-rinos-text-secondary mb-2">
+            Willkommen zurück
+          </p>
+          <h1 className="text-display-sm font-bold text-rinos-dark">Dashboard</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-caption text-rinos-text-secondary">
+            {new Date().toLocaleDateString('de-DE', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric'
+            })}
+          </span>
+        </div>
       </div>
 
       {/* Error Alert */}
       {error && (
         <div
-          className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
+          className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-4"
           role="alert"
         >
-          <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-          <p className="text-red-700 text-sm">{error}</p>
+          <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="h-5 w-5 text-red-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-body-sm font-medium text-red-800">{error}</p>
+          </div>
           <button
             onClick={loadStats}
-            className="ml-auto text-red-600 hover:text-red-800 text-sm font-semibold"
+            className="text-body-sm font-medium text-red-600 hover:text-red-800
+                     px-4 py-2 rounded-xl hover:bg-red-100 transition-colors"
           >
             Erneut versuchen
           </button>
@@ -110,125 +131,159 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {statCards.map((stat) => {
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {statCards.map((stat, index) => {
           const Icon = stat.icon
           return (
             <Link
               key={stat.title}
               href={stat.href}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-black hover:shadow-lg transition-all group"
+              className="group bg-white rounded-2xl border border-rinos-border-light p-6
+                       hover:border-rinos-border hover:shadow-soft
+                       transition-all duration-300 ease-out-expo"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  {loading ? (
-                    <div className="h-9 w-20 bg-gray-200 rounded animate-pulse mt-1" />
-                  ) : (
-                    <p className="text-3xl font-black text-black mt-1">
-                      {stat.value.toLocaleString('de-DE')}
-                    </p>
-                  )}
-                </div>
-                <div className={`${stat.color} p-3 rounded-xl`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${stat.gradient}
+                              flex items-center justify-center shadow-soft
+                              transition-transform duration-300 group-hover:scale-110`}>
                   <Icon className="h-6 w-6 text-white" aria-hidden="true" />
                 </div>
+                <ArrowRight className="w-5 h-5 text-rinos-text-secondary opacity-0
+                                     group-hover:opacity-100 group-hover:translate-x-1
+                                     transition-all duration-300" />
               </div>
-              <div className="mt-4 flex items-center text-sm font-medium text-gray-600 group-hover:text-black transition-colors">
-                Details anzeigen
-                <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              <div>
+                <p className="text-caption font-medium text-rinos-text-secondary mb-1">
+                  {stat.title}
+                </p>
+                {loading ? (
+                  <div className="h-9 w-24 skeleton rounded-lg" />
+                ) : (
+                  <p className="text-display-sm font-bold text-rinos-dark">
+                    {stat.value.toLocaleString('de-DE')}
+                  </p>
+                )}
               </div>
             </Link>
           )
         })}
       </div>
 
-      {/* Revenue Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-black rounded-2xl p-6 text-white">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-white/20 p-2 rounded-lg">
-              <Euro className="h-5 w-5" aria-hidden="true" />
+      {/* Revenue Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Today's Revenue */}
+        <div className="bg-gradient-to-br from-rinos-dark to-black rounded-2xl p-8 text-white
+                      relative overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full
+                        transform translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full
+                        transform -translate-x-1/2 translate-y-1/2" />
+
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-xs
+                            flex items-center justify-center">
+                <Euro className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <span className="text-body-sm font-medium text-white/60">Umsatz heute</span>
             </div>
-            <span className="text-sm font-medium text-white/70">Umsatz heute</span>
+            {loading ? (
+              <div className="h-12 w-40 bg-white/10 rounded-xl animate-pulse" />
+            ) : (
+              <p className="text-display font-bold">
+                {(stats?.revenue_today ?? 0).toLocaleString('de-DE', {
+                  style: 'currency',
+                  currency: 'EUR'
+                })}
+              </p>
+            )}
           </div>
-          {loading ? (
-            <div className="h-10 w-32 bg-white/20 rounded animate-pulse" />
-          ) : (
-            <p className="text-4xl font-black">
-              {(stats?.revenue_today ?? 0).toLocaleString('de-DE', {
-                style: 'currency',
-                currency: 'EUR'
-              })}
-            </p>
-          )}
         </div>
 
-        <div className="bg-gray-100 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-black p-2 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-white" aria-hidden="true" />
+        {/* Monthly Revenue */}
+        <div className="bg-white rounded-2xl border border-rinos-border-light p-8
+                      relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rinos-bg-secondary rounded-full
+                        transform translate-x-1/2 -translate-y-1/2" />
+
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-rinos-dark
+                            flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-white" aria-hidden="true" />
+              </div>
+              <span className="text-body-sm font-medium text-rinos-text-secondary">Umsatz diesen Monat</span>
             </div>
-            <span className="text-sm font-medium text-gray-600">Umsatz diesen Monat</span>
+            {loading ? (
+              <div className="h-12 w-40 skeleton rounded-xl" />
+            ) : (
+              <p className="text-display font-bold text-rinos-dark">
+                {(stats?.revenue_month ?? 0).toLocaleString('de-DE', {
+                  style: 'currency',
+                  currency: 'EUR'
+                })}
+              </p>
+            )}
           </div>
-          {loading ? (
-            <div className="h-10 w-32 bg-gray-300 rounded animate-pulse" />
-          ) : (
-            <p className="text-4xl font-black text-black">
-              {(stats?.revenue_month ?? 0).toLocaleString('de-DE', {
-                style: 'currency',
-                currency: 'EUR'
-              })}
-            </p>
-          )}
         </div>
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-lg font-black text-black">Letzte Bestellungen</h2>
+      <div className="bg-white rounded-2xl border border-rinos-border-light overflow-hidden">
+        <div className="px-6 py-5 border-b border-rinos-border-light flex items-center justify-between">
+          <h2 className="text-title font-semibold text-rinos-dark">Letzte Bestellungen</h2>
           <Link
             href="/admin/orders"
-            className="text-sm font-semibold text-gray-600 hover:text-black flex items-center gap-1"
+            className="text-body-sm font-medium text-rinos-text-secondary hover:text-rinos-dark
+                     flex items-center gap-1.5 group transition-colors"
           >
             Alle anzeigen
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
-        <div className="divide-y divide-gray-100">
+
+        <div className="divide-y divide-rinos-border-light">
           {loading ? (
-            // Loading skeleton
             Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="px-6 py-4 flex items-center gap-4">
-                <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-11 w-11 skeleton rounded-xl" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 w-24 bg-gray-100 rounded animate-pulse" />
+                  <div className="h-4 w-32 skeleton rounded-lg" />
+                  <div className="h-3 w-24 skeleton rounded-lg" />
                 </div>
-                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-6 w-24 skeleton rounded-full" />
               </div>
             ))
           ) : stats?.recent_orders?.length ? (
-            stats.recent_orders.slice(0, 5).map((order) => (
+            stats.recent_orders.slice(0, 5).map((order, index) => (
               <Link
                 key={order.ordernr}
                 href={`/admin/orders/${order.web_order_id}`}
-                className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors"
+                className="px-6 py-4 flex items-center gap-4 hover:bg-rinos-bg-secondary/50
+                         transition-colors duration-200"
+                style={{ animationDelay: `${index * 50}ms` }}
               >
                 <div className={`
-                  h-10 w-10 rounded-full flex items-center justify-center
-                  ${order.payment_status === 'paid' ? 'bg-green-100' : 'bg-yellow-100'}
+                  h-11 w-11 rounded-xl flex items-center justify-center
+                  ${order.payment_status === 'paid'
+                    ? 'bg-emerald-50 text-emerald-600'
+                    : 'bg-amber-50 text-amber-600'
+                  }
                 `}>
                   {order.payment_status === 'paid' ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    <CheckCircle2 className="h-5 w-5" />
                   ) : (
-                    <Clock className="h-5 w-5 text-yellow-600" />
+                    <Clock className="h-5 w-5" />
                   )}
                 </div>
+
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-black truncate">{order.ordernr}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-body-sm font-semibold text-rinos-dark truncate">
+                    {order.ordernr}
+                  </p>
+                  <p className="text-caption text-rinos-text-secondary">
                     {new Date(order.created_at).toLocaleDateString('de-DE', {
                       day: '2-digit',
                       month: 'short',
@@ -238,20 +293,21 @@ export default function AdminDashboard() {
                     })}
                   </p>
                 </div>
+
                 <div className="text-right">
-                  <p className="font-bold text-black">
+                  <p className="text-body-sm font-semibold text-rinos-dark">
                     {order.orderamount.toLocaleString('de-DE', {
                       style: 'currency',
                       currency: order.currency
                     })}
                   </p>
                   <span className={`
-                    inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                    inline-flex items-center px-2.5 py-0.5 rounded-full text-caption font-medium
                     ${order.payment_status === 'paid'
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-emerald-50 text-emerald-700'
                       : order.payment_status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-red-100 text-red-700'
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-red-50 text-red-700'
                     }
                   `}>
                     {order.payment_status === 'paid' ? 'Bezahlt' :
@@ -261,43 +317,84 @@ export default function AdminDashboard() {
               </Link>
             ))
           ) : (
-            <div className="px-6 py-12 text-center text-gray-500">
-              <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-              <p>Keine Bestellungen vorhanden</p>
+            <div className="px-6 py-16 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-rinos-bg-secondary
+                            flex items-center justify-center">
+                <ShoppingCart className="h-8 w-8 text-rinos-text-secondary" />
+              </div>
+              <p className="text-body text-rinos-text-secondary">Keine Bestellungen vorhanden</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link
-          href="/admin/products"
-          className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-black hover:shadow-lg transition-all group text-center"
-        >
-          <Package className="h-8 w-8 mx-auto mb-3 text-gray-400 group-hover:text-black transition-colors" />
-          <p className="font-bold text-black">Produkte verwalten</p>
-          <p className="text-sm text-gray-500 mt-1">Preise, Bilder, Beschreibungen</p>
-        </Link>
-
-        <Link
-          href="/admin/orders"
-          className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-black hover:shadow-lg transition-all group text-center"
-        >
-          <ShoppingCart className="h-8 w-8 mx-auto mb-3 text-gray-400 group-hover:text-black transition-colors" />
-          <p className="font-bold text-black">Bestellungen verwalten</p>
-          <p className="text-sm text-gray-500 mt-1">Status, Versand, Details</p>
-        </Link>
-
-        <Link
-          href="/admin/homepage"
-          className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-black hover:shadow-lg transition-all group text-center"
-        >
-          <TrendingUp className="h-8 w-8 mx-auto mb-3 text-gray-400 group-hover:text-black transition-colors" />
-          <p className="font-bold text-black">Startseite bearbeiten</p>
-          <p className="text-sm text-gray-500 mt-1">Hero, Kategorien, Banner</p>
-        </Link>
+      <div>
+        <h2 className="text-title font-semibold text-rinos-dark mb-5">Schnellzugriff</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <QuickActionCard
+            href="/admin/products"
+            icon={Package}
+            title="Produkte"
+            description="Preise & Beschreibungen"
+          />
+          <QuickActionCard
+            href="/admin/orders"
+            icon={ShoppingCart}
+            title="Bestellungen"
+            description="Status & Versand"
+          />
+          <QuickActionCard
+            href="/admin/pages"
+            icon={FileText}
+            title="Seiten"
+            description="Content verwalten"
+          />
+          <QuickActionCard
+            href="/admin/homepage"
+            icon={Home}
+            title="Startseite"
+            description="Hero & Banner"
+          />
+        </div>
       </div>
     </div>
+  )
+}
+
+function QuickActionCard({
+  href,
+  icon: Icon,
+  title,
+  description
+}: {
+  href: string
+  icon: any
+  title: string
+  description: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="group bg-white rounded-2xl border border-rinos-border-light p-5
+               hover:border-rinos-border hover:shadow-soft
+               transition-all duration-300 ease-out-expo"
+    >
+      <div className="flex items-start gap-4">
+        <div className="w-11 h-11 rounded-xl bg-rinos-bg-secondary
+                      flex items-center justify-center flex-shrink-0
+                      transition-all duration-300
+                      group-hover:bg-rinos-dark group-hover:text-white">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-body-sm font-semibold text-rinos-dark">{title}</p>
+          <p className="text-caption text-rinos-text-secondary">{description}</p>
+        </div>
+        <ArrowRight className="w-4 h-4 text-rinos-text-secondary opacity-0
+                             group-hover:opacity-100 transition-all duration-300
+                             group-hover:translate-x-1 flex-shrink-0 mt-1" />
+      </div>
+    </Link>
   )
 }

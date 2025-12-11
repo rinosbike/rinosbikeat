@@ -11,12 +11,13 @@ import { ArrowRight, Star } from 'lucide-react'
 
 interface Product {
   productid: number
-  productname: string
+  articlenr: string
+  articlename: string
   price: number
   sale_price?: number | null
   rating?: number
   reviews?: number
-  image_url?: string
+  primary_image?: string
   slug?: string
 }
 
@@ -27,7 +28,7 @@ export default function FeaturedProducts() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch('/api/meta/products?limit=8')
+        const response = await fetch('/api/featured-products?limit=8')
         const data = await response.json()
         if (data.products) {
           setProducts(data.products.slice(0, 8))
@@ -75,15 +76,15 @@ export default function FeaturedProducts() {
           {products.map((product) => (
             <Link
               key={product.productid}
-              href={`/products/${product.slug || product.productid}`}
+              href={`/products/${product.articlenr}`}
               className="group"
             >
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200 p-4">
                 <div className="relative bg-gray-50 aspect-square overflow-hidden rounded-xl mb-4 flex items-center justify-center border border-gray-100">
-                  {product.image_url ? (
+                  {product.primary_image ? (
                     <img
-                      src={product.image_url}
-                      alt={product.productname}
+                      src={product.primary_image}
+                      alt={product.articlename}
                       className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 p-2"
                     />
                   ) : (
@@ -100,7 +101,7 @@ export default function FeaturedProducts() {
 
                 <div className="space-y-3">
                   <h3 className="text-base font-bold text-black line-clamp-2 group-hover:text-gray-700 transition-colors">
-                    {product.productname}
+                    {product.articlename}
                   </h3>
 
                   {/* Rating */}

@@ -113,10 +113,10 @@ export default function MegaMenu({ title, categories }: MegaMenuProps) {
       {/* Main Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1 text-sm font-normal transition-all py-3 px-1 ${
+        className={`flex items-center gap-1 text-sm font-semibold transition-all py-3 px-2 ${
           isOpen
-            ? 'text-rinos-primary'
-            : 'text-rinos-text hover:text-rinos-primary'
+            ? 'text-black'
+            : 'text-gray-700 hover:text-black'
         }`}
       >
         <span>{title}</span>
@@ -332,10 +332,10 @@ export function SimpleDropdown({ title, categories }: { title: string; categorie
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1 text-sm font-normal transition-all py-3 px-1 ${
+        className={`flex items-center gap-1 text-sm font-semibold transition-all py-3 px-2 ${
           isOpen
-            ? 'text-rinos-primary'
-            : 'text-rinos-text hover:text-rinos-primary'
+            ? 'text-black'
+            : 'text-gray-700 hover:text-black'
         }`}
       >
         <span>{title}</span>

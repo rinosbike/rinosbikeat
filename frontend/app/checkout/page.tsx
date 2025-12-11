@@ -101,14 +101,14 @@ export default function CheckoutPage() {
     setError(null)
 
     try {
-      // Calculate totals
-      const subtotal = getSubtotal()
-      const taxRate = 20 // Austrian VAT
-      const tax = subtotal * (taxRate / 100)
-      const shipping = subtotal >= 100 ? 0 : 0.20 // Testing: 20 cents shipping
-      const total = subtotal + tax + shipping
-
+      // Get country code from form (customer_country field)
+      const countryCode = formData.customer_country
+      
+      // Note: Don't calculate prices here - backend will handle country-specific pricing
+      // Backend will convert prices based on customer_country from customer_info
+      
       // Step 1: Create order with cart items from localStorage
+      // Backend will recalculate all prices based on customer's country
       const orderPayload = {
         customer_info: formData,
         cart_items: items.map(item => ({
@@ -117,10 +117,6 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price_at_addition: item.price_at_addition,
         })),
-        subtotal,
-        tax_amount: tax,
-        shipping,
-        total_amount: total,
         payment_method: 'stripe'
       }
 
@@ -165,12 +161,42 @@ export default function CheckoutPage() {
     return null // Will redirect
   }
 
-  // Calculate totals
-  const subtotal = getSubtotal()
-  const taxRate = 20 // Austrian VAT
-  const tax = subtotal * (taxRate / 100)
-  const shipping = subtotal >= 100 ? 0 : 0.20 // Testing: 20 cents shipping
-  const total = subtotal + tax + shipping
+  // Country to VAT rate mapping
+  const VAT_RATES: { [key: string]: number } = {
+    "Österreich": 0.20,    // Austria 20%
+    "Deutschland": 0.19,   // Germany 19%
+    "Frankreich": 0.20,    // France 20%
+    "Italien": 0.22,       // Italy 22%
+    "Spanien": 0.21,       // Spain 21%
+    "Niederlande": 0.21,   // Netherlands 21%
+    "Belgien": 0.21,       // Belgium 21%
+    "Polen": 0.23,         // Poland 23%
+    "Tschechien": 0.21,    // Czech Republic 21%
+    "Schweiz": 0.077,      // Switzerland 7.7%
+    "Vereinigtes Königreich": 0.20,  // UK 20%
+    "Schweden": 0.25,      // Sweden 25%
+    "Dänemark": 0.25,      // Denmark 25%
+    "Norwegen": 0.25,      // Norway 25%
+  }
+
+  // Get customer's selected country
+  const customerCountry = formData.customer_country || "Österreich"
+  const targetVatRate = VAT_RATES[customerCountry] || 0.20 // Default to Austria 20%
+  
+  // FIXED PRICE STRATEGY: Keep the SAME final price across all countries
+  // The price in DB is the target BRUTTO (final price including VAT)
+  // We just show different netto/tax breakdown based on country
+  const cartSubtotal = getSubtotal()
+  const grossPrice = cartSubtotal // FIXED final price - same everywhere
+  
+  // Calculate netto by removing the TARGET country's VAT from the fixed price
+  const nettoPrice = grossPrice / (1 + targetVatRate)
+  
+  // Calculate tax amount for this country
+  const targetTax = grossPrice - nettoPrice
+  
+  const shipping = grossPrice >= 100 ? 0 : 0 // Free shipping
+  const total = grossPrice + shipping
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -489,14 +515,22 @@ export default function CheckoutPage() {
 
                   {/* Totals */}
                   <div className="mt-6 pt-4 border-t border-gray-200 space-y-3">
-                    <div className="flex justify-between text-gray-600">
-                      <span>Zwischensumme</span>
-                      <span>{subtotal.toFixed(2)} €</span>
+                    <div className="bg-gray-50 p-3 rounded-lg space-y-2 mb-3">
+                      <p className="text-xs text-gray-600 font-semibold uppercase tracking-wider">Preisaufschlüsselung für {customerCountry}</p>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Netto</span>
+                        <span className="font-medium">{nettoPrice.toFixed(2)} €</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">+ MwSt. ({(targetVatRate * 100).toFixed(1)}%)</span>
+                        <span className="font-medium">{targetTax.toFixed(2)} €</span>
+                      </div>
+                      <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-semibold">
+                        <span>Brutto</span>
+                        <span>{grossPrice.toFixed(2)} €</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span>MwSt. ({taxRate}%)</span>
-                      <span>{tax.toFixed(2)} €</span>
-                    </div>
+
                     <div className="flex justify-between text-gray-600">
                       <span className="flex items-center gap-1">
                         <Truck className="w-4 h-4" />
@@ -507,10 +541,18 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                     <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
-                      <span className="text-lg font-bold">Gesamt</span>
+                      <span className="text-lg font-bold">Gesamt zu zahlen</span>
                       <span className="text-2xl font-black text-black">
                         {total.toFixed(2)} €
                       </span>
+                    </div>
+                    
+                    {/* Note about price recalculation */}
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                      <p>
+                        ℹ️ Preis angepasst für <strong>{formData.customer_country || 'Ihr Land'}</strong>. 
+                        Bei Bestätigung wird der endgültige Steuersatz angewendet.
+                      </p>
                     </div>
                   </div>
                 </div>

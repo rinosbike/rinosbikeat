@@ -9,6 +9,9 @@
 
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
+// Runtime helpers
+const isBrowser = typeof window !== 'undefined';
+
 const API_URL = '/api'; // Local proxy route
 
 // Create axios instance
@@ -24,9 +27,11 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (isBrowser) {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -41,9 +46,11 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Unauthorized - clear token and redirect to login
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (isBrowser) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -191,11 +198,12 @@ export const productsApi = {
   },
 
   // Search products
-  search: async (query: string, page: number = 1): Promise<ProductResponse> => {
+  search: async (query: string, page: number = 1, limit: number = 24): Promise<ProductResponse> => {
     const response = await apiClient.get('/search/query', {
       params: {
-        search: query,
-        page,
+        q: query,
+        skip: (page - 1) * limit,
+        limit,
       },
     });
     return response.data;
@@ -639,6 +647,66 @@ export interface HomepageContent {
 }
 
 // ============================================================================
+// PAGE BUILDER TYPES
+// ============================================================================
+
+export interface PageBlock {
+  block_id: number;
+  page_id: number;
+  block_type: string;
+  block_order: number;
+  is_visible: boolean;
+  configuration: Record<string, any>;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Page {
+  page_id: number;
+  slug: string;
+  title: string;
+  show_in_header: boolean;
+  menu_position: number;
+  menu_label: string;
+  meta_title?: string;
+  meta_description?: string;
+  is_published: boolean;
+  published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: number;
+  blocks?: PageBlock[];
+}
+
+export interface PagesResponse {
+  pages: Page[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface MenuPage {
+  page_id: number;
+  slug: string;
+  title: string;
+  menu_label: string;
+  menu_position: number;
+}
+
+export interface BlockTemplate {
+  block_type: string;
+  label: string;
+  description: string;
+  icon: string;
+  default_config: Record<string, any>;
+}
+
+export interface BlockTemplatesResponse {
+  templates: BlockTemplate[];
+}
+
+// ============================================================================
 // ADMIN API
 // ============================================================================
 
@@ -734,6 +802,125 @@ export const adminApi = {
     newsletter_subscribed?: boolean;
   }): Promise<void> => {
     await apiClient.put(`/admin/users/${userId}`, data);
+  },
+};
+
+// ============================================================================
+// PAGES API (Page Builder)
+// ============================================================================
+
+export const pagesApi = {
+  // Public endpoints (no auth required)
+  getMenuPages: async (): Promise<{ pages: MenuPage[] }> => {
+    const response = await apiClient.get('/pages/public/menu');
+    return response.data;
+  },
+
+  getPublicPage: async (slug: string): Promise<Page> => {
+    const response = await apiClient.get(`/pages/public/${slug}`);
+    return response.data;
+  },
+
+  // Admin endpoints (auth required)
+  getPages: async (params?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+    published_only?: boolean;
+  }): Promise<PagesResponse> => {
+    const response = await apiClient.get('/pages', { params });
+    return response.data;
+  },
+
+  getPage: async (pageId: number): Promise<Page> => {
+    const response = await apiClient.get(`/pages/${pageId}`);
+    return response.data;
+  },
+
+  createPage: async (data: {
+    slug: string;
+    title: string;
+    show_in_header?: boolean;
+    menu_position?: number;
+    menu_label?: string;
+    meta_title?: string;
+    meta_description?: string;
+    is_published?: boolean;
+    blocks?: Array<{
+      block_type: string;
+      block_order?: number;
+      is_visible?: boolean;
+      configuration: Record<string, any>;
+    }>;
+  }): Promise<{ status: string; message: string; page: Page }> => {
+    const response = await apiClient.post('/pages', data);
+    return response.data;
+  },
+
+  updatePage: async (pageId: number, data: {
+    title?: string;
+    show_in_header?: boolean;
+    menu_position?: number;
+    menu_label?: string;
+    meta_title?: string;
+    meta_description?: string;
+    is_published?: boolean;
+  }): Promise<{ status: string; message: string; page: Page }> => {
+    const response = await apiClient.put(`/pages/${pageId}`, data);
+    return response.data;
+  },
+
+  deletePage: async (pageId: number): Promise<{ status: string; message: string }> => {
+    const response = await apiClient.delete(`/pages/${pageId}`);
+    return response.data;
+  },
+
+  // Block operations
+  addBlock: async (pageId: number, data: {
+    block_type: string;
+    block_order?: number;
+    is_visible?: boolean;
+    configuration: Record<string, any>;
+  }): Promise<{ status: string; message: string; block: PageBlock }> => {
+    const response = await apiClient.post(`/pages/${pageId}/blocks`, data);
+    return response.data;
+  },
+
+  updateBlock: async (pageId: number, blockId: number, data: {
+    block_type?: string;
+    block_order?: number;
+    is_visible?: boolean;
+    configuration?: Record<string, any>;
+  }): Promise<{ status: string; message: string; block: PageBlock }> => {
+    const response = await apiClient.put(`/pages/${pageId}/blocks/${blockId}`, data);
+    return response.data;
+  },
+
+  deleteBlock: async (pageId: number, blockId: number): Promise<{ status: string; message: string }> => {
+    const response = await apiClient.delete(`/pages/${pageId}/blocks/${blockId}`);
+    return response.data;
+  },
+
+  reorderBlocks: async (pageId: number, blockOrders: Array<{ block_id: number; block_order: number }>): Promise<{ status: string; message: string }> => {
+    const response = await apiClient.post(`/pages/${pageId}/blocks/reorder`, { block_orders: blockOrders });
+    return response.data;
+  },
+
+  // Publish/Unpublish
+  publishPage: async (pageId: number): Promise<{ status: string; message: string }> => {
+    const response = await apiClient.post(`/pages/${pageId}/publish`);
+    return response.data;
+  },
+
+  unpublishPage: async (pageId: number): Promise<{ status: string; message: string }> => {
+    const response = await apiClient.post(`/pages/${pageId}/unpublish`);
+    return response.data;
+  },
+
+  // Block templates
+  getBlockTemplates: async (): Promise<BlockTemplatesResponse> => {
+    const response = await apiClient.get('/pages/templates/blocks');
+    return response.data;
   },
 };
 

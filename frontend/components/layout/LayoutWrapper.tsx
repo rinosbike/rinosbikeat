@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import HeaderMinimal from './HeaderMinimal'
+import Header from './Header'
 import Footer from './Footer'
 
 interface LayoutWrapperProps {
@@ -22,7 +22,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Regular pages get header and footer
   return (
     <>
-      <HeaderMinimal />
+      <Header />
       <main className="min-h-screen">
         {children}
       </main>

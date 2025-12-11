@@ -3,6 +3,7 @@ Shopping Cart API Router
 Location: api/routers/cart.py
 
 Handles cart operations for both authenticated and guest users
+Supports localized pricing with country-based VAT conversion
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -23,6 +24,7 @@ from api.schemas.cart_schemas import (
     MessageResponse
 )
 from api.utils.auth_dependencies import get_current_user, get_optional_user
+from utils.pricing import convert_price_by_country, get_vat_rate, validate_country_code
 
 router = APIRouter(prefix="/cart", tags=["Shopping Cart"])
 
@@ -77,23 +79,26 @@ def get_or_create_cart(
     return cart
 
 
-def calculate_cart_summary(cart_items: list) -> CartSummary:
+def calculate_cart_summary(cart_items: list, country: str = "AT") -> CartSummary:
     """
-    Calculate cart totals
+    Calculate cart totals with localized VAT
     
     Args:
         cart_items: List of CartItem objects
+        country: Country code for VAT calculation (default: "AT")
         
     Returns:
         CartSummary with calculated totals
     """
+    # Get target country VAT rate
+    vat_rate = float(get_vat_rate(country))
+    
     subtotal = sum(
         float(item.price_at_addition) * item.quantity 
         for item in cart_items
     )
     
-    tax_rate = 19.0  # German VAT
-    tax_amount = subtotal * (tax_rate / 100)
+    tax_amount = subtotal * (vat_rate / 100)
     
     # Shipping calculation (free over 100 EUR)
     shipping = 0.0 if subtotal >= 100 else 9.99
@@ -105,22 +110,25 @@ def calculate_cart_summary(cart_items: list) -> CartSummary:
     
     return CartSummary(
         subtotal=round(subtotal, 2),
-        tax_rate=tax_rate,
+        tax_rate=vat_rate,
         tax_amount=round(tax_amount, 2),
         shipping=round(shipping, 2),
         total=round(total, 2),
         item_count=item_count,
         unique_items=unique_items
+
     )
 
 
-def build_cart_response(cart: ShoppingCart, db: Session) -> CartResponse:
+def build_cart_response(cart: ShoppingCart, db: Session, country: str = "AT") -> CartResponse:
     """
     Build complete cart response with items and summary
+    Applies localized pricing based on country
     
     Args:
         cart: ShoppingCart instance
         db: Database session
+        country: Country code for VAT calculation (default: "AT")
         
     Returns:
         CartResponse with all cart details
@@ -139,10 +147,16 @@ def build_cart_response(cart: ShoppingCart, db: Session) -> CartResponse:
         ).first()
         
         if product:
+            # Convert product price to target country
+            localized_price = float(convert_price_by_country(
+                float(product.priceEUR) if product.priceEUR else 0.0,
+                country
+            ))
+            
             product_info = CartItemProduct(
                 articlenr=product.articlenr,
                 articlename=product.articlename,
-                price=float(product.priceEUR) if product.priceEUR else 0.0,
+                price=localized_price,
                 primary_image=product.get_primary_image(),
                 manufacturer=product.manufacturer,
                 colour=product.colour,
@@ -155,13 +169,13 @@ def build_cart_response(cart: ShoppingCart, db: Session) -> CartResponse:
                 cart_id=item.cart_id,
                 product=product_info,
                 quantity=item.quantity,
-                price_at_addition=float(item.price_at_addition),
-                subtotal=float(item.price_at_addition) * item.quantity,
+                price_at_addition=localized_price,
+                subtotal=localized_price * item.quantity,
                 added_at=item.added_at.isoformat() if item.added_at else datetime.utcnow().isoformat()
             ))
     
-    # Calculate summary
-    summary = calculate_cart_summary(cart_items)
+    # Calculate summary with country VAT
+    summary = calculate_cart_summary(cart_items, country)
     
     return CartResponse(
         cart_id=cart.cart_id,
@@ -252,17 +266,26 @@ async def add_to_cart(
 @router.get("/", response_model=CartResponse)
 async def view_cart(
     guest_session_id: Optional[str] = None,
+    country: str = "AT",
     current_user: Optional[WebUser] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     """
-    View cart contents with totals
+    View cart contents with totals and localized pricing
     
     - **guest_session_id**: Session ID for guest users (query parameter)
+    - **country**: Country code for VAT calculation (default: "AT" for Austria)
     
     For authenticated users: Uses user_id from token
     For guest users: Uses guest_session_id from query parameter
     """
+    # Validate country code
+    if not validate_country_code(country):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid country code: {country}"
+        )
+    
     # Get cart
     user_id = current_user.user_id if current_user else None
     
@@ -274,7 +297,7 @@ async def view_cart(
     
     cart = get_or_create_cart(db, user_id, guest_session_id)
     
-    return build_cart_response(cart, db)
+    return build_cart_response(cart, db, country)
 
 
 # ============================================================================

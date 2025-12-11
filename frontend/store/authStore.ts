@@ -108,8 +108,16 @@ export const useAuthStore = create<AuthStore>()(
           const user = await authApi.getCurrentUser()
           set({ user, isAuthenticated: true })
         } catch (error) {
-          // Token invalid, clear auth
-          get().logout()
+          // Token invalid, clear auth silently (don't call backend logout)
+          console.warn('Auth check failed, clearing session:', error)
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('access_token')
+          }
+          set({
+            user: null,
+            token: null,
+            isAuthenticated: false,
+          })
         }
       },
     }),
@@ -124,7 +132,10 @@ export const useAuthStore = create<AuthStore>()(
   )
 )
 
-// Check auth on app load
+// Check auth on app load (with delay to avoid race conditions)
 if (typeof window !== 'undefined') {
-  useAuthStore.getState().checkAuth()
+  // Wait for hydration to complete before checking auth
+  setTimeout(() => {
+    useAuthStore.getState().checkAuth()
+  }, 100)
 }

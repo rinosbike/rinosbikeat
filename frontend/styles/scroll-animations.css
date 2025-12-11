@@ -1,0 +1,825 @@
+/**
+ * Scroll Animation CSS
+ * =============================================================================
+ * Base styles and hidden states for scroll-driven animations
+ * Works with scroll-animation-engine.ts
+ *
+ * Design Philosophy:
+ * - Graceful degradation: Elements visible without JS
+ * - Progressive enhancement: Animations added when JS loads
+ * - Performance: GPU-accelerated transforms only
+ * - Accessibility: Respects prefers-reduced-motion
+ */
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================================================= */
+
+:root {
+  /* Animation Durations */
+  --scroll-duration-fast: 0.4s;
+  --scroll-duration-normal: 0.8s;
+  --scroll-duration-slow: 1.2s;
+
+  /* Animation Easings */
+  --scroll-ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --scroll-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --scroll-ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Transform Values */
+  --scroll-translate-sm: 20px;
+  --scroll-translate-md: 40px;
+  --scroll-translate-lg: 60px;
+  --scroll-scale-start: 0.9;
+  --scroll-rotate-start: -10deg;
+  --scroll-blur-start: 10px;
+
+  /* Z-index layers */
+  --scroll-z-base: 1;
+  --scroll-z-parallax: 0;
+  --scroll-z-content: 10;
+  --scroll-z-pin: 100;
+}
+
+/* =============================================================================
+   BASE HIDDEN STATES
+   These styles are applied before JS initializes
+   JS will animate FROM these states TO visible states
+   ============================================================================= */
+
+/* Scroll Reveal - Base Hidden State */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(var(--scroll-translate-md));
+  transition: opacity var(--scroll-duration-normal) var(--scroll-ease-expo),
+              transform var(--scroll-duration-normal) var(--scroll-ease-expo);
+  will-change: opacity, transform;
+}
+
+/* Animation Variants (set via data-animation attribute) */
+.scroll-reveal[data-animation="fade"] {
+  transform: none;
+}
+
+.scroll-reveal[data-animation="slide-up"] {
+  transform: translateY(var(--scroll-translate-lg));
+}
+
+.scroll-reveal[data-animation="slide-down"] {
+  transform: translateY(calc(var(--scroll-translate-lg) * -1));
+}
+
+.scroll-reveal[data-animation="slide-left"] {
+  transform: translateX(var(--scroll-translate-lg));
+}
+
+.scroll-reveal[data-animation="slide-right"] {
+  transform: translateX(calc(var(--scroll-translate-lg) * -1));
+}
+
+.scroll-reveal[data-animation="zoom"] {
+  transform: scale(var(--scroll-scale-start));
+}
+
+.scroll-reveal[data-animation="rotate"] {
+  transform: rotate(var(--scroll-rotate-start)) scale(var(--scroll-scale-start));
+}
+
+.scroll-reveal[data-animation="blur"] {
+  filter: blur(var(--scroll-blur-start));
+}
+
+.scroll-reveal[data-animation="flip-x"] {
+  transform: perspective(1000px) rotateX(-90deg);
+  transform-origin: center bottom;
+}
+
+.scroll-reveal[data-animation="flip-y"] {
+  transform: perspective(1000px) rotateY(-90deg);
+  transform-origin: left center;
+}
+
+.scroll-reveal[data-animation="bounce"] {
+  transform: translateY(80px) scale(0.8);
+}
+
+.scroll-reveal[data-animation="elastic"] {
+  transform: scale(0) rotate(-45deg);
+}
+
+.scroll-reveal[data-animation="wave"] {
+  transform: translateY(40px) skewX(10deg);
+}
+
+.scroll-reveal[data-animation="typewriter"] {
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid currentColor;
+  animation: typewriter-cursor 0.75s step-end infinite;
+}
+
+@keyframes typewriter-cursor {
+  from, to { border-color: transparent; }
+  50% { border-color: currentColor; }
+}
+
+.scroll-reveal[data-animation="counter"] {
+  font-variant-numeric: tabular-nums;
+}
+
+.scroll-reveal[data-animation="gradient-shift"] {
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Visible State (applied by JS or for no-JS fallback) */
+.scroll-reveal[data-scroll-initialized="true"],
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Stagger Children */
+.scroll-reveal [data-stagger-child] {
+  opacity: 0;
+  transform: translateY(var(--scroll-translate-sm));
+  transition: opacity var(--scroll-duration-normal) var(--scroll-ease-expo),
+              transform var(--scroll-duration-normal) var(--scroll-ease-expo);
+}
+
+/* Split Text Animation Items */
+.scroll-split-item {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Text Split Variants */
+.scroll-reveal[data-split-text="chars"] .scroll-split-item {
+  transform-style: preserve-3d;
+}
+
+.scroll-reveal[data-split-text="words"] .scroll-split-item {
+  margin-right: 0.25em;
+}
+
+.scroll-reveal[data-split-text="words"] .scroll-split-item:last-child {
+  margin-right: 0;
+}
+
+/* =============================================================================
+   SCROLL PARALLAX SECTION
+   ============================================================================= */
+
+.scroll-parallax {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.scroll-parallax-bg {
+  position: absolute;
+  inset: -20%; /* Extra space for parallax movement */
+  z-index: var(--scroll-z-parallax);
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.scroll-parallax-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--scroll-z-parallax) + 1);
+}
+
+.scroll-parallax-content {
+  position: relative;
+  z-index: var(--scroll-z-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: inherit;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.scroll-parallax-content h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-parallax-content p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+}
+
+/* =============================================================================
+   PINNED SCROLL SECTION
+   ============================================================================= */
+
+.scroll-pin {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.scroll-pin-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scroll-pin-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s var(--scroll-ease-smooth),
+              transform 0.5s var(--scroll-ease-smooth);
+}
+
+.scroll-pin-panel:first-child {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-pin-panel-content {
+  max-width: 800px;
+  text-align: center;
+}
+
+.scroll-pin-panel h3 {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.scroll-pin-panel p {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.7;
+}
+
+.scroll-pin-panel img {
+  max-width: 100%;
+  max-height: 50vh;
+  object-fit: contain;
+  margin-top: 2rem;
+  border-radius: 1rem;
+}
+
+/* Progress Indicator */
+.scroll-pin-progress-wrapper {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scroll-pin-progress {
+  width: 100%;
+  height: 100%;
+  background: white;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.1s linear;
+}
+
+/* Panel Indicators (dots) */
+.scroll-pin-indicators {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scroll-pin-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s var(--scroll-ease-smooth);
+}
+
+.scroll-pin-indicator.is-active {
+  background: white;
+  transform: scale(1.25);
+}
+
+/* =============================================================================
+   HORIZONTAL GALLERY SCROLL
+   ============================================================================= */
+
+.scroll-horizontal {
+  position: relative;
+  width: 100%;
+}
+
+.scroll-horizontal-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.scroll-horizontal-track {
+  display: flex;
+  align-items: center;
+  gap: var(--gallery-gap, 24px);
+  height: 100%;
+  padding: 0 calc((100vw - var(--image-size, 500px)) / 2);
+  will-change: transform;
+}
+
+.scroll-horizontal-item {
+  flex-shrink: 0;
+  height: var(--image-size, 500px);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+/* Size variants */
+.scroll-horizontal[data-image-size="small"] {
+  --image-size: 300px;
+}
+
+.scroll-horizontal[data-image-size="medium"] {
+  --image-size: 500px;
+}
+
+.scroll-horizontal[data-image-size="large"] {
+  --image-size: 700px;
+}
+
+.scroll-horizontal[data-image-size="full"] {
+  --image-size: calc(100vh - 8rem);
+}
+
+.scroll-horizontal-item img {
+  width: auto;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s var(--scroll-ease-smooth);
+}
+
+.scroll-horizontal-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Active state for snapped items */
+.scroll-horizontal-item.is-active {
+  z-index: 10;
+}
+
+.scroll-horizontal-item.is-active img {
+  transform: scale(1.02);
+}
+
+/* Inactive items slightly dimmed */
+.scroll-horizontal[data-snap="true"] .scroll-horizontal-item:not(.is-active) {
+  opacity: 0.7;
+  transform: scale(0.95);
+  transition: all 0.4s var(--scroll-ease-smooth);
+}
+
+.scroll-horizontal[data-snap="true"] .scroll-horizontal-item.is-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.4s var(--scroll-ease-smooth);
+}
+
+.scroll-horizontal-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: white;
+  font-size: 0.875rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s var(--scroll-ease-smooth);
+}
+
+.scroll-horizontal-item:hover .scroll-horizontal-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =============================================================================
+   SCROLL TIMELINE
+   ============================================================================= */
+
+.scroll-timeline {
+  position: relative;
+  padding: 4rem 0;
+}
+
+/* Timeline Line */
+.scroll-timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%);
+}
+
+.scroll-timeline-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--timeline-line-color, #000);
+  transform: scaleY(0);
+  transform-origin: top center;
+}
+
+/* Timeline Items */
+.scroll-timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.scroll-timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Layout Variants */
+.scroll-timeline[data-layout="alternating"] .scroll-timeline-item:nth-child(odd) {
+  flex-direction: row;
+  padding-right: calc(50% + 2rem);
+  text-align: right;
+}
+
+.scroll-timeline[data-layout="alternating"] .scroll-timeline-item:nth-child(even) {
+  flex-direction: row-reverse;
+  padding-left: calc(50% + 2rem);
+  text-align: left;
+}
+
+.scroll-timeline[data-layout="left"] .scroll-timeline-item {
+  padding-left: 3rem;
+}
+
+.scroll-timeline[data-layout="right"] .scroll-timeline-item {
+  padding-right: 3rem;
+  text-align: right;
+}
+
+.scroll-timeline[data-layout="center"] .scroll-timeline-item {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Timeline Dot */
+.scroll-timeline-dot {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--timeline-dot-color, #000);
+  border-radius: 50%;
+  transform: translateX(-50%) scale(0);
+  opacity: 0;
+  z-index: 10;
+  box-shadow: 0 0 0 4px white, 0 0 0 6px var(--timeline-dot-color, #000);
+}
+
+.scroll-timeline[data-layout="left"] .scroll-timeline-dot {
+  left: 0;
+}
+
+.scroll-timeline[data-layout="right"] .scroll-timeline-dot {
+  left: auto;
+  right: 0;
+  transform: translateX(50%) scale(0);
+}
+
+/* Timeline Content */
+.scroll-timeline-content {
+  flex: 1;
+}
+
+.scroll-timeline-date {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.5rem;
+}
+
+.scroll-timeline-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 0.75rem;
+}
+
+.scroll-timeline-description {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.7);
+  line-height: 1.6;
+}
+
+.scroll-timeline-image {
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.scroll-timeline-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* =============================================================================
+   ACCESSIBILITY - Reduced Motion
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal[data-animation],
+  .scroll-reveal [data-stagger-child],
+  .scroll-parallax-bg,
+  .scroll-pin-panel,
+  .scroll-horizontal-track,
+  .scroll-horizontal-item img,
+  .scroll-timeline-item,
+  .scroll-timeline-dot,
+  .scroll-timeline-progress {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Make all elements visible immediately */
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-pin-panel {
+    opacity: 1;
+    visibility: visible;
+    position: relative;
+    height: auto;
+    min-height: 50vh;
+  }
+
+  .scroll-timeline-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scroll-timeline-dot {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* =============================================================================
+   NO-JS FALLBACK
+   Show content if JavaScript is disabled
+   ============================================================================= */
+
+.no-js .scroll-reveal,
+.no-js .scroll-pin-panel,
+.no-js .scroll-timeline-item {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+  filter: none !important;
+}
+
+.no-js .scroll-timeline-dot {
+  transform: translateX(-50%) scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* =============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  :root {
+    --scroll-translate-sm: 15px;
+    --scroll-translate-md: 30px;
+    --scroll-translate-lg: 45px;
+  }
+
+  /* Timeline always left-aligned on mobile */
+  .scroll-timeline-line {
+    left: 1rem;
+  }
+
+  .scroll-timeline-item,
+  .scroll-timeline[data-layout="alternating"] .scroll-timeline-item:nth-child(odd),
+  .scroll-timeline[data-layout="alternating"] .scroll-timeline-item:nth-child(even) {
+    flex-direction: row;
+    padding-left: 3rem;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .scroll-timeline-dot,
+  .scroll-timeline[data-layout] .scroll-timeline-dot {
+    left: 1rem;
+    transform: translateX(-50%) scale(0);
+  }
+
+  /* Horizontal gallery adjustments */
+  .scroll-horizontal[data-image-size="large"],
+  .scroll-horizontal[data-image-size="full"] {
+    --image-size: calc(100vw - 4rem);
+  }
+
+  .scroll-horizontal-track {
+    padding: 0 2rem;
+  }
+
+  /* Pinned section adjustments */
+  .scroll-pin-indicators {
+    right: 1rem;
+  }
+
+  .scroll-pin-progress-wrapper {
+    width: 120px;
+    bottom: 1rem;
+  }
+}
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+/* Delay utilities */
+.scroll-delay-100 { --scroll-delay: 0.1s; }
+.scroll-delay-200 { --scroll-delay: 0.2s; }
+.scroll-delay-300 { --scroll-delay: 0.3s; }
+.scroll-delay-400 { --scroll-delay: 0.4s; }
+.scroll-delay-500 { --scroll-delay: 0.5s; }
+
+/* Duration utilities */
+.scroll-fast { --scroll-duration: var(--scroll-duration-fast); }
+.scroll-normal { --scroll-duration: var(--scroll-duration-normal); }
+.scroll-slow { --scroll-duration: var(--scroll-duration-slow); }
+
+/* Debug mode - shows element boundaries */
+.scroll-debug .scroll-reveal,
+.scroll-debug .scroll-parallax,
+.scroll-debug .scroll-pin,
+.scroll-debug .scroll-horizontal,
+.scroll-debug .scroll-timeline {
+  outline: 2px dashed rgba(255, 0, 0, 0.5);
+  outline-offset: -2px;
+}
+
+.scroll-debug .scroll-reveal::before {
+  content: 'scroll-reveal';
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 10px;
+  background: red;
+  color: white;
+  padding: 2px 4px;
+  z-index: 9999;
+}
+
+/* =============================================================================
+   SCROLL COLOR CHANGE
+   ============================================================================= */
+
+.scroll-color-change {
+  transition: color 0.1s linear, background-color 0.1s linear;
+  will-change: color, background-color;
+}
+
+/* =============================================================================
+   MAGNETIC EFFECT
+   ============================================================================= */
+
+.scroll-magnetic {
+  cursor: pointer;
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+.scroll-magnetic:hover {
+  /* Slight scale effect on hover */
+  transform: scale(1.02);
+}
+
+/* =============================================================================
+   SCROLL PROGRESS INDICATOR
+   ============================================================================= */
+
+.scroll-progress {
+  position: fixed;
+  z-index: 9999;
+  will-change: transform;
+}
+
+.scroll-progress[data-progress-position="top"] {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.scroll-progress[data-progress-position="bottom"] {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.scroll-progress[data-progress-position="left"] {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.scroll-progress[data-progress-position="right"] {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+/* =============================================================================
+   SCROLL VELOCITY TEXT
+   Text that changes based on scroll velocity
+   ============================================================================= */
+
+.scroll-velocity-text {
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* =============================================================================
+   SCROLL-LINKED GRADIENT
+   ============================================================================= */
+
+.scroll-gradient {
+  background-size: 200% 200%;
+  transition: background-position 0.1s ease;
+}
+
+/* =============================================================================
+   PERSPECTIVE SCROLL
+   3D card effect on scroll
+   ============================================================================= */
+
+.scroll-perspective {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.scroll-perspective-item {
+  transform-style: preserve-3d;
+  transition: transform 0.3s var(--scroll-ease-smooth);
+  will-change: transform;
+}
+
+.scroll-perspective-item:hover {
+  transform: translateZ(50px) rotateX(5deg);
+}

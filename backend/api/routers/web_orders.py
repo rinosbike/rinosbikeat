@@ -127,6 +127,30 @@ async def create_web_order(
 
         customer_info = order_data['customer_info']
         cart_items = order_data['cart_items']
+        
+        # Get customer's country for VAT calculation
+        customer_country = customer_info.get('customer_country', 'AT')
+        print(f"[DEBUG] Customer country: {customer_country}")
+        
+        # FIXED PRICE STRATEGY: Price stays the SAME across all countries
+        # We just store different netto/tax breakdown for accounting
+        # The price_at_addition is already the FINAL price customer should pay
+        
+        subtotal = Decimal('0')
+        for item in cart_items:
+            # Keep the SAME price - no conversion needed
+            # The price in DB is already the target final price
+            original_price = Decimal(str(item['price_at_addition']))
+            quantity = item['quantity']
+            subtotal += original_price * quantity
+        
+        # Calculate shipping (free over 100 EUR)
+        shipping = Decimal('0') if subtotal >= 100 else Decimal('0')  # Free shipping for now
+        
+        # Total amount - SAME for all countries
+        total_amount = subtotal + shipping
+        
+        print(f"[DEBUG] Order totals (FIXED price) - Subtotal: {subtotal}, Shipping: {shipping}, Total: {total_amount}")
 
         # Generate order number
         print("[DEBUG] Step 2: Generating order number")
@@ -145,7 +169,7 @@ async def create_web_order(
             shop_id=1,  # rinosbikeat shop
             user_id=user_id,
             customer_id=None,  # Will be linked later if customer exists
-            orderamount=Decimal(str(order_data.get('total_amount', 0))),
+            orderamount=total_amount,  # Use recalculated amount based on customer's country
             currency='EUR',
             payment_status='pending',
             synced_to_erp=False,

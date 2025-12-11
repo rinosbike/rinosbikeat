@@ -1,0 +1,283 @@
+
+> rinos-bikes-frontend@1.0.0 dev
+> next dev
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 1766ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.2s (780 modules)
+ GET / 200 in 2339ms
+ GET / 200 in 1412ms
+ ✓ Compiled in 187ms (353 modules)
+ ○ Compiling /api/[...proxy] ...
+ ✓ Compiled /api/[...proxy] in 506ms (422 modules)
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 600ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 600ms
+[PROXY RESPONSE] Status: 401
+[PROXY RESPONSE] Body length: 43
+ GET /api/auth/me 401 in 678ms
+[PROXY POST] http://localhost:8000/api/auth/logout
+ POST /api/auth/logout 200 in 6ms
+ GET /api/meta/categories 200 in 622ms
+[PROXY RESPONSE] Status: 401
+[PROXY RESPONSE] Status: 500
+[PROXY RESPONSE] Body length: 798
+ ✓ Compiled /login in 94ms (770 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /login 200 in 117ms
+ GET / 200 in 56ms
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 10ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 11ms
+[PROXY RESPONSE] Status: 500
+[PROXY RESPONSE] Body length: 798
+ GET /api/meta/categories 500 in 9ms
+ ✓ Compiled /anmelden in 209ms (786 modules)
+[PROXY POST] http://localhost:8000/api/auth/login/json
+[PROXY RESPONSE] Status: 500
+[PROXY JSON ERROR] SyntaxError: Unexpected token 'I', "Internal S"... is not valid JSON
+    at JSON.parse (<anonymous>)
+    at POST (webpack-internal:///(rsc)/./app/api/[...proxy]/route.ts:101:25)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async /Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55038
+    at async ek.execute (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:45808)
+    at async ek.handle (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:56292)
+    at async doRender (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:1587:40)
+    at async DevServer.renderToResponseWithComponentsImpl (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:1507:28)
+    at async DevServer.renderPageComponent (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:1931:24)
+    at async DevServer.renderToResponseImpl (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:1969:32)
+    at async DevServer.pipeImpl (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:920:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/base-server.js:816:17)
+    at async /Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/lib/router-server.js:174:21)
+    at async handleRequest (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/lib/router-server.js:353:24)
+    at async requestHandlerImpl (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/lib/router-server.js:377:13)
+    at async Server.requestListener (/Users/franciscojavier/Downloads/rinosbikeat-main-3/frontend/node_modules/next/dist/server/lib/start-server.js:141:13)
+ POST /api/auth/login/json 500 in 44ms
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 17ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 17ms
+ GET / 200 in 85ms
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 11ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 9ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 36543
+ GET /api/meta/categories 200 in 191ms
+[PROXY POST] http://localhost:8000/api/auth/login/json
+[PROXY RESPONSE] Status: 200
+ POST /api/auth/login/json 200 in 633ms
+ ✓ Compiled /profil in 189ms (798 modules)
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 13ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 12ms
+ GET / 200 in 84ms
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 86ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 85ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 160ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 36543
+ GET /api/meta/categories 200 in 529ms
+ ✓ Compiled /categories/[slug] in 417ms (866 modules)
+[PROXY GET] http://localhost:8000/api/meta/categories/103?skip=0&limit=100
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 5938
+ GET /api/meta/categories/103?skip=0&limit=100 200 in 314ms
+ ✓ Compiled /produkte/[slug] in 171ms (880 modules)
+[PROXY GET] http://localhost:8000/api/RINOS25GRX820TT
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 14666
+ GET /api/RINOS25GRX820TT 200 in 447ms
+[PROXY GET] http://localhost:8000/api/RINOS25GRX820TT/variations
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 12231
+ GET /api/RINOS25GRX820TT/variations 200 in 356ms
+[PROXY GET] http://localhost:8000/api/RINOS25GRX820TT48
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 11782
+ GET /api/RINOS25GRX820TT48 200 in 319ms
+[PROXY GET] http://localhost:8000/api/RINOS25GRX820TT48
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 11782
+ GET /api/RINOS25GRX820TT48 200 in 366ms
+ ✓ Compiled /_not-found in 109ms (883 modules)
+ GET /warenkorb 404 in 34ms
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 172ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 36543
+ GET /api/meta/categories 200 in 304ms
+ ✓ Compiled /cart in 214ms (932 modules)
+ ⚠ The "images.domains" configuration is deprecated. Please use "images.remotePatterns" configuration instead.
+[PROXY GET] http://localhost:8000/api/meta/categories/13?skip=0&limit=24
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 4967
+ GET /api/meta/categories/13?skip=0&limit=24 200 in 278ms
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY GET] http://localhost:8000/api/meta/products?limit=8
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 18ms
+[PROXY RESPONSE] Status: 404
+[PROXY RESPONSE] Body length: 22
+ GET /api/meta/products?limit=8 404 in 19ms
+[PROXY GET] http://localhost:8000/api/meta/categories/103?skip=0&limit=100
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 5938
+ GET /api/meta/categories/103?skip=0&limit=100 200 in 344ms
+[PROXY GET] http://localhost:8000/api/RINOS24GRX400
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 19334
+ GET /api/RINOS24GRX400 200 in 500ms
+[PROXY GET] http://localhost:8000/api/RINOS24GRX400/variations
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 42940
+ GET /api/RINOS24GRX400/variations 200 in 378ms
+[PROXY GET] http://localhost:8000/api/RINOS24GRX400BG50
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 8481
+ GET /api/RINOS24GRX400BG50 200 in 323ms
+[PROXY GET] http://localhost:8000/api/RINOS24GRX400BG50
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 8481
+ GET /api/RINOS24GRX400BG50 200 in 327ms
+[PROXY GET] http://localhost:8000/api/meta/categories/13?skip=0&limit=24
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 4967
+ GET /api/meta/categories/13?skip=0&limit=24 200 in 310ms
+ GET /apple-touch-icon-precomposed.png 404 in 82ms
+ GET /apple-touch-icon.png 404 in 80ms
+ ✓ Compiled /checkout in 236ms (941 modules)
+ ✓ Compiled in 291ms (947 modules)
+ ✓ Compiled in 159ms (943 modules)
+ ✓ Compiled in 178ms (940 modules)
+ ✓ Compiled in 183ms (940 modules)
+ ✓ Compiled /_not-found in 117ms (929 modules)
+ GET / 404 in 56ms
+ GET /_next/static/css/app/layout.css?v=1765272991423 404 in 25ms
+ GET /_next/static/chunks/main-app.js?v=1765272991423 404 in 27ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 26ms
+ GET /_next/static/chunks/app/layout.js 404 in 26ms
+ GET / 404 in 19ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 19ms
+ GET /_next/static/chunks/app/layout.js 404 in 19ms
+ GET /_next/static/css/app/layout.css?v=1765272991853 404 in 27ms
+ GET /_next/static/chunks/main-app.js?v=1765272991853 404 in 21ms
+ GET /cart?id=80f6f59d-471d-4700-be4e-e2315de3f8ce&vscodeBrowserReqId=1765273005577 404 in 17ms
+ GET /_next/static/css/app/layout.css?v=1765273005584 404 in 20ms
+ GET /_next/static/chunks/main-app.js?v=1765273005584 404 in 26ms
+ GET /_next/static/chunks/app/layout.js 404 in 26ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 27ms
+ GET / 404 in 33ms
+ GET /_next/static/css/app/layout.css?v=1765273014079 404 in 19ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 23ms
+ GET /_next/static/chunks/app/layout.js 404 in 23ms
+ GET /_next/static/chunks/main-app.js?v=1765273014079 404 in 27ms
+ ✓ Compiled in 1037ms (940 modules)
+ ✓ Compiled in 235ms (940 modules)
+ ✓ Compiled in 508ms (940 modules)
+ ✓ Compiled in 208ms (940 modules)
+ ✓ Compiled in 262ms (940 modules)
+ ✓ Compiled in 181ms (940 modules)
+ ✓ Compiled in 220ms (940 modules)
+ ✓ Compiled in 275ms (940 modules)
+ ✓ Compiled /_not-found in 92ms (929 modules)
+ GET / 404 in 164ms
+ ✓ Compiled /api/[...proxy] in 84ms (506 modules)
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 287ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 36543
+ GET /api/meta/categories 200 in 645ms
+ ✓ Compiled /produkte in 147ms (941 modules)
+[PROXY GET] http://localhost:8000/api/meta/categories/103?skip=0&limit=100
+[PROXY GET] http://localhost:8000/api/meta/categories/46?skip=0&limit=100
+[PROXY GET] http://localhost:8000/api/meta/categories/102?skip=0&limit=100
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 5938
+ GET /api/meta/categories/103?skip=0&limit=100 200 in 319ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 9703
+ GET /api/meta/categories/46?skip=0&limit=100 200 in 348ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 3003
+ GET /api/meta/categories/102?skip=0&limit=100 200 in 505ms
+ ✓ Compiled /profil in 93ms (488 modules)
+ GET /_next/static/chunks/app/profil/page.js 404 in 41ms
+ GET /profil 200 in 15ms
+ GET /_next/static/chunks/app/profil/page.js 404 in 13ms
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 167ms
+ GET / 404 in 33ms
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY GET] http://localhost:8000/api/meta/categories
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 161ms
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 36543
+ GET /api/meta/categories 200 in 302ms
+ GET /_next/static/chunks/app/profil/page.js 404 in 18ms
+ GET /profil 200 in 18ms
+ GET /_next/static/chunks/app/profil/page.js 404 in 15ms
+[PROXY GET] http://localhost:8000/api/auth/me
+[PROXY RESPONSE] Status: 200
+[PROXY RESPONSE] Body length: 261
+ GET /api/auth/me 200 in 158ms
+ ✓ Compiled in 329ms (917 modules)
+ ✓ Compiled in 305ms (917 modules)

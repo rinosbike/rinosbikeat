@@ -22,33 +22,15 @@ from api.schemas.order_schemas import (
     OrderItemResponse
 )
 from api.auth.dependencies import get_current_user, get_current_user_optional
+from utils.pricing import (
+    get_vat_rate,
+    convert_brutto_to_netto,
+    apply_country_vat,
+    validate_country_code
+)
 
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
-
-
-# ============================================================================
-# VAT RATES BY COUNTRY
-# ============================================================================
-
-VAT_RATES = {
-    "AT": Decimal("20.0"),  # Austria
-    "DE": Decimal("19.0"),  # Germany
-    "FR": Decimal("20.0"),  # France
-    "IT": Decimal("22.0"),  # Italy
-    "ES": Decimal("21.0"),  # Spain
-    "NL": Decimal("21.0"),  # Netherlands
-    "BE": Decimal("21.0"),  # Belgium
-    "PL": Decimal("23.0"),  # Poland
-    "CZ": Decimal("21.0"),  # Czech Republic
-    "CH": Decimal("7.7"),   # Switzerland
-    # Add more countries as needed
-}
-
-
-def get_vat_rate(country_code: str) -> Decimal:
-    """Get VAT rate for country"""
-    return VAT_RATES.get(country_code, Decimal("19.0"))
 
 
 # ============================================================================
@@ -77,22 +59,42 @@ def generate_order_number(db: Session) -> str:
     return f"WEB-{year}-{next_num:05d}"
 
 
-def calculate_order_totals(cart_items: List, vat_rate: Decimal):
-    """Calculate order subtotal, VAT, and total"""
+def calculate_order_totals(cart_items: List, country_code: str = "AT"):
+    """
+    Calculate order subtotal, VAT, and total with country-specific pricing
+    
+    Args:
+        cart_items: List of cart items with DB prices (German BRUTTO)
+        country_code: Customer's country code (default: "AT")
+    
+    Returns:
+        dict with subtotal, vat_amount, total_amount
+    """
+    from utils.pricing import convert_price_by_country
+    
+    # Get VAT rate for country
+    vat_rate = get_vat_rate(country_code)
+    
     subtotal = Decimal("0.00")
     
+    # Sum prices converted to target country
     for item in cart_items:
-        item_total = Decimal(str(item.price)) * item.quantity
+        # item.price is DB price (German BRUTTO with 19% VAT)
+        db_price = float(item.price)
+        # Convert to target country
+        localized_price = float(convert_price_by_country(db_price, country_code))
+        item_total = Decimal(str(localized_price)) * item.quantity
         subtotal += item_total
     
-    # Calculate VAT
+    # Calculate VAT for target country
     vat_amount = subtotal * (vat_rate / Decimal("100"))
     total_amount = subtotal + vat_amount
     
     return {
-        "subtotal": subtotal,
-        "vat_amount": vat_amount,
-        "total_amount": total_amount
+        "subtotal": round(subtotal, 2),
+        "vat_amount": round(vat_amount, 2),
+        "total_amount": round(total_amount, 2),
+        "vat_rate": vat_rate
     }
 
 
@@ -201,13 +203,11 @@ async def create_order(
         db.flush()  # Get customer ID
     
     # ========================================================================
-    # 4. CALCULATE TOTALS
+    # 4. CALCULATE TOTALS WITH COUNTRY-SPECIFIC PRICING
     # ========================================================================
     
     country_code = customer_info.customer_country
-    vat_rate = get_vat_rate(country_code)
-    
-    totals = calculate_order_totals(cart_items, vat_rate)
+    totals = calculate_order_totals(cart_items, country_code)
     
     # ========================================================================
     # 5. CREATE ORDER
@@ -264,7 +264,7 @@ async def create_order(
         
         # Amounts
         subtotal=totals["subtotal"],
-        vat_rate=vat_rate,
+        vat_rate=totals["vat_rate"],
         vat_amount=totals["vat_amount"],
         total_amount=totals["total_amount"],
         currency="EUR",

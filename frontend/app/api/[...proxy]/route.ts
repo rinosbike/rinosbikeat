@@ -1,5 +1,15 @@
-export async function GET(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const getBackendUrl = () => process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+export async function GET(request: Request, context: { params: Promise<{ proxy: string[] }> }) {
+  const backendUrl = getBackendUrl();
+
+  // Await params (required in Next.js 14+ with async route handlers)
+  const params = await context.params;
+
+  // Debug: log raw params
+  console.log('[PROXY] Raw params:', params);
+  console.log('[PROXY] params.proxy:', params.proxy);
+
   const path = params.proxy.join('/');
 
   try{
@@ -9,6 +19,7 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
     const fullUrl = `${backendUrl}/api/${path}${queryString}`;
 
     console.log('[PROXY GET]', fullUrl);
+    console.log('[PROXY] Backend URL env:', process.env.NEXT_PUBLIC_BACKEND_URL);
 
     // Prepare headers with optional Vercel bypass token
     const headers: HeadersInit = {
@@ -63,8 +74,9 @@ export async function GET(request: Request, { params }: { params: { proxy: strin
   }
 }
 
-export async function POST(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+export async function POST(request: Request, context: { params: Promise<{ proxy: string[] }> }) {
+  const backendUrl = getBackendUrl();
+  const params = await context.params;
   const path = params.proxy.join('/');
 
   try {
@@ -123,8 +135,9 @@ export async function POST(request: Request, { params }: { params: { proxy: stri
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+export async function PUT(request: Request, context: { params: Promise<{ proxy: string[] }> }) {
+  const backendUrl = getBackendUrl();
+  const params = await context.params;
   const path = params.proxy.join('/');
 
   try {
@@ -183,8 +196,9 @@ export async function PUT(request: Request, { params }: { params: { proxy: strin
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { proxy: string[] } }) {
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+export async function DELETE(request: Request, context: { params: Promise<{ proxy: string[] }> }) {
+  const backendUrl = getBackendUrl();
+  const params = await context.params;
   const path = params.proxy.join('/');
 
   try {

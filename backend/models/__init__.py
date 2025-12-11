@@ -18,6 +18,9 @@ from .cart import WebCart
 # Order models
 from .order import WebOrder, Order, OrderDetail, DeliveryOrder, ShoppingCart, CartItem, StripePaymentIntent
 
+# Page models
+from .page import Page, PageBlock
+
 __all__ = [
     # Product models
     'Product',
@@ -49,4 +52,8 @@ __all__ = [
     'ShoppingCart',
     'CartItem',
     'StripePaymentIntent',
+
+    # Page models
+    'Page',
+    'PageBlock',
 ]

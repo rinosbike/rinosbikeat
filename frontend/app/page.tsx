@@ -1,124 +1,110 @@
 /**
  * Homepage - RINOS Bikes Austria
- * Modern minimal design with 2025 best practices
+ * Uses block system from admin panel
  */
 
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Award, Zap, MessageCircle } from 'lucide-react'
-import TrustBanner from '@/components/home/TrustBanner'
-import FeaturedProducts from '@/components/home/FeaturedProducts'
+import { pagesApi, Page } from '@/lib/api'
+import { BlockRenderer } from '@/components/PageRenderer'
 
 export default function HomePage() {
+  const [page, setPage] = useState<Page | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadHomepage() {
+      try {
+        setLoading(true)
+        setError(null)
+        // Try to load homepage from pages system with slug 'home' or 'homepage'
+        try {
+          const data = await pagesApi.getPublicPage('home')
+          setPage(data)
+        } catch (e: any) {
+          // If 'home' doesn't exist, try 'homepage'
+          if (e.response?.status === 404) {
+            try {
+              const data = await pagesApi.getPublicPage('homepage')
+              setPage(data)
+            } catch (e2: any) {
+              // If neither exists, show error
+              if (e2.response?.status === 404) {
+                setError('not_found')
+              } else {
+                throw e2
+              }
+            }
+          } else {
+            throw e
+          }
+        }
+      } catch (err: any) {
+        console.error('Error loading homepage:', err)
+        setError(err.response?.data?.detail || 'Failed to load homepage')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadHomepage()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    )
+  }
+
+  if (error === 'not_found' || !page) {
+    // Fallback to simple homepage if no page found
+    return (
+      <div className="min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 py-20">
+          <h1 className="text-4xl font-black text-black mb-4">Willkommen bei RINOS Bikes</h1>
+          <p className="text-gray-600 mb-8">
+            Erstellen Sie eine Homepage über das Admin-Panel mit dem Slug "home" oder "homepage".
+          </p>
+          <Link
+            href="/admin/pages"
+            className="inline-block px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+          >
+            Zum Admin-Panel
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Fehler</h1>
+        <p className="text-gray-600 mb-8">{error}</p>
+        <Link
+          href="/admin/pages"
+          className="px-6 py-3 bg-black text-white font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+        >
+          Zum Admin-Panel
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <>
-      {/* Trust Banner - Top of page */}
-      <TrustBanner />
-      
-      <div className="bg-gradient-to-b from-white via-white to-gray-50">
-        {/* Hero Section - Image Background */}
-      <section className="relative min-h-[80vh] flex items-center justify-center px-6 py-20 md:py-0 overflow-hidden">
-        {/* Image Background */}
-        <div className="absolute inset-0 w-full h-full">
-          <img
-            src="https://cdn.shopify.com/s/files/1/0720/5794/6377/files/dominika.pairofwheels_453056389_850498639917776_8492373170969487287_n.jpg?v=1759994817"
-            alt="Bikepacking Adventure"
-            className="w-full h-full object-cover object-[center_75%]"
-          />
-        </div>
+      {/* SEO Title */}
+      <title>{page.meta_title || page.title} | RINOS Bikes</title>
 
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/50"></div>
-
-        {/* Content */}
-        <div className="max-w-4xl w-full relative z-10">
-          <div className="space-y-6">
-            {/* Main Headline */}
-            <div>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.2] text-white mb-4">
-                Entdecke den Geist<br />des Bikepackings<br />mit dem Sandman
-              </h1>
-              <p className="text-base md:text-lg text-white/90 max-w-xl leading-relaxed">
-                Ausgestattet mit GRX 400, GRX 600, GRX 820 und mehr – finde deine perfekte Konfiguration.
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Link
-                href="/categories/gravel-bikes?id=103"
-                className="group inline-flex items-center justify-center gap-2 bg-white text-black px-7 py-3 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-all duration-300 hover:shadow-lg"
-              >
-                Jetzt kaufen
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/produktsuche"
-                className="inline-flex items-center justify-center gap-2 border-2 border-white text-white px-7 py-3 text-sm font-bold rounded-2xl hover:bg-white hover:text-black transition-all duration-300"
-              >
-                Alle Bikes entdecken
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <FeaturedProducts />
-
-      {/* Featured Categories - Premium Grid */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black mb-12 text-black">Nach Kategorie shoppen</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Category Cards */}
-            {[
-              { title: 'Gravel', href: '/categories/gravel-bikes?id=103', desc: 'Abenteuer wartet' },
-              { title: 'Mountain', href: '/categories/mountainbike?id=59', desc: 'Abseits der Pfade' },
-              { title: 'Rennrad', href: '/categories/rennraeder?id=2', desc: 'Geschwindigkeit neu definiert' },
-            ].map((cat) => (
-              <Link
-                key={cat.title}
-                href={cat.href}
-                className="group relative overflow-hidden bg-black aspect-square flex flex-col justify-between p-8 text-white hover:shadow-2xl transition-all duration-300 rounded-2xl"
-              >
-                <div>
-                  <h3 className="text-3xl md:text-4xl font-black mb-2">{cat.title}</h3>
-                  <p className="text-gray-300 text-sm font-medium">{cat.desc}</p>
-                </div>
-                <div className="flex items-center gap-2 text-sm font-semibold group-hover:translate-x-2 transition-transform">
-                  Entdecken <ArrowRight className="w-4 h-4" />
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Value Proposition - Premium Layout */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: 'Premium Qualität', desc: 'Handverlesene Komponenten. Rigorose Tests.', icon: Award },
-              { title: 'Schneller Versand', desc: 'Heute bestellen. Morgen fahren.', icon: Zap },
-              { title: 'Experten Support', desc: 'Echte Menschen. Echte Antworten. Schnell.', icon: MessageCircle },
-            ].map((item) => {
-              const Icon = item.icon
-              return (
-                <div key={item.title} className="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg transition-all duration-300">
-                  <div className="w-14 h-14 bg-black rounded-xl mb-6 flex items-center justify-center">
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-black text-black mb-3">{item.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
+      {/* Render Blocks */}
+      <div className="min-h-screen">
+        {page.blocks?.map((block) => (
+          <BlockRenderer key={block.block_id} block={block} />
+        ))}
       </div>
     </>
   )

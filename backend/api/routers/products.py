@@ -3,6 +3,7 @@
 Products API - Enhanced version with category and variation support
 Handles father/child article structure with proper category mapping
 Includes defensive error handling for variation combinations
+Supports multi-country pricing with automatic VAT conversion
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from models.product import (
     ProductAvailability, InventoryData,
     product_category_association
 )
+from utils.pricing import convert_price_by_country, validate_country_code
 
 router = APIRouter()
 
@@ -32,10 +34,11 @@ def get_products(
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     only_fathers: bool = True,
+    country: str = "AT",
     db: Session = Depends(get_db)
 ):
     """
-    Get list of products for website catalog with category mapping
+    Get list of products for website catalog with category mapping and localized pricing
     
     Parameters:
     - skip: Pagination offset
@@ -43,10 +46,18 @@ def get_products(
     - productgroup: Filter by product group
     - manufacturer: Filter by manufacturer
     - category: Filter by category (from category table)
-    - min_price, max_price: Price range filter
+    - min_price, max_price: Price range filter (in source currency)
     - only_fathers: If true, only return father articles (main products)
+    - country: Country code for pricing (default: "AT" for Austria)
     """
     try:
+        # Validate country code
+        if not validate_country_code(country):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid country code: {country}"
+            )
+        
         query = db.query(Product)
         
         # By default, only show father articles
@@ -83,17 +94,56 @@ def get_products(
         products = query.offset(skip).limit(min(limit, 100)).all()
         total_count = query.count()
         
+        # Convert prices to target country
+        products_data = []
+        for p in products:
+            product_dict = p.to_simple_dict(include_categories=True, db_session=db)
+            # Convert price to target country
+            if product_dict.get("price"):
+                product_dict["price"] = float(convert_price_by_country(product_dict["price"], country))
+            product_dict["country"] = country
+            products_data.append(product_dict)
+        
         return {
             "status": "success",
             "count": len(products),
             "total": total_count,
             "page": (skip // limit) + 1 if limit > 0 else 1,
             "pages": (total_count + limit - 1) // limit if limit > 0 else 1,
-            "products": [p.to_simple_dict(include_categories=True, db_session=db) for p in products]
+            "country": country,
+            "products": products_data
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error in get_products: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+
+@router.get("/featured-products")
+def get_featured_products_list(
+    limit: int = 8,
+    db: Session = Depends(get_db)
+):
+    """
+    Get featured products for homepage
+    """
+    try:
+        products = db.query(Product).filter(
+            Product.isfatherarticle == True
+        ).order_by(
+            Product.productid.desc()
+        ).limit(limit).all()
+        
+        return {
+            "status": "success",
+            "count": len(products),
+            "products": [p.to_simple_dict(include_categories=True, db_session=db) for p in products]
+        }
+
+    except Exception as e:
+        print(f"Error in get_featured_products_list: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 
@@ -132,12 +182,23 @@ def debug_get_product(articlenr: str, db: Session = Depends(get_db)):
 
 
 @router.get("/{articlenr}")
-def get_product(articlenr: str, db: Session = Depends(get_db)):
+def get_product(articlenr: str, country: str = "AT", db: Session = Depends(get_db)):
     """
     Get single product details with categories and variations
-    Properly joins productdata, variationdata, and variationcombinationdata tables
+    Supports localized pricing based on country parameter
+    
+    Parameters:
+    - articlenr: Product article number
+    - country: Country code for pricing (default: "AT" for Austria)
     """
     try:
+        # Validate country code
+        if not validate_country_code(country):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid country code: {country}"
+            )
+        
         # Get the main product
         product = db.query(Product).filter(Product.articlenr == articlenr).first()
 
