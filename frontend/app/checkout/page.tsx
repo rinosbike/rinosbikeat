@@ -202,7 +202,7 @@ export default function CheckoutPage() {
   // Calculate tax amount for this country
   const targetTax = grossPrice - nettoPrice
   
-  const shipping = grossPrice >= 100 ? 0 : 0 // Free shipping
+  const shipping = grossPrice >= 100 ? 0 : 9.99 // Free shipping over 100 EUR
   const total = grossPrice + shipping
 
   return (
