@@ -104,8 +104,11 @@ export default function CheckoutPage() {
       // Get country code from form (customer_country field)
       const countryCode = formData.customer_country
       
-      // Note: Don't calculate prices here - backend will handle country-specific pricing
-      // Backend will convert prices based on customer_country from customer_info
+      // Calculate cart totals for the payload
+      const subtotal = items.reduce((total, item) => total + (item.price_at_addition * item.quantity), 0)
+      const tax_amount = subtotal * 0.19 // 19% VAT
+      const shipping = subtotal >= 100 ? 0 : 9.99 // Free shipping over 100 EUR
+      const total_amount = subtotal + tax_amount + shipping
       
       // Step 1: Create order with cart items from localStorage
       // Backend will recalculate all prices based on customer's country
@@ -117,6 +120,10 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price_at_addition: item.price_at_addition,
         })),
+        subtotal: Math.round(subtotal * 100) / 100,
+        tax_amount: Math.round(tax_amount * 100) / 100,
+        shipping: Math.round(shipping * 100) / 100,
+        total_amount: Math.round(total_amount * 100) / 100,
         payment_method: 'stripe'
       }
 
